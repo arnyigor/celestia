@@ -13,6 +13,15 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Iterator;
 
 /**
  *
@@ -71,13 +80,24 @@ public class MainForm extends javax.swing.JFrame {
 	if (ret == JFileChooser.APPROVE_OPTION) {
 	    File file = fileopen.getSelectedFile();
 	    if (file.length() > 0) {
-		String zipFile = null;
-		String destinationFolder = null;
-		try {
-		    FileUtils.unzipFunction(file.getParent() + "/", file.getAbsolutePath());
-		} catch (Exception e) {
-		    e.printStackTrace();
-		    System.exit(1);
+		JSONParser parser = new JSONParser();
+
+        try {
+            Object obj = parser.parse(new FileReader(file.getAbsoluteFile()));
+	    System.out.println("obj = " + obj);
+	    // loop array
+            JSONArray msg = (JSONArray) obj;
+            Iterator<String> iterator = msg.iterator();
+            while (iterator.hasNext()) {
+		System.out.println("iterator = " + iterator.next());
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
 		}
 //		try (BufferedReader reader = new BufferedReader(new InputStreamReader(
 //		    new FileInputStream(file), StandardCharsets.UTF_8))){

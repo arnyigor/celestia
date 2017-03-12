@@ -1,7 +1,5 @@
 package com.arny.celestiatools;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -12,14 +10,10 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class FileUtils {
 
@@ -76,59 +70,6 @@ public class FileUtils {
 	    fInput.close();
 	} catch (IOException e) {
 	    e.printStackTrace();
-	}
-    }
-
-    /**
-     * With the object model read the whole JSON file is loaded on memory and
-     * the application gets the desired element.
-     */
-    public static void readDom() {
-	BufferedReader reader = null;
-	try {
-	    reader = new BufferedReader(new FileReader(file));
-	    Gson gson = new GsonBuilder().create();
-	    Person[] people = gson.fromJson(reader, Person[].class);
-
-	    System.out.println("Object mode: " + people[0]);
-
-	} catch (FileNotFoundException ex) {
-	    Logger.getLogger(GsonRead.class.getName()).log(Level.SEVERE, null, ex);
-	} finally {
-	    try {
-		reader.close();
-	    } catch (IOException ex) {
-		Logger.getLogger(GsonRead.class.getName()).log(Level.SEVERE, null, ex);
-	    }
-	}
-    }
-
-    /**
-     * This is a mixed implementation based on stream and object model. The JSON
-     * file is read in stream mode and each object is parsed in object model.
-     * With this approach we avoid to load all the object in memory and we are
-     * only loading one at a time.
-     */
-    public static void readStream() {
-	try {
-	    JsonReader reader = new JsonReader(new InputStreamReader(stream, "UTF-8"));
-	    Gson gson = new GsonBuilder().create();
-
-	    // Read file in stream mode
-	    reader.beginArray();
-	    while (reader.hasNext()) {
-		// Read data into object model
-		Person person = gson.fromJson(reader, Person.class);
-		if (person.getId() == 0) {
-		    System.out.println("Stream mode: " + person);
-		}
-		break;
-	    }
-	    reader.close();
-	} catch (UnsupportedEncodingException ex) {
-	    Logger.getLogger(GsonRead.class.getName()).log(Level.SEVERE, null, ex);
-	} catch (IOException ex) {
-	    Logger.getLogger(GsonRead.class.getName()).log(Level.SEVERE, null, ex);
 	}
     }
 
