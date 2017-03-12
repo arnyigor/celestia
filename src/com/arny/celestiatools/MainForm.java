@@ -7,21 +7,8 @@ package com.arny.celestiatools;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Iterator;
 
 /**
  *
@@ -76,40 +63,12 @@ public class MainForm extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
 	JFileChooser fileopen = new JFileChooser();
+	Controller controller = new Controller();
 	int ret = fileopen.showDialog(null, "Открыть файл");
 	if (ret == JFileChooser.APPROVE_OPTION) {
 	    File file = fileopen.getSelectedFile();
-	    if (file.length() > 0) {
-		JSONParser parser = new JSONParser();
-
-        try {
-            Object obj = parser.parse(new FileReader(file.getAbsoluteFile()));
-	    System.out.println("obj = " + obj);
-	    // loop array
-            JSONArray msg = (JSONArray) obj;
-            Iterator<String> iterator = msg.iterator();
-            while (iterator.hasNext()) {
-		System.out.println("iterator = " + iterator.next());
-            }
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
-		}
-//		try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-//		    new FileInputStream(file), StandardCharsets.UTF_8))){
-//		String line;
-//		while ((line = reader.readLine()) != null) {
-//		    System.out.println(line);
-//		    }
-//		} catch (IOException e) {
-//		    // log error
-//		}
-	    }
-
+	    controller.workJsonFile(file);
+	    JOptionPane.showMessageDialog(null, "complete");
 	}
     }//GEN-LAST:event_jButton1ActionPerformed
 
