@@ -154,7 +154,21 @@ public class BaseUtils {
         int m = logtime % 60;
         return pad(h) + TIME_SEPARATOR_TWICE_DOT + pad(m);
     }
-
+    
+    
+    public static String convertExtendTime(long ms) {
+        if (ms<=60000) {
+            //TODO неверно
+            float secs = ms/1000;
+          return String.format("$1%.2f сек. или $2%d мс.", secs,ms);  
+        }
+        if (ms<=3600000) {
+            int min = (int)ms/60000;
+            int sec = (int)ms%60000;
+          return pad(min) + TIME_SEPARATOR_TWICE_DOT + pad(sec);  
+        }
+        return String.valueOf(ms);
+    }
     /**
      * add '0' to number before 10
      * @param number

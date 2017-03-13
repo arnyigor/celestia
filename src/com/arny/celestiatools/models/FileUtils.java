@@ -1,19 +1,16 @@
 package com.arny.celestiatools.models;
 
-import java.io.File;
+import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.zip.DataFormatException;
 
 public class FileUtils {
 
@@ -73,49 +70,38 @@ public class FileUtils {
 	}
     }
 
-    public static File unzipGZ(File file, File outputDir) {
-	GZIPInputStream in = null;
-	OutputStream out = null;
-	File target = null;
-	try {
-	    // Open the compressed file
-	    in = new GZIPInputStream(new FileInputStream(file));
+    public static void downloadUsingStream(String urlStr, String file) throws IOException{
+        URL url = new URL(urlStr);
+        BufferedInputStream bis = new BufferedInputStream(url.openStream());
+        FileOutputStream fis = new FileOutputStream(file);
+        byte[] buffer = new byte[10485760];
+        int count=0;
+        while((count = bis.read(buffer,0,10485760)) != -1)
+        {
+            fis.write(buffer, 0, count);
+        }
+        fis.close();
+        bis.close();
+    }
+    
+    public static void unzipGZ(String sourcePath, String destinationPath)  throws IOException, DataFormatException {
+        //Allocate resources.
+        FileInputStream fis = new FileInputStream(sourcePath);
+        FileOutputStream fos = new FileOutputStream(destinationPath);
+        GZIPInputStream gzis = new GZIPInputStream(fis);
+        byte[] buffer = new byte[1024];
+        int len = 0;
 
-	    // Open the output file
-	    target = new File(outputDir, file.getName());
-	    out = new FileOutputStream(target);
+        //Extract compressed content.
+        while ((len = gzis.read(buffer)) > 0) {
+            fos.write(buffer, 0, len);
+        }
 
-	    // Transfer bytes from the compressed file to the output file
-	    byte[] buf = new byte[1024];
-	    int len;
-	    while ((len = in.read(buf)) > 0) {
-		out.write(buf, 0, len);
-	    }
-
-	    // Close the file and stream
-	    in.close();
-	    out.close();
-	} catch (IOException e) {
-	    e.printStackTrace();
-	} finally {
-	    if (in != null) {
-		try {
-		    in.close();
-		} catch (IOException e) {
-		    // TODO Auto-generated catch block
-		    e.printStackTrace();
-		}
-	    }
-	    if (out != null) {
-		try {
-		    out.close();
-		} catch (IOException e) {
-		    // TODO Auto-generated catch block
-		    e.printStackTrace();
-		}
-	    }
-	}
-	return target;
+        //Release resources.
+        fos.close();
+        fis.close();
+        gzis.close();
+        buffer = null;
     }
 
 }
