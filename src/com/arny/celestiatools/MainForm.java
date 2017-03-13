@@ -5,16 +5,19 @@
  */
 package com.arny.celestiatools;
 
+import com.arny.celestiatools.models.Controller;
+import com.arny.celestiatools.models.onResultParse;
 import java.io.BufferedReader;
 import java.io.File;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 /**
  *
  * @author Arny
  */
-public class MainForm extends javax.swing.JFrame {
+public class MainForm extends JFrame{
 
     /**
      * Creates new form MainForm
@@ -33,6 +36,8 @@ public class MainForm extends javax.swing.JFrame {
     private void initComponents() {
 
         jButton1 = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -43,20 +48,36 @@ public class MainForm extends javax.swing.JFrame {
             }
         });
 
+        jLabel1.setText("jLabel1");
+
+        jLabel2.setText("jLabel2");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
                 .addComponent(jButton1)
-                .addGap(0, 495, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel1))
+                .addContainerGap(426, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jButton1)
-                .addGap(0, 396, Short.MAX_VALUE))
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton1)
+                    .addComponent(jLabel1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel2)
+                .addContainerGap(368, Short.MAX_VALUE))
         );
+
+        jLabel2.getAccessibleContext().setAccessibleDescription("");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -67,8 +88,25 @@ public class MainForm extends javax.swing.JFrame {
 	int ret = fileopen.showDialog(null, "Открыть файл");
 	if (ret == JFileChooser.APPROVE_OPTION) {
 	    File file = fileopen.getSelectedFile();
-	    controller.workJsonFile(file);
-	    JOptionPane.showMessageDialog(null, "complete");
+            jLabel1.setText("File:" + file.getAbsolutePath());
+            jLabel2.setText("Парсинг в процессе...");
+	    controller.workJsonFile(file,new onResultParse() {
+                @Override
+                public void parseResult(String method, boolean success, String result) {
+                    String message = "Операция завершена";
+                    if (success) {
+                        switch(method){
+                            case "json":
+                                message = "Парсинг закончен успешно";
+                                break;
+                        }
+                        jLabel2.setText(result);
+                        JOptionPane.showMessageDialog(null, message);
+                        
+                    }
+                }
+            });
+	    
 	}
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -109,5 +147,8 @@ public class MainForm extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     // End of variables declaration//GEN-END:variables
+
 }

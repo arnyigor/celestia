@@ -1,4 +1,4 @@
-package com.arny.celestiatools;
+package com.arny.celestiatools.models;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
