@@ -18,8 +18,7 @@ import javax.swing.JOptionPane;
  *
  * @author Arny
  */
-public class MainForm extends JFrame{
-
+public class MainForm extends JFrame {
     private Controller controller;
 
     /**
@@ -27,6 +26,7 @@ public class MainForm extends JFrame{
      */
     public MainForm() {
 	initComponents();
+	controller = new Controller();
     }
 
     /**
@@ -133,7 +133,6 @@ public class MainForm extends JFrame{
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
 	JFileChooser fileopen = new JFileChooser();
-	controller = new Controller();
 	int ret = fileopen.showDialog(null, "Открыть файл");
 	if (ret == JFileChooser.APPROVE_OPTION) {
 	    File file = fileopen.getSelectedFile();
@@ -149,12 +148,11 @@ public class MainForm extends JFrame{
                         JOptionPane.showMessageDialog(null, message,method,messType);
                 }
             });
-	    
+
 	}
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        controller = new Controller();
         jLabel1.setText("Загрузка файла...");
         jTextArea1.setText("");
         controller.downloadFile(new onResultParse() {
@@ -166,7 +164,7 @@ public class MainForm extends JFrame{
                         int messType = success? JOptionPane.INFORMATION_MESSAGE:JOptionPane.ERROR_MESSAGE;
                         JOptionPane.showMessageDialog(null, message,method,messType);
 
-            }       
+            }
         });
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
