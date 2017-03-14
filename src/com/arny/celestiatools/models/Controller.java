@@ -1,19 +1,14 @@
 package com.arny.celestiatools.models;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -21,6 +16,7 @@ import org.json.simple.parser.JSONParser;
 public class Controller {
     private String operationResult,parseMpcNeam;
     private static final String MPC_NEAM00_DOWNLOAD_PATH = "http://minorplanetcenter.net/Extended_Files/neam00_extended.json.gz";
+    private static final String MPC_PHAs_DOWNLOAD_PATH = "http://minorplanetcenter.net/Extended_Files/pha_extended.json.gz";
     private static final String MPC_ASTER_DOWNLOADED_FILE = "mpc_aster_neam_downloaded.json.gz";
     private static final String MPC_ASTER_JSON_FILE = "mpc_aster_neam_unpacked.json";
     private static final String MPC_NEAM_LAST_SCC = "asteroids.ssc";
@@ -141,6 +137,7 @@ public class Controller {
                         case "writessc":
                             message = "Орбиты записаны";
                             break;
+                         
                     }
             }else{
                 switch(method){
@@ -165,7 +162,7 @@ public class Controller {
 		public void run() {
 		    long start = System.currentTimeMillis();
                     try {
-                        FileUtils.downloadUsingStream(MPC_NEAM00_DOWNLOAD_PATH,MPC_ASTER_DOWNLOADED_FILE);
+                        FileUtils.downloadUsingStream(MPC_PHAs_DOWNLOAD_PATH,MPC_ASTER_DOWNLOADED_FILE);
                     } catch (IOException ex) {
                         ex.printStackTrace();
                     }
@@ -253,4 +250,35 @@ public class Controller {
 	}
     }
 
+    public void calculateMOID(onResultParse resultParse) {
+        operationResult  = "";
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    AstroUtils.setA1(1.000599536428770);
+                    AstroUtils.setE1(1.708171796576660E-02);
+                    AstroUtils.setI1(4.308590940041780E-03);
+                    AstroUtils.setPeri1(2.862660689324113E+02);
+                    AstroUtils.setNode1(1.783733089509388E+02);
+                    AstroUtils.setM1(7.866459824015972E+01);
+                    
+                    
+                    AstroUtils.setA2(9.226121225828366E-01);
+                    AstroUtils.setE2(1.915177655650811E-01);
+                    AstroUtils.setI2(3.336780867715445);
+                    AstroUtils.setPeri2(1.266909737179885E+02);
+                    AstroUtils.setNode2(2.040607387803847E+02);
+                    AstroUtils.setM2(4.835939208607312E+01);
+                    double dist = AstroUtils.getMOID();
+                    operationResult = "Расстояние в au = " + dist;
+                    resultParse.parseResult("moid", true, operationResult);
+                } catch (Exception e) {
+                    resultParse.parseResult("moid", false, e.getMessage());
+                }
+
+            }
+        }).start();
+    }
+    
 }
