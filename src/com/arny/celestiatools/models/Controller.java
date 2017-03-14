@@ -10,7 +10,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -22,7 +25,17 @@ public class Controller {
     private static final String MPC_ASTER_JSON_FILE = "mpc_aster_neam_unpacked.json";
     private static final String MPC_NEAM_LAST_SCC = "asteroids.ssc";
     private int cnt;
+    private File 
+            neamFile = new File(MPC_ASTER_JSON_FILE),
+            asteroidsFile = new File(MPC_NEAM_LAST_SCC);
+    private ArrayList<String> orbitalTypes;
+    private StringBuilder neamParseBuilder;
 
+    
+    public Controller(){
+        System.out.println("sett = " + System.getProperty("user.dir"));
+    }
+    
     public void workJsonFile(File file,onResultParse resultParse) {
         operationResult  = "";
 	if (file.length() > 0) {
@@ -31,15 +44,7 @@ public class Controller {
 		public void run() {
                     try {
                         long start = System.currentTimeMillis();
-                        File outFile  = new File(MPC_ASTER_JSON_FILE);
                         FileUtils.unzipGZ(file.getAbsolutePath(), MPC_ASTER_JSON_FILE);
-			parseJson(outFile);
-			try {
-			    outFile.delete();
-			} catch (Exception e) {
-			    e.printStackTrace();
-			}
-                        Files.write( Paths.get(MPC_NEAM_LAST_SCC), parseMpcNeam.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
                         operationResult +="\nОперация заняла:" + (System.currentTimeMillis() - start) + " ms";
                         resultParse.parseResult("json", true, operationResult);
                     } catch (Exception e) {
@@ -51,8 +56,77 @@ public class Controller {
 	    }).start();
 	}
     }
+    
+    public void writeOrbitalParamFile(ArrayList<String> orbitalTypes,onResultParse resultParse){
+        this.orbitalTypes = orbitalTypes;
+        new Thread(new Runnable() {
+		@Override
+		public void run() {  
+                    try {
+                        
+                        if (asteroidsFile!=null) {
+                            try {
+                                asteroidsFile.delete();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                resultParse.parseResult("writessc", false, e.getMessage());
+                                return;
+                            }
+                        }
+                        
+                        if (neamFile ==null) {
+                            operationResult ="Нет распакованного файла";
+                            resultParse.parseResult("writessc", false, operationResult);
+                            return;
+                        }
+                        
+                        parseJson(neamFile);
+			
+
+                        if (BaseUtils.empty(parseMpcNeam)) {
+                            operationResult ="Нечего записывать";
+                            resultParse.parseResult("writessc", false, operationResult);
+                            return;
+                        }
+
+                        long start = System.currentTimeMillis();
+                        Files.write( Paths.get(MPC_NEAM_LAST_SCC), parseMpcNeam.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
+                        operationResult +="Операция заняла:" + (System.currentTimeMillis() - start) + " ms";
+                        resultParse.parseResult("writessc", true, operationResult);
+                        
+                        
+                        
+//                        try {
+//			    neamFile.delete();
+//			} catch (Exception e) {
+//                            e.printStackTrace();
+//			    resultParse.parseResult("writessc", false, e.getMessage());
+//			}
+                        
+                        
+                    } catch (IOException e) {
+                        resultParse.parseResult("writessc", false, e.getMessage());
+                    }
 
 
+		}
+	    }).start();
+    }
+    
+    public static File getSettingsDirectory() {
+        String userHome = System.getProperty("user.home");
+        if(userHome == null) {
+            throw new IllegalStateException("user.home==null");
+        }
+        File home = new File(userHome);
+        File settingsDirectory = new File(home, ".myappdir");
+        if(!settingsDirectory.exists()) {
+            if(!settingsDirectory.mkdir()) {
+                throw new IllegalStateException(settingsDirectory.toString());
+            }
+        }
+    return settingsDirectory;
+}
 
     public static String getMessage(boolean success,String method) {
         String message = "Операция завершена";
@@ -64,6 +138,9 @@ public class Controller {
                         case "download":
                             message = "Файл загружен";
                             break;
+                        case "writessc":
+                            message = "Орбиты записаны";
+                            break;
                     }
             }else{
                 switch(method){
@@ -73,12 +150,14 @@ public class Controller {
                         case "download":
                             message = "Ошибка загрузки файла";
                             break;
+                        case "writessc":
+                            message = "Орбиты не записаны";
+                            break;
                     }
             }
 
                 return message;
     }
-
 
     public void downloadFile(onResultParse resultParse){
         new Thread(new Runnable() {
@@ -112,7 +191,7 @@ public class Controller {
 
     private void parseJson(File file) {
 	JSONParser parser = new JSONParser();
-        StringBuilder neamParseBuilder = new StringBuilder();
+        neamParseBuilder = new StringBuilder();
 	try {
 	    Object obj = parser.parse(new FileReader(file));
 	    JSONArray array = new JSONArray();
@@ -121,18 +200,23 @@ public class Controller {
 	    cnt = 0;
 	    for (int i = 0; i < asteroids.size(); i++) {
 		JSONObject astroObject = (JSONObject) asteroids.get(i);
-		convertJPLAsteroids(astroObject, neamParseBuilder);
+		convertJPLAsteroids(astroObject);
 	    }
             parseMpcNeam =neamParseBuilder.toString();
-	    operationResult += "Найдено: " + cnt + " астероидов";
+	    operationResult = "Найдено: " + cnt + " астероидов";
 
 	} catch (Exception e) {
 	    e.printStackTrace();
 	}
     }
+    
+    private static boolean hasItemInList(String item,ArrayList<String> list){
+            return list.indexOf(item) !=-1;
+    }
 
-    private void convertJPLAsteroids(JSONObject astroObject, StringBuilder neamParseBuilder) {
-	if (astroObject.get("Orbit_type").toString().equals("Apollo")) {
+    private void convertJPLAsteroids(JSONObject astroObject) {
+        
+	if (hasItemInList(astroObject.get("Orbit_type").toString(), orbitalTypes)) {
 	try {
 	    String fullname = "";
 	    if (astroObject.get("Name") == null) {
@@ -156,7 +240,8 @@ public class Controller {
 		    .append("\n	    Period             ").append(astroObject.get("Orbital_period"))
 		    .append("\n         SemiMajorAxis      ").append(astroObject.get("a"))
 		    .append("\n         Inclination        ").append(astroObject.get("i"))
-		    .append("\n         AscendingNode      ").append(astroObject.get("Node")).append("\n         ArgOfPericenter    ").append(astroObject.get("Peri"))
+		    .append("\n         AscendingNode      ").append(astroObject.get("Node"))
+                    .append("\n         ArgOfPericenter    ").append(astroObject.get("Peri"))
 		    .append("\n         MeanAnomaly        ").append(astroObject.get("M"))
 		    .append("\n         Epoch              ").append(astroObject.get("Epoch"))
 		    .append("\n     }")
