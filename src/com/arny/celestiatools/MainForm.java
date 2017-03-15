@@ -50,11 +50,10 @@ public class MainForm extends JFrame {
         jCheckBox1 = new javax.swing.JCheckBox();
         jCheckBox2 = new javax.swing.JCheckBox();
         jCheckBox3 = new javax.swing.JCheckBox();
+        jComboBoxSource = new javax.swing.JComboBox<>();
         jPanel3 = new javax.swing.JPanel();
         jButton4 = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
-        jComboBoxSource = new javax.swing.JComboBox<>();
-        jPanel2 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
 
@@ -98,39 +97,7 @@ public class MainForm extends JFrame {
 
         jCheckBox3.setText("Aten");
 
-        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Расчет минимального расстояния"));
-
-        jButton4.setText("Расчет");
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
-            }
-        });
-
-        jLabel2.setText("Расстояние  в au = 0");
-
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jButton4)
-                .addGap(18, 18, 18)
-                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 360, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(28, Short.MAX_VALUE))
-        );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton4)
-                    .addComponent(jLabel2))
-                .addContainerGap(200, Short.MAX_VALUE))
-        );
-
-        jComboBoxSource.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "PHAs", "NEAs today" }));
+        jComboBoxSource.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "PHAs", "NEAs" }));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -138,12 +105,9 @@ public class MainForm extends JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 377, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jComboBoxSource, 0, 128, Short.MAX_VALUE)))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 377, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jComboBoxSource, 0, 128, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jButtonCreateOrbit, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -177,24 +141,44 @@ public class MainForm extends JFrame {
                             .addComponent(jCheckBox2))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jCheckBox3)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(268, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Астероиды", jPanel1);
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 767, Short.MAX_VALUE)
+        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Расчет минимального расстояния"));
+
+        jButton4.setText("Расчет");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
+
+        jLabel2.setText("Расстояние  в au = 0");
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jButton4)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 360, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(302, Short.MAX_VALUE))
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 390, Short.MAX_VALUE)
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton4)
+                    .addComponent(jLabel2))
+                .addContainerGap(351, Short.MAX_VALUE))
         );
 
-        jTabbedPane1.addTab("tab2", jPanel2);
+        jTabbedPane1.addTab("Калькулятор", jPanel3);
 
         setJMenuBar(jMenuBar1);
 
@@ -222,85 +206,85 @@ public class MainForm extends JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+	jLabel2.setText("Расстояние в au = 0");
+	jLabel1.setText("рассчет расстояния");
+	controller.calculateMOID(new onResultParse() {
+	    @Override
+	    public void parseResult(String method, boolean success, String result) {
+		String message = Controller.getMessage(success, method);
+		jLabel2.setText(result);
+		jLabel1.setText(message);
+		int messType = success ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE;
+		JOptionPane.showMessageDialog(null, message, method, messType);
+
+	    }
+	});
+    }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jButtonCreateOrbitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCreateOrbitActionPerformed
+	jLabel1.setText("Запись файла...");
+	jTextArea1.setText("");
+	ArrayList<String> orbitalTypes = new ArrayList<>();
+	if (jCheckBox1.isSelected()) {
+	    orbitalTypes.add("Apollo");
+	}
+	if (jCheckBox2.isSelected()) {
+	    orbitalTypes.add("Amor");
+	}
+	if (jCheckBox3.isSelected()) {
+	    orbitalTypes.add("Aten");
+	}
+	controller.writeOrbitalParamFile(orbitalTypes, new onResultParse() {
+	    @Override
+	    public void parseResult(String method, boolean success, String result) {
+		String message = Controller.getMessage(success, method);
+		jTextArea1.setText(result);
+		jLabel1.setToolTipText(message);
+		int messType = success ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE;
+		JOptionPane.showMessageDialog(null, message, method, messType);
+
+	    }
+	});
+    }//GEN-LAST:event_jButtonCreateOrbitActionPerformed
+
     private void jButtonUnzipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonUnzipActionPerformed
 	JFileChooser fileopen = new JFileChooser();
-        fileopen.setCurrentDirectory(new File(System.getProperty("user.dir")));
+	fileopen.setCurrentDirectory(new File(System.getProperty("user.dir")));
 	int ret = fileopen.showDialog(null, "Открыть файл");
 	if (ret == JFileChooser.APPROVE_OPTION) {
 	    File file = fileopen.getSelectedFile();
-            jLabel1.setText("File:" + file.getAbsolutePath());
-            jTextArea1.setText("Парсинг в процессе...");
-	    controller.workJsonFile(file,new onResultParse() {
-                @Override
-                public void parseResult(String method, boolean success, String result) {
-                        String message = Controller.getMessage(success,method);
-                        jTextArea1.setText(result);
-                        jLabel1.setText(message);
-                        int messType = success? JOptionPane.INFORMATION_MESSAGE:JOptionPane.ERROR_MESSAGE;
-                        JOptionPane.showMessageDialog(null, message,method,messType);
-                }
-            });
+	    jLabel1.setText("File:" + file.getAbsolutePath());
+	    jTextArea1.setText("Парсинг в процессе...");
+	    controller.workJsonFile(file, new onResultParse() {
+		@Override
+		public void parseResult(String method, boolean success, String result) {
+		    String message = Controller.getMessage(success, method);
+		    jTextArea1.setText(result);
+		    jLabel1.setText(message);
+		    int messType = success ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE;
+		    JOptionPane.showMessageDialog(null, message, method, messType);
+		}
+	    });
 
 	}
     }//GEN-LAST:event_jButtonUnzipActionPerformed
 
     private void jButtonDowloadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDowloadActionPerformed
-        jLabel1.setText("Загрузка файла...");
-        jTextArea1.setText("");
-	controller.downloadFile(jComboBoxSource.getItemAt(jComboBoxSource.getSelectedIndex()), new onResultParse() {
-            @Override
-            public void parseResult(String method, boolean success, String result) {
-                        String message = Controller.getMessage(success,method);
-                        jLabel1.setText(result);
-                        jTextArea1.setText(message);
-                        int messType = success? JOptionPane.INFORMATION_MESSAGE:JOptionPane.ERROR_MESSAGE;
-                        JOptionPane.showMessageDialog(null, message,method,messType);
+	jLabel1.setText("Загрузка файла...");
+	jTextArea1.setText("");
+	controller.downloadFile(jComboBoxSource.getSelectedIndex(), new onResultParse() {
+	    @Override
+	    public void parseResult(String method, boolean success, String result) {
+		String message = Controller.getMessage(success, method);
+		jLabel1.setText(result);
+		jTextArea1.setText(message);
+		int messType = success ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE;
+		JOptionPane.showMessageDialog(null, message, method, messType);
 
-            }
-        });
+	    }
+	});
     }//GEN-LAST:event_jButtonDowloadActionPerformed
-
-    private void jButtonCreateOrbitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCreateOrbitActionPerformed
-        jLabel1.setText("Запись файла...");
-        jTextArea1.setText("");
-        ArrayList<String> orbitalTypes = new ArrayList<>();
-        if (jCheckBox1.isSelected()) {
-            orbitalTypes.add("Apollo");
-        }
-        if (jCheckBox2.isSelected()) {
-            orbitalTypes.add("Amor");
-        }
-         if (jCheckBox3.isSelected()) {
-            orbitalTypes.add("Aten");
-        }
-        controller.writeOrbitalParamFile(orbitalTypes,new onResultParse() {
-            @Override
-            public void parseResult(String method, boolean success, String result) {
-                        String message = Controller.getMessage(success,method);
-                        jTextArea1.setText(result);
-                        jLabel1.setToolTipText(message);
-                        int messType = success? JOptionPane.INFORMATION_MESSAGE:JOptionPane.ERROR_MESSAGE;
-                        JOptionPane.showMessageDialog(null, message,method,messType);
-
-            }
-        });
-    }//GEN-LAST:event_jButtonCreateOrbitActionPerformed
-
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        jLabel2.setText("Расстояние в au = 0");
-        jLabel1.setText("рассчет расстояния");
-        controller.calculateMOID(new onResultParse() {
-            @Override
-            public void parseResult(String method, boolean success, String result) {
-                        String message = Controller.getMessage(success,method);
-                        jLabel2.setText(result);
-                        jLabel1.setText(message);
-                        int messType = success? JOptionPane.INFORMATION_MESSAGE:JOptionPane.ERROR_MESSAGE;
-                        JOptionPane.showMessageDialog(null, message,method,messType);
-
-            }
-        });
-    }//GEN-LAST:event_jButton4ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -351,7 +335,6 @@ public class MainForm extends JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTabbedPane jTabbedPane1;

@@ -1,5 +1,6 @@
 package com.arny.celestiatools.models;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -18,6 +19,10 @@ public class BaseUtils {
 
     public static boolean matcher(String preg, String string) {
         return Pattern.matches(preg, string);
+    }
+
+    public static BigDecimal roundUp(double value, int digits) {
+	return new BigDecimal(value).setScale(digits, BigDecimal.ROUND_HALF_UP);
     }
 
     public static String match(String where, String pattern, int groupnum) {
@@ -154,18 +159,18 @@ public class BaseUtils {
         int m = logtime % 60;
         return pad(h) + TIME_SEPARATOR_TWICE_DOT + pad(m);
     }
-    
-    
+
+
     public static String convertExtendTime(long ms) {
         if (ms<=60000) {
             //TODO неверно
             float secs = ms/1000;
-          return String.format("$1%.2f сек. или $2%d мс.", secs,ms);  
+          return String.format("$1%.2f сек. или $2%d мс.", secs,ms);
         }
         if (ms<=3600000) {
             int min = (int)ms/60000;
             int sec = (int)ms%60000;
-          return pad(min) + TIME_SEPARATOR_TWICE_DOT + pad(sec);  
+          return pad(min) + TIME_SEPARATOR_TWICE_DOT + pad(sec);
         }
         return String.valueOf(ms);
     }

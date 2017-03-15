@@ -15,7 +15,7 @@ import org.json.simple.parser.JSONParser;
 
 public class Controller {
     private String operationResult, parseMpcNeamCEL, parseMpcNeamSE;
-    private static final String MPC_NEAM00_DOWNLOAD_PATH = "http://minorplanetcenter.net/Extended_Files/neam00_extended.json.gz";
+    private static final String MPC_NEAs_DOWNLOAD_PATH = "http://minorplanetcenter.net/Extended_Files/nea_extended.json.gz";
     private static final String MPC_PHAs_DOWNLOAD_PATH = "http://minorplanetcenter.net/Extended_Files/pha_extended.json.gz";
     private static final String MPC_ASTER_DOWNLOADED_FILE = "mpc_downloaded.json.gz";
     private static final String MPC_ASTER_JSON_FILE = "mpc_unpacked.json";
@@ -28,7 +28,6 @@ public class Controller {
 	    asteroidsFileSE = new File(MPC_NEAM_LAST_SCC);
     private ArrayList<String> orbitalTypes;
     private StringBuilder neamParseBuilderCEL, neamParseBuilderSE;
-
 
     public Controller(){
         System.out.println("sett = " + System.getProperty("user.dir"));
@@ -170,7 +169,7 @@ public class Controller {
                 return message;
     }
 
-    public void downloadFile(String source, onResultParse resultParse) {
+    public void downloadFile(int source, onResultParse resultParse) {
 	String downloadPath = getDownloadPath(source);
         new Thread(new Runnable() {
 		@Override
@@ -194,24 +193,17 @@ public class Controller {
 	    }).start();
     }
 
-    private String getDownloadPath(String source) {
+    private String getDownloadPath(int source) {
 	String downloadPath = MPC_PHAs_DOWNLOAD_PATH;
 	switch (source) {
-	    case "PHAs":
+	    case 0:
 		downloadPath = MPC_PHAs_DOWNLOAD_PATH;
 		break;
-	    case "NEAs today":
-		downloadPath = MPC_NEAM00_DOWNLOAD_PATH;
+	    case 1:
+		downloadPath = MPC_NEAs_DOWNLOAD_PATH;
 		break;
 	}
 	return downloadPath;
-    }
-
-    private static double getRadiusFromAbsoluteMagn(double magn,double albedo){
-        double tmpPow = -0.2*magn;
-        double delimoe = 1329*Math.pow(10, tmpPow);
-        double delitel = Math.sqrt(albedo);
-        return (delimoe/delitel)/2;
     }
 
     private void parseJson(File file) {
@@ -262,23 +254,30 @@ public class Controller {
 		    .append("\n     Class   \"asteroid\"")
 		    .append("\n     Texture \"asteroid.jpg\"")
 		    .append("\n     Mesh    \"eros.cmod\"")
-		    .append("\n     Radius  ").append(String.format(Locale.US, "%.3f", getRadiusFromAbsoluteMagn(Double.parseDouble(astroObject.get("H").toString()), 0.15)))
-		    .append("\n     EllipticalOrbit")
-		    .append("\n     {")
-		    .append("\n	    Period             ").append(astroObject.get("Orbital_period"))
-		    .append("\n         SemiMajorAxis      ").append(astroObject.get("a"))
-		    .append("\n         Inclination        ").append(astroObject.get("i"))
-		    .append("\n         AscendingNode      ").append(astroObject.get("Node"))
-                    .append("\n         ArgOfPericenter    ").append(astroObject.get("Peri"))
-		    .append("\n         MeanAnomaly        ").append(astroObject.get("M"))
-		    .append("\n         Epoch              ").append(astroObject.get("Epoch"))
-		    .append("\n     }")
-		    .append("\n}");
+		    .append("\n     Radius  ").append(String.format(Locale.US, "%.3f", AstroUtils.getRadiusFromAbsoluteMagn(Double.parseDouble(astroObject.get("H").toString()), 0.15)))
+		    .append("\n     EllipticalOrbit");
+	    neamParseBuilderCEL.append(getObjectOrbit(astroObject));
+	    neamParseBuilderCEL.append("\n}");
 	} catch (Exception e) {
 	    e.printStackTrace();
 	    }
 	    cnt++;
 	}
+    }
+
+    private String getObjectOrbit(JSONObject astroObject) {
+	StringBuilder orbit = new StringBuilder();
+	orbit.append("\n	{")
+		.append("\n	    Period             ").append(astroObject.get("Orbital_period"))
+		.append("\n         SemiMajorAxis      ").append(astroObject.get("a"))
+		.append("\n         Inclination        ").append(astroObject.get("i"))
+		.append("\n         AscendingNode      ").append(astroObject.get("Node"))
+		.append("\n         Eccentricity      ").append(astroObject.get("e"))
+		.append("\n         ArgOfPericenter    ").append(astroObject.get("Peri"))
+		.append("\n         MeanAnomaly        ").append(astroObject.get("M"))
+		.append("\n         Epoch              ").append(astroObject.get("Epoch"))
+		.append("\n	}");
+	return orbit.toString();
     }
 
     private void convertJPLAsteroidsSE(JSONObject astroObject) {
@@ -293,19 +292,10 @@ public class Controller {
 		}
 		neamParseBuilderSE
 			.append("\n{\n	ParentBody\"").append("Sol").append("\"")
-			.append("\n     Radius  ").append(String.format(Locale.US, "%.3f", getRadiusFromAbsoluteMagn(Double.parseDouble(astroObject.get("H").toString()), 0.15)))
-			.append("\n     Orbit")
-			.append("\n     {")
-			.append("\n	    Period             ").append(astroObject.get("Orbital_period"))
-			.append("\n         SemiMajorAxis      ").append(astroObject.get("a"))
-			.append("\n         Inclination        ").append(astroObject.get("i"))
-			.append("\n         AscendingNode      ").append(astroObject.get("Node"))
-			.append("\n         LongOfPericen    ").append(astroObject.get("Peri"))
-			.append("\n         MeanAnomaly        ").append(astroObject.get("M"))
-			.append("\n         Eccentricity        ").append(astroObject.get("e"))
-			.append("\n         Epoch              ").append(astroObject.get("Epoch"))
-			.append("\n     }")
-			.append("\n}");
+			.append("\n     Radius  ").append(String.format(Locale.US, "%.3f", AstroUtils.getRadiusFromAbsoluteMagn(Double.parseDouble(astroObject.get("H").toString()), 0.15)))
+			.append("\n     Orbit");
+		neamParseBuilderSE.append(getObjectOrbit(astroObject));
+		neamParseBuilderSE.append("\n}");
 	    } catch (Exception e) {
 		e.printStackTrace();
 	    }
@@ -324,8 +314,8 @@ public class Controller {
                     AstroUtils.setPeri1(2.862660689324113E+02);
                     AstroUtils.setNode1(1.783733089509388E+02);
                     AstroUtils.setM1(7.866459824015972E+01);
-                    
-                    
+
+
                     AstroUtils.setA2(1.100599536428770);
                     AstroUtils.setE2(1.708171796576660E-02);
                     AstroUtils.setI2(4.308590940041780E-03);
@@ -340,8 +330,8 @@ public class Controller {
 //                    AstroUtils.setPeri2(1.266909737179885E+02);
 //                    AstroUtils.setNode2(2.040607387803847E+02);
 //                    AstroUtils.setM2(4.835939208607312E+01);
-                    double JD = AstroUtils.getJD(1985,2,17.25);
-                    operationResult = "JD 1985 2 17.25= " + JD;
+                    double rad = AstroUtils.getRadiusFromAbsoluteMagn(22, 0.15);
+		    operationResult = "rad 22, 0.15= " + rad;
                     resultParse.parseResult("moid", true, operationResult);
                 } catch (Exception e) {
                     resultParse.parseResult("moid", false, e.getMessage());

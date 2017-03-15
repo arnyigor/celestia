@@ -5,6 +5,8 @@
  */
 package com.arny.celestiatools.models;
 
+import java.math.BigDecimal;
+
 /**
  *
  * @author i.sedoy
@@ -61,21 +63,21 @@ public class AstroUtils {
         AstroUtils.M2 = M2;
     }
 
-    
+
     private static double Cos(double angle){
         return Math.cos(Math.toRadians(angle));
     }
-    
+
     private static double Sin(double angle){
         return Math.sin(Math.toRadians(angle));
     }
-    
+
     public static double getR1(){
         double delim = a1*(1-Math.pow(e1, 2));
         double delit = 1 + e1*Cos(M1);
         return delim/delit;
     }
-    
+
     public static double getX1(){
         return getR1() * (Cos(node1) * Cos(node1 + M1) - Sin(node1) * Sin(node1 + M1)*Cos(i1));
     }
@@ -87,22 +89,22 @@ public class AstroUtils {
     public static double getZ1(){
         return getR1() * Sin(node1 + M1) * Sin(i1);
     }
-    
+
     public static double getR2(){
         double delim = a2*(1-Math.pow(e2, 2));
         double delit = 1 + e2*Cos(M2);
         return delim/delit;
     }
-    
+
     public static double getX2(){
         return getR2()* (Cos(node2) * Cos(node2 + M2) - Sin(node2) * Sin(node2 + M2)*Cos(i2));
 //        return getR2() * Cos(M2);
     }
-    
+
     public static double getY2(){
         return getR2() * (Sin(node2) * Cos(node2+M2) - Cos(node2) * Sin(node2+M2)*Cos(i2));
     }
-    
+
     public static double getZ2(){
         return getR2() * Sin(node2 + M2) * Sin(i2);
     }
@@ -111,7 +113,7 @@ public class AstroUtils {
      * @param year
      * @param month
      * @param day
-     * @return 
+     * @return
      */
     public static double getJD(int year,int month,double day){
         int ytmp=0,mtmp=0;
@@ -128,12 +130,19 @@ public class AstroUtils {
         int D = (int) (30.6001 *(mtmp+1));
         return B + C + D + day + 1720994.5;
     }
-    
+
+    public static double getRadiusFromAbsoluteMagn(double magn, double albedo) {
+	double logr = Math.log10(albedo);
+	double step = 0.5 * (6.259 - logr - (0.4 * magn));
+	double result = Math.pow(10, step) / 2;
+	return BaseUtils.roundUp(result, 3).doubleValue();
+    }
+
     public static double getMOID(){
         double tmp1 = Math.pow((getX1() - getX2()),2);
         double tmp2 = Math.pow((getY1() - getY2()),2);
         double tmp3 = Math.pow((getZ1() - getZ2()),2);
         return Math.sqrt(tmp1 + tmp2 + tmp3);
     }
-    
+
 }
