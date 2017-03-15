@@ -324,16 +324,24 @@ public class Controller {
                     AstroUtils.setPeri1(2.862660689324113E+02);
                     AstroUtils.setNode1(1.783733089509388E+02);
                     AstroUtils.setM1(7.866459824015972E+01);
+                    
+                    
+                    AstroUtils.setA2(1.100599536428770);
+                    AstroUtils.setE2(1.708171796576660E-02);
+                    AstroUtils.setI2(4.308590940041780E-03);
+                    AstroUtils.setPeri2(2.862660689324113E+02);
+                    AstroUtils.setNode2(1.783733089509388E+02);
+                    AstroUtils.setM2(7.866459824015972E+01);
 
 
-                    AstroUtils.setA2(9.226121225828366E-01);
-                    AstroUtils.setE2(1.915177655650811E-01);
-                    AstroUtils.setI2(3.336780867715445);
-                    AstroUtils.setPeri2(1.266909737179885E+02);
-                    AstroUtils.setNode2(2.040607387803847E+02);
-                    AstroUtils.setM2(4.835939208607312E+01);
-                    double dist = AstroUtils.getMOID();
-                    operationResult = "Расстояние в au = " + dist;
+//                    AstroUtils.setA2(9.226121225828366E-01);
+//                    AstroUtils.setE2(1.915177655650811E-01);
+//                    AstroUtils.setI2(3.336780867715445);
+//                    AstroUtils.setPeri2(1.266909737179885E+02);
+//                    AstroUtils.setNode2(2.040607387803847E+02);
+//                    AstroUtils.setM2(4.835939208607312E+01);
+                    double JD = AstroUtils.getJD(1985,2,17.25);
+                    operationResult = "JD 1985 2 17.25= " + JD;
                     resultParse.parseResult("moid", true, operationResult);
                 } catch (Exception e) {
                     resultParse.parseResult("moid", false, e.getMessage());

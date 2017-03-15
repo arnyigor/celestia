@@ -91,19 +91,42 @@ public class AstroUtils {
     public static double getR2(){
         double delim = a2*(1-Math.pow(e2, 2));
         double delit = 1 + e2*Cos(M2);
-        return delim/delit;//???
+        return delim/delit;
     }
     
     public static double getX2(){
-        return getR2() * Cos(M2);
+        return getR2()* (Cos(node2) * Cos(node2 + M2) - Sin(node2) * Sin(node2 + M2)*Cos(i2));
+//        return getR2() * Cos(M2);
     }
     
     public static double getY2(){
-        return getR2() * Sin(M2);
+        return getR2() * (Sin(node2) * Cos(node2+M2) - Cos(node2) * Sin(node2+M2)*Cos(i2));
     }
     
     public static double getZ2(){
-        return 0;
+        return getR2() * Sin(node2 + M2) * Sin(i2);
+    }
+    /**
+     * Вычисление юлианской даты
+     * @param year
+     * @param month
+     * @param day
+     * @return 
+     */
+    public static double getJD(int year,int month,double day){
+        int ytmp=0,mtmp=0;
+        if (month==1 || month==2) {
+            ytmp = year-1;
+            mtmp = month + 12;
+        }else{
+            ytmp = year;
+            mtmp = month;
+        }
+        int A = ytmp/100;
+        int B = 2- A + (int)(A/4);
+        int C = (int) (365.25*ytmp);
+        int D = (int) (30.6001 *(mtmp+1));
+        return B + C + D + day + 1720994.5;
     }
     
     public static double getMOID(){
