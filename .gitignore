@@ -1,14 +1,7 @@
 
-# Created by https://www.gitignore.io/api/netbeans
-
 ### NetBeans ###
-nbproject/private/
 build/
-nbbuild/
 dist/
-nbdist/
-.nb-gradle/
-mpc_aster_neam_unpacked.json
-mpc_aster_neam_downloaded.json.gz
-mpc_neam_last.scc	
 # End of https://www.gitignore.io/api/netbeans
+.idea/
+CelestiaTools.iml
