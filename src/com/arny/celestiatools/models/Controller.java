@@ -29,7 +29,7 @@ public class Controller {
 			asteroidsFileSE = new File(MPC_NEAM_LAST_SCC);
 	private ArrayList<String> orbitalTypes;
 	private StringBuilder neamParseBuilderCEL, neamParseBuilderSE;
-	private CelestiaAsteroid celestiaAsteroid;
+	private ArrayList<CelestiaAsteroid> celestiaAsteroids;
 
 	public Controller() {
 		System.out.println("sett = " + System.getProperty("user.dir"));
@@ -88,7 +88,7 @@ public class Controller {
 					}
 
 					parseJson(unpackedJsonfile);
-					celestiaData.dataCallback(celestiaAsteroid);
+					celestiaData.dataCallback(celestiaAsteroids);
 					if (BaseUtils.empty(parseMpcNeamCEL)) {
 						operationResult = "Нечего записывать";
 						resultParse.parseResult("writessc", false, operationResult);
@@ -212,9 +212,9 @@ public class Controller {
 			array.add(obj);
 			JSONArray asteroids = (JSONArray) array.get(0);
 			cnt = 0;
-			celestiaAsteroid = new CelestiaAsteroid();
-			for (int i = 0; i < asteroids.size(); i++) {
-				JSONObject astroObject = (JSONObject) asteroids.get(i);
+			celestiaAsteroids = new ArrayList<>();
+			for (Object asteroid : asteroids) {
+				JSONObject astroObject = (JSONObject) asteroid;
 				convertJPLAsteroidsCEL(astroObject);
 				convertJPLAsteroidsSE(astroObject);
 			}
@@ -232,19 +232,22 @@ public class Controller {
 	}
 
 	private void convertJPLAsteroidsCEL(JSONObject astroObject) {
-
+		CelestiaAsteroid asteroid = new CelestiaAsteroid();
 		if (hasItemInList(astroObject.get("Orbit_type").toString(), orbitalTypes)) {
 			try {
 				if (astroObject.get("Name") == null) {
 					neamParseBuilderCEL.append("\n\"").append(astroObject.get("Principal_desig").toString()).append("\"");
+					asteroid.setName(astroObject.get("Principal_desig").toString());
 				} else {
-					celestiaAsteroid.setName(astroObject.get("Name").toString());
+					asteroid.setName(astroObject.get("Name").toString());
 					neamParseBuilderCEL.append("\n\"").append(astroObject.get("Name").toString());
 					if (astroObject.get("Principal_desig") != null) {
 						neamParseBuilderCEL.append(":").append(astroObject.get("Principal_desig").toString());
 					}
 					neamParseBuilderCEL.append("\"");
 				}
+				celestiaAsteroids.add(asteroid);
+
 				neamParseBuilderCEL
 						.append("  \"").append("Sol").append("\"")
 						.append("\n{")

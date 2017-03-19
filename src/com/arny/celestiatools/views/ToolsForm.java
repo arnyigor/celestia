@@ -104,6 +104,13 @@ public class ToolsForm extends JFrame {
 		btnWriteOrbits.setText("Записать орбиты");
 		celestiaAsteroids = new ArrayList<>();
 		tableModel = new AbstractTableModel() {
+			String[] columnNames = {"№","Name"};
+
+			@Override
+			public String getColumnName(int column) {
+				return columnNames[column];
+			}
+
 			@Override
 			public int getRowCount() {
 				return celestiaAsteroids.size();
@@ -111,19 +118,20 @@ public class ToolsForm extends JFrame {
 
 			@Override
 			public int getColumnCount() {
-				return 1;
+				return 2;
 			}
 
 			@Override
 			public Object getValueAt(int rowIndex, int columnIndex) {
 				switch (columnIndex) {
 					case 0:
-						return celestiaAsteroids.get(columnIndex).getName();
+						return rowIndex+1;
+					case 1:
+						return celestiaAsteroids.get(rowIndex).getName();
 				}
 				return "";
 			}
 		};
-		tblAsteroidsData.setModel(tableModel);
 		btnWriteOrbits.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -143,15 +151,15 @@ public class ToolsForm extends JFrame {
 					public void parseResult(String method, boolean success, String result) {
 						String message = Controller.getMessage(success, method);
 						JLabel1.setText(result);
-//						jLabel1.setToolTipText(message);
 						int messType = success ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE;
 						JOptionPane.showMessageDialog(null, message, method, messType);
 
 					}
 				}, new onResultCelestiaData() {
 					@Override
-					public void dataCallback(CelestiaAsteroid celestiaAsteroid) {
-						celestiaAsteroids.add(celestiaAsteroid);
+					public void dataCallback(ArrayList<CelestiaAsteroid> asteroids) {
+						celestiaAsteroids =  asteroids;
+						tblAsteroidsData.setModel(tableModel);
 					}
 				});
 			}
