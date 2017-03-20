@@ -27,8 +27,8 @@ public class ToolsForm extends JFrame {
 	private JCheckBox checkBox2;
 	private JCheckBox checkBox3;
 	private JButton btnCalc;
-	private JLabel lblCalcRes;
 	private JTable tblAsteroidsData;
+	private JTextPane lblCalcRes;
 	private static final int WIDTH = 800;
 	private static final int HEIGHT = 600;
 	private Controller controller;

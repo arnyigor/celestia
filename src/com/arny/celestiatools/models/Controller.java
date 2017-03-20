@@ -32,7 +32,7 @@ public class Controller {
 	private ArrayList<CelestiaAsteroid> celestiaObjects;
 
 	public Controller() {
-		System.out.println("sett = " + System.getProperty("user.dir"));
+//		System.out.println("sett = " + System.getProperty("user.dir"));
 	}
 
 	public void workJsonFile(File file, onResultParse resultParse) {
@@ -303,25 +303,26 @@ public class Controller {
 			@Override
 			public void run() {
 				try {
-					AstroUtils.setA1(1.000599536428770 * AstroUtils.AU);
-					AstroUtils.setE1(1.708171796576660E-02);
-					AstroUtils.setI1(4.308590940041780E-03);
-					AstroUtils.setPeri1(2.862660689324113E+02);
-					AstroUtils.setNode1(1.783733089509388E+02);
-					AstroUtils.setM1(78.66459824015972);
+					operationResult = "2017-Mar-02 14:05 JD = " + AstroUtils.getJD(BaseUtils.convertTimeStringToLong("2017-03-02 17:05","yyyy-MM-dd HH:mm"));
+					AstroUtils.setA1(2.201273459788872);
+					AstroUtils.setE1(0.6018904752619388);
+					AstroUtils.setI1(1.375014776910502);
+					AstroUtils.setPeri1(80.37016102969110);
+					AstroUtils.setNode1(161.8394032832525);
+					AstroUtils.setM1(2.801826762569547E+0);
 
-					AstroUtils.setA2(1.000599536428770 * AstroUtils.AU);
-					AstroUtils.setE2(1.708171796576660E-02);
-					AstroUtils.setI2(4.308590940041780E-03);
-					AstroUtils.setPeri2(2.862660689324113E+02);
-					AstroUtils.setNode2(1.783733089509388E+02);
-					AstroUtils.setM2(258.66459824015972);
-
-
-                    double res = AstroUtils.getMOID();
+					AstroUtils.setA2(1.000498640811769);
+					AstroUtils.setE2(1.666719180066958E-02);
+					AstroUtils.setI2(3.086491258554233E-03);
+					AstroUtils.setPeri2(2.981260335253010E+02);
+					AstroUtils.setNode2(1.668223242649487E+02);
+					AstroUtils.setM2(5.741534538676495E+01);
 
 
-                    operationResult = "res = " + res;
+//					double res = AstroUtils.getMOID() ;
+//                    operationResult = "res = " + res;
+                    operationResult  = "\nres = " + AstroUtils.getAfelDist(2.201273459788872,6.638253324461043E-01);
+
 					resultParse.parseResult("moid", true, operationResult);
 				} catch (Exception e) {
 					resultParse.parseResult("moid", false, e.getMessage());

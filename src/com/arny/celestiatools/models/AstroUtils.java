@@ -12,6 +12,22 @@ public class AstroUtils {
     private static double a1, e1, i1, peri1, node1, M1;
     private static double a2, e2, i2, peri2, node2, M2;
 
+    public static double getA1() {
+        return a1;
+    }
+
+    public static double getE1() {
+        return e1;
+    }
+
+    public static double getA2() {
+        return a2;
+    }
+
+    public static double getE2() {
+        return e2;
+    }
+
     public static void setA1(double a1) {
         AstroUtils.a1 = a1;
     }
@@ -60,48 +76,63 @@ public class AstroUtils {
         AstroUtils.M2 = M2;
     }
 
-    private static double Cos(double angle) {
+    public static double Cos(double angle) {
         return Math.cos(Math.toRadians(angle));
     }
 
-    private static double Sin(double angle) {
+    public static double Sin(double angle) {
         return Math.sin(Math.toRadians(angle));
+    }
+
+    public static double Tan(double angle) {
+        return Math.tan(Math.toRadians(angle));
+    }
+
+    public static double Atan(double rad) {
+        return Math.toDegrees(Math.atan(rad));
+    }
+
+    public static double Pow(double num,double exp) {
+        return Math.pow(num,exp);
     }
 
     public static double getR1() {
         double delim = a1 * (1 - Math.pow(e1, 2));
-        double delit = 1 + e1 * Cos(M1);
+        double delit = 1 + e1 * Cos(getExc(e1,M1));
         return delim / delit;
     }
 
     public static double getX1() {
-        return getR1() * (Cos(node1) * Cos(node1 + M1) - Sin(node1) * Sin(node1 + M1) * Cos(i1));
+        return getR1() * (Cos(node1) * Cos(node1 + getExc(e1,M1)) - Sin(node1) * Sin(node1 + getExc(e1,M1)) * Cos(i1));
     }
 
     public static double getY1() {
-        return getR1() * (Sin(node1) * Cos(node1 + M1) - Cos(node1) * Sin(node1 + M1) * Cos(i1));
+        return getR1() * (Sin(node1) * Cos(node1 + getExc(e1,M1)) - Cos(node1) * Sin(node1 + getExc(e1,M1)) * Cos(i1));
     }
 
     public static double getZ1() {
-        return getR1() * Sin(node1 + M1) * Sin(i1);
+        return getR1() * Sin(node1 + getExc(e1,M1)) * Sin(i1);
     }
 
     public static double getR2() {
         double delim = a2 * (1 - Math.pow(e2, 2));
-        double delit = 1 + e2 * Cos(M2);
+        double delit = 1 + e2 * Cos(getExc(e2,M2));
         return delim / delit;
     }
 
     public static double getX2() {
-        return getR2() * (Cos(node2) * Cos(node2 + M2) - Sin(node2) * Sin(node2 + M2) * Cos(i2));
+        return getR2() * (Cos(node2) * Cos(node2 + getExc(e2,M2)) - Sin(node2) * Sin(node2 + getExc(e2,M2)) * Cos(i2));
+//        return getR2() * Cos(getExc(e2,M2));
     }
 
     public static double getY2() {
-        return getR2() * (Sin(node2) * Cos(node2 + M2) - Cos(node2) * Sin(node2 + M2) * Cos(i2));
+        return getR2() * (Sin(node2) * Cos(node2 + getExc(e2,M2)) - Cos(node2) * Sin(node2 + getExc(e2,M2)) * Cos(i2));
+//        return getR1() * Sin(getExc(e1,M1)) ;
     }
 
     public static double getZ2() {
-        return getR2() * Sin(node2 + M2) * Sin(i2);
+        return getR2() * Sin(node2 + getExc(e2,M2)) * Sin(i2);
+//        return 0;
     }
 
     /**
@@ -176,7 +207,7 @@ public class AstroUtils {
         return Math.sqrt(tmp1 + tmp2 + tmp3);
     }
 
-    public static double getExcM(double e, double M) {
+    public static double getExc(double e, double M) {
         double em = e * 180 / Math.PI;
         double E = M, E1;
         while (true) {
@@ -200,7 +231,12 @@ public class AstroUtils {
         return sma * (1 - e);
     }
 
-    public static double getN(double sma){
+    /**
+     * Mean motion, n (degrees/day)
+     * @param sma
+     * @return
+     */
+    public static double getMeanMotion(double sma){
         return  0.985609 / (sma * Math.sqrt(sma));
     }
 
@@ -250,5 +286,17 @@ public class AstroUtils {
         return getEarthMeanLongitude(T) - getEarthMeanAnomaly(T);
     }
 
+    public static double getTrueAnom(double e,double Exc){
+        double v =  ((1 + e) / (1 - e)) * 1 / 2 * Tan(Exc / 2);
+        return Atan(v) * 2;
+    }
+
+    public static double getArgLat(double v,double peri){
+        return v + peri;
+    }
+
+    public static double getGeocentrDist(double sma,double e,double v){
+        return sma * (1 -Pow(e,2) ) / (1 + e * Cos(v));
+    }
 
 }
