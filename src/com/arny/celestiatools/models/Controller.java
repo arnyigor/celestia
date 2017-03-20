@@ -29,7 +29,7 @@ public class Controller {
 			asteroidsFileSE = new File(MPC_NEAM_LAST_SCC);
 	private ArrayList<String> orbitalTypes;
 	private StringBuilder neamParseBuilderCEL, neamParseBuilderSE;
-	private ArrayList<CelestiaAsteroid> celestiaAsteroids;
+	private ArrayList<CelestiaAsteroid> celestiaObjects;
 
 	public Controller() {
 		System.out.println("sett = " + System.getProperty("user.dir"));
@@ -55,40 +55,40 @@ public class Controller {
 		}
 	}
 
-	public void writeOrbitalParamFile(ArrayList<String> orbitalTypes, onResultParse resultParse,onResultCelestiaData celestiaData) {
+	public void writeOrbitalParamFile(ArrayList<String> orbitalTypes, onResultParse resultParse,onResultCelestiaAsteroids celestiaData) {
 		this.orbitalTypes = orbitalTypes;
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
 				try {
 
-//                        if (asteroidsFileCEL!=null) {
-//                            try {
-//                                asteroidsFileCEL.delete();
-//                            } catch (Exception e) {
-//                                e.printStackTrace();
-//                                resultParse.parseResult("writessc", false, e.getMessage());
-//                                return;
-//                            }
-//                        }
-//
-//			if (asteroidsFileSE!=null) {
-//                            try {
-//                                asteroidsFileSE.delete();
-//                            } catch (Exception e) {
-//                                e.printStackTrace();
-//                                resultParse.parseResult("writessc", false, e.getMessage());
-//                                return;
-//                            }
-//                        }
-					if (unpackedJsonfile == null) {
+                    if (asteroidsFileCEL != null) {
+                        try {
+                            asteroidsFileCEL.delete();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            resultParse.parseResult("writessc", false, e.getMessage());
+                            return;
+                        }
+                    }
+
+                    if (asteroidsFileSE != null) {
+                        try {
+                            asteroidsFileSE.delete();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            resultParse.parseResult("writessc", false, e.getMessage());
+                            return;
+                        }
+                    }
+                    if (unpackedJsonfile == null) {
 						operationResult = "Нет распакованного файла";
 						resultParse.parseResult("writessc", false, operationResult);
 						return;
 					}
 
 					parseJson(unpackedJsonfile);
-					celestiaData.dataCallback(celestiaAsteroids);
+					celestiaData.dataCallback(celestiaObjects);
 					if (BaseUtils.empty(parseMpcNeamCEL)) {
 						operationResult = "Нечего записывать";
 						resultParse.parseResult("writessc", false, operationResult);
@@ -102,13 +102,6 @@ public class Controller {
 							StandardOpenOption.CREATE);
 					operationResult += "Операция заняла:" + (System.currentTimeMillis() - start) + " ms";
 					resultParse.parseResult("writessc", true, operationResult);
-
-//                        try {
-//			    neamFile.delete();
-//			} catch (Exception e) {
-//                            e.printStackTrace();
-//			    resultParse.parseResult("writessc", false, e.getMessage());
-//			}
 
 				} catch (IOException e) {
 					resultParse.parseResult("writessc", false, e.getMessage());
@@ -212,7 +205,7 @@ public class Controller {
 			array.add(obj);
 			JSONArray asteroids = (JSONArray) array.get(0);
 			cnt = 0;
-			celestiaAsteroids = new ArrayList<>();
+			celestiaObjects = new ArrayList<>();
 			for (Object asteroid : asteroids) {
 				JSONObject astroObject = (JSONObject) asteroid;
 				convertJPLAsteroidsCEL(astroObject);
@@ -232,7 +225,7 @@ public class Controller {
 	}
 
 	private void convertJPLAsteroidsCEL(JSONObject astroObject) {
-		CelestiaAsteroid asteroid = new CelestiaAsteroid();
+        CelestiaAsteroid asteroid = new CelestiaAsteroid();
 		if (hasItemInList(astroObject.get("Orbit_type").toString(), orbitalTypes)) {
 			try {
 				if (astroObject.get("Name") == null) {
@@ -246,15 +239,17 @@ public class Controller {
 					}
 					neamParseBuilderCEL.append("\"");
 				}
-				celestiaAsteroids.add(asteroid);
+				celestiaObjects.add(asteroid);
 
+				double radius = AstroUtils.getRadiusFromAbsoluteMagn(Double.parseDouble(astroObject.get("H").toString()), 0.15);
+				asteroid.setRadius(radius);
 				neamParseBuilderCEL
 						.append("  \"").append("Sol").append("\"")
 						.append("\n{")
 						.append("\n     Class   \"asteroid\"")
 						.append("\n     Texture \"asteroid.jpg\"")
 						.append("\n     Mesh    \"eros.cmod\"")
-						.append("\n     Radius  ").append(String.format(Locale.US, "%.3f", AstroUtils.getRadiusFromAbsoluteMagn(Double.parseDouble(astroObject.get("H").toString()), 0.15)))
+						.append("\n     Radius  ").append(String.format(Locale.US, "%.3f",radius ))
 						.append("\n     EllipticalOrbit");
 				neamParseBuilderCEL.append(getObjectOrbit(astroObject));
 				neamParseBuilderCEL.append("\n}");
@@ -308,28 +303,25 @@ public class Controller {
 			@Override
 			public void run() {
 				try {
-					AstroUtils.setA1(1.000599536428770);
+					AstroUtils.setA1(1.000599536428770 * AstroUtils.AU);
 					AstroUtils.setE1(1.708171796576660E-02);
 					AstroUtils.setI1(4.308590940041780E-03);
 					AstroUtils.setPeri1(2.862660689324113E+02);
 					AstroUtils.setNode1(1.783733089509388E+02);
-					AstroUtils.setM1(7.866459824015972E+01);
+					AstroUtils.setM1(78.66459824015972);
 
-					AstroUtils.setA2(1.100599536428770);
+					AstroUtils.setA2(1.000599536428770 * AstroUtils.AU);
 					AstroUtils.setE2(1.708171796576660E-02);
 					AstroUtils.setI2(4.308590940041780E-03);
 					AstroUtils.setPeri2(2.862660689324113E+02);
 					AstroUtils.setNode2(1.783733089509388E+02);
-					AstroUtils.setM2(7.866459824015972E+01);
+					AstroUtils.setM2(258.66459824015972);
 
-//                    AstroUtils.setA2(9.226121225828366E-01);
-//                    AstroUtils.setE2(1.915177655650811E-01);
-//                    AstroUtils.setI2(3.336780867715445);
-//                    AstroUtils.setPeri2(1.266909737179885E+02);
-//                    AstroUtils.setNode2(2.040607387803847E+02);
-//                    AstroUtils.setM2(4.835939208607312E+01);
-					double rad = AstroUtils.getRadiusFromAbsoluteMagn(22, 0.15);
-					operationResult = "rad 22, 0.15= " + rad;
+
+                    double res = AstroUtils.getMOID();
+
+
+                    operationResult = "res = " + res;
 					resultParse.parseResult("moid", true, operationResult);
 				} catch (Exception e) {
 					resultParse.parseResult("moid", false, e.getMessage());

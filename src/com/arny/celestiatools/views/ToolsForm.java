@@ -1,7 +1,7 @@
 package com.arny.celestiatools.views;
 import com.arny.celestiatools.models.CelestiaAsteroid;
 import com.arny.celestiatools.models.Controller;
-import com.arny.celestiatools.models.onResultCelestiaData;
+import com.arny.celestiatools.models.onResultCelestiaAsteroids;
 import com.arny.celestiatools.models.onResultParse;
 
 import javax.swing.*;
@@ -104,7 +104,7 @@ public class ToolsForm extends JFrame {
 		btnWriteOrbits.setText("Записать орбиты");
 		celestiaAsteroids = new ArrayList<>();
 		tableModel = new AbstractTableModel() {
-			String[] columnNames = {"№","Name"};
+			String[] columnNames = {"№","Name","Radius,km"};
 
 			@Override
 			public String getColumnName(int column) {
@@ -118,7 +118,7 @@ public class ToolsForm extends JFrame {
 
 			@Override
 			public int getColumnCount() {
-				return 2;
+				return columnNames.length;
 			}
 
 			@Override
@@ -128,6 +128,8 @@ public class ToolsForm extends JFrame {
 						return rowIndex+1;
 					case 1:
 						return celestiaAsteroids.get(rowIndex).getName();
+                    case 2:
+                        return celestiaAsteroids.get(rowIndex).getRadius();
 				}
 				return "";
 			}
@@ -155,10 +157,10 @@ public class ToolsForm extends JFrame {
 						JOptionPane.showMessageDialog(null, message, method, messType);
 
 					}
-				}, new onResultCelestiaData() {
+				}, new onResultCelestiaAsteroids() {
 					@Override
 					public void dataCallback(ArrayList<CelestiaAsteroid> asteroids) {
-						celestiaAsteroids =  asteroids;
+                        celestiaAsteroids =  asteroids;
 						tblAsteroidsData.setModel(tableModel);
 					}
 				});

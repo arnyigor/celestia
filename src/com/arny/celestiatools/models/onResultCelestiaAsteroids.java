@@ -1,5 +1,5 @@
 package com.arny.celestiatools.models;
 import java.util.ArrayList;
-public interface onResultCelestiaData {
+public interface onResultCelestiaAsteroids {
 	void dataCallback(ArrayList<CelestiaAsteroid> celestiaAsteroids);
 }
