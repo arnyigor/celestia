@@ -1,4 +1,4 @@
-package com.arny.celestiatools.models;
+package com.arny.celestiatools.utils;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -186,6 +186,7 @@ public class BaseUtils {
             return "0" + String.valueOf(number);
         }
     }
+
 
     public static long randLong(long min, long max) {
         Random rnd = new Random();

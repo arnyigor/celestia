@@ -1,6 +1,7 @@
 package com.arny.celestiatools.views;
 import com.arny.celestiatools.models.CelestiaAsteroid;
-import com.arny.celestiatools.models.Controller;
+import com.arny.celestiatools.controller.Controller;
+import com.arny.celestiatools.models.onProgressUpdate;
 import com.arny.celestiatools.models.onResultCelestiaAsteroids;
 import com.arny.celestiatools.models.onResultParse;
 
@@ -13,7 +14,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.net.URL;
 import java.util.ArrayList;
 public class ToolsForm extends JFrame {
 	private JFrame mainFrame;
@@ -33,6 +33,7 @@ public class ToolsForm extends JFrame {
 	private JTable tblAsteroidsData;
 	private JTextPane lblCalcRes;
     private JTextPane pnlAsteroidData;
+    private JProgressBar progressBar;
     private static final int WIDTH = 800;
 	private static final int HEIGHT = 600;
 	private Controller controller;
@@ -40,17 +41,32 @@ public class ToolsForm extends JFrame {
 	private TableModel tableModel;
 
 	public ToolsForm() {
-		mainFrame = new JFrame("Celestia Tools");
-		mainFrame.setResizable(false);
-		mainFrame.setContentPane(panel);
-		mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		initUI();
-		mainFrame.pack();
-		mainFrame.setVisible(true);
 		controller = new Controller();
-	}
+        initTableAsteroids();
+    }
 
-	private void initUI() {
+    private void initTableAsteroids() {
+        celestiaAsteroids = new ArrayList<>();
+        controller.getAsterTableData(new onResultCelestiaAsteroids() {
+            @Override
+            public void dataCallback(ArrayList<CelestiaAsteroid> asteroids) {
+                celestiaAsteroids = asteroids;
+                setModelToTable();
+                if (celestiaAsteroids.size()>0){
+                    pnlAsteroidData.setText(controller.formatAsteroidData(celestiaAsteroids.get(0)));
+                }
+                progressBar.setValue(0);
+            }
+        });
+
+    }
+
+    private void initUI() {
+        mainFrame = new JFrame("Celestia Tools");
+        mainFrame.setResizable(false);
+        mainFrame.setContentPane(panel);
+        mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         try {
             ImageIcon img = new ImageIcon("icon.png");
             mainFrame.setIconImage(img.getImage());
@@ -62,6 +78,8 @@ public class ToolsForm extends JFrame {
 		checkBox1.setText("Apollo");
 		checkBox2.setText("Amor");
 		checkBox3.setText("Aten");
+        mainFrame.pack();
+        mainFrame.setVisible(true);
 	}
 
 	public void showMainFrameWindow() {
@@ -112,40 +130,8 @@ public class ToolsForm extends JFrame {
 			}
 		});
 		btnWriteOrbits.setText("Записать орбиты");
-		celestiaAsteroids = new ArrayList<>();
-		tableModel = new AbstractTableModel() {
-			String[] columnNames = {"№","Name","Type","Radius,km"};
-
-			@Override
-			public String getColumnName(int column) {
-				return columnNames[column];
-			}
-
-			@Override
-			public int getRowCount() {
-				return celestiaAsteroids.size();
-			}
-
-			@Override
-			public int getColumnCount() {
-				return columnNames.length;
-			}
-
-			@Override
-			public Object getValueAt(int rowIndex, int columnIndex) {
-				switch (columnIndex) {
-					case 0:
-						return rowIndex+1;
-					case 1:
-						return celestiaAsteroids.get(rowIndex).getName();
-                    case 2:
-						return celestiaAsteroids.get(rowIndex).getOrbitType();
-                    case 3:
-                        return celestiaAsteroids.get(rowIndex).getRadius();
-				}
-				return "";
-			}
-		};
+        progressBar.setMinimum(0);
+        progressBar.setStringPainted(true);
 		btnWriteOrbits.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -161,21 +147,31 @@ public class ToolsForm extends JFrame {
 					orbitalTypes.add("Aten");
 				}
 				controller.writeOrbitalParamFile(orbitalTypes, new onResultParse() {
-					@Override
-					public void parseResult(String method, boolean success, String result) {
-						String message = Controller.getMessage(success, method);
-						JLabel1.setText(result);
-						int messType = success ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE;
-						JOptionPane.showMessageDialog(null, message, method, messType);
+                    @Override
+                    public void parseResult(String method, boolean success, String result) {
+                        String message = Controller.getMessage(success, method);
+                        JLabel1.setText(result);
+                        int messType = success ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE;
+                        JOptionPane.showMessageDialog(null, message, method, messType);
 
-					}
-				}, new onResultCelestiaAsteroids() {
-					@Override
-					public void dataCallback(ArrayList<CelestiaAsteroid> asteroids) {
-                        celestiaAsteroids =  asteroids;
-						tblAsteroidsData.setModel(tableModel);
-					}
-				});
+                    }
+                }, new onResultCelestiaAsteroids() {
+                    @Override
+                    public void dataCallback(ArrayList<CelestiaAsteroid> asteroids) {
+                        celestiaAsteroids = asteroids;
+                        setModelToTable();
+                        if (celestiaAsteroids.size()>0){
+                            pnlAsteroidData.setText(controller.formatAsteroidData(celestiaAsteroids.get(0)));
+                        }
+                        progressBar.setValue(0);
+                    }
+                }, new onProgressUpdate() {
+                    @Override
+                    public void update(String method, int total, int progress) {
+                        progressBar.setMaximum(total);
+                        progressBar.setValue(progress);
+                    }
+                });
 			}
 		});
 		tblAsteroidsData.addMouseListener(new MouseAdapter() {
@@ -199,6 +195,42 @@ public class ToolsForm extends JFrame {
 			}
 		});
 	}
+
+    private void setModelToTable() {
+        tableModel = new AbstractTableModel() {
+            String[] columnNames = {"№","Name","Type","Radius,km"};
+            @Override
+            public String getColumnName(int column) {
+                return columnNames[column];
+            }
+
+            @Override
+            public int getRowCount() {
+                return celestiaAsteroids.size();
+            }
+
+            @Override
+            public int getColumnCount() {
+                return columnNames.length;
+            }
+
+            @Override
+            public Object getValueAt(int rowIndex, int columnIndex) {
+                switch (columnIndex) {
+                    case 0:
+                        return rowIndex+1;
+                    case 1:
+                        return celestiaAsteroids.get(rowIndex).getName();
+                    case 2:
+                        return celestiaAsteroids.get(rowIndex).getOrbitType();
+                    case 3:
+                        return celestiaAsteroids.get(rowIndex).getRadius();
+                }
+                return "";
+            }
+        };
+        tblAsteroidsData.setModel(tableModel);
+    }
 
 	private void setFrameForm(JFrame frame) {
 		frame.setPreferredSize(new Dimension(WIDTH, HEIGHT));

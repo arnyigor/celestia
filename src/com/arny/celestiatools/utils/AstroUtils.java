@@ -1,4 +1,4 @@
-package com.arny.celestiatools.models;
+package com.arny.celestiatools.utils;
 
 /**
  * @author i.sedoy

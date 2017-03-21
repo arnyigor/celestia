@@ -1,4 +1,4 @@
-package com.arny.celestiatools.models;
+package com.arny.celestiatools.controller;
 
 import java.io.File;
 import java.io.FileReader;
@@ -9,17 +9,20 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Locale;
 
-import com.sun.xml.internal.rngom.parse.host.Base;
+import com.arny.celestiatools.models.*;
+import com.arny.celestiatools.utils.AstroUtils;
+import com.arny.celestiatools.utils.BaseUtils;
+import com.arny.celestiatools.utils.FileUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import javax.swing.*;
-
 public class Controller {
-	private String operationResult, parseMpcNeamCEL, parseMpcNeamSE;
+
+    private String operationResult, parseMpcNeamCEL, parseMpcNeamSE;
 	private static final String MPC_NEAs_DOWNLOAD_PATH = "http://minorplanetcenter.net/Extended_Files/nea_extended.json.gz";
 	private static final String MPC_PHAs_DOWNLOAD_PATH = "http://minorplanetcenter.net/Extended_Files/pha_extended.json.gz";
 	private static final String MPC_ASTER_DOWNLOADED_FILE = "mpc_downloaded.json.gz";
@@ -27,22 +30,30 @@ public class Controller {
 	private static final String MPC_NEAM_LAST_SCC = "asteroids.ssc";
 	private static final String MPC_NEAM_LAST_SC_SE = "Asteroids.sc";
 	private static final String MPC_FILES_DIR = System.getProperty("user.dir") + "/files/";
-	private int cnt;
 	private File
 			unpackedJsonfile = new File(MPC_FILES_DIR + MPC_ASTER_JSON_FILE),
 			asteroidsFileCEL = new File(MPC_FILES_DIR + MPC_NEAM_LAST_SCC),
-			asteroidsFileSE = new File(MPC_FILES_DIR + MPC_NEAM_LAST_SCC);
+			asteroidsFileSE = new File(MPC_FILES_DIR + MPC_NEAM_LAST_SC_SE);
 	private ArrayList<String> orbitalTypes;
 	private StringBuilder neamParseBuilderCEL, neamParseBuilderSE;
 	private ArrayList<CelestiaAsteroid> celestiaObjects;
     private Connection connection = null;
-    private CelestiaAsteroid celestiaAsteroid;
+    private int asteroidCnt,totalProgress,iterateProgress;
 
     public Controller() {
         connection = SqliteConnection.dbConnection();
     }
 
-	public void workJsonFile(File file, onResultParse resultParse) {
+    public void getAsterTableData(onResultCelestiaAsteroids celestiaAsteroidsCallbacks) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                celestiaAsteroidsCallbacks.dataCallback(SqliteConnection.getAllCelestiaAsteroids(connection));
+            }
+        }).start();
+    }
+
+    public void workJsonFile(File file, onResultParse resultParse) {
 		operationResult = "";
 		if (file.length() > 0) {
 			new Thread(new Runnable() {
@@ -62,12 +73,13 @@ public class Controller {
 		}
 	}
 
-	public void writeOrbitalParamFile(ArrayList<String> orbitalTypes, onResultParse resultParse,onResultCelestiaAsteroids celestiaData) {
+	public void writeOrbitalParamFile(ArrayList<String> orbitalTypes, onResultParse resultParse,onResultCelestiaAsteroids celestiaData,onProgressUpdate onProgressUpdate) {
 		this.orbitalTypes = orbitalTypes;
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
 				try {
+                    long start = System.currentTimeMillis();
                     File folder = new File(MPC_FILES_DIR);
                     boolean folderFilesExist = folder.exists() || folder.mkdir();
 				    if (!folderFilesExist) return;
@@ -97,20 +109,21 @@ public class Controller {
 						return;
 					}
 
-					parseJson(unpackedJsonfile);
-					celestiaData.dataCallback(celestiaObjects);
+					parseJson(unpackedJsonfile,onProgressUpdate);
+					celestiaData.dataCallback(SqliteConnection.getAllCelestiaAsteroids(connection));
+
 					if (BaseUtils.empty(parseMpcNeamCEL)) {
 						operationResult = "Нечего записывать";
 						resultParse.parseResult("writessc", false, operationResult);
 						return;
 					}
 
-					long start = System.currentTimeMillis();
-					Files.write(Paths.get(MPC_NEAM_LAST_SCC), parseMpcNeamCEL.getBytes(StandardCharsets.UTF_8),
+
+					Files.write(Paths.get(MPC_FILES_DIR + MPC_NEAM_LAST_SCC), parseMpcNeamCEL.getBytes(StandardCharsets.UTF_8),
 							StandardOpenOption.CREATE);
-					Files.write(Paths.get(MPC_NEAM_LAST_SC_SE), parseMpcNeamSE.getBytes(StandardCharsets.UTF_8),
+					Files.write(Paths.get(MPC_FILES_DIR + MPC_NEAM_LAST_SC_SE), parseMpcNeamSE.getBytes(StandardCharsets.UTF_8),
 							StandardOpenOption.CREATE);
-					operationResult += "Операция заняла:" + (System.currentTimeMillis() - start) + " ms";
+					operationResult += " Операция заняла:" + (System.currentTimeMillis() - start) + " ms";
 					resultParse.parseResult("writessc", true, operationResult);
 
 				} catch (IOException e) {
@@ -208,7 +221,7 @@ public class Controller {
 		return downloadPath;
 	}
 
-	private void parseJson(File file) {
+	private void parseJson(File file,onProgressUpdate onProgressUpdate) {
 		JSONParser parser = new JSONParser();
 		neamParseBuilderCEL = new StringBuilder();
 		neamParseBuilderSE = new StringBuilder();
@@ -217,34 +230,77 @@ public class Controller {
 			JSONArray array = new JSONArray();
 			array.add(obj);
 			JSONArray asteroids = (JSONArray) array.get(0);
-			cnt = 0;
+			asteroidCnt = 0;
             celestiaObjects = new ArrayList<>();
-			for (Object asteroid : asteroids) {
+            totalProgress = asteroids.size();
+            iterateProgress = 0;
+            for (Object asteroid : asteroids) {
 				JSONObject astroObject = (JSONObject) asteroid;
-                celestiaAsteroid = new CelestiaAsteroid();
+                CelestiaAsteroid celestiaAsteroid = new CelestiaAsteroid();
                 convertJsonAsteroid(astroObject, celestiaAsteroid);
+
+                updateOrInsertDb(celestiaAsteroid);
+                iterateProgress++;
+                onProgressUpdate.update("dbupdate",totalProgress,iterateProgress);
+
                 convertJPLAsteroidsCEL(celestiaAsteroid);
 				convertJPLAsteroidsSE(celestiaAsteroid);
                 celestiaObjects.add(celestiaAsteroid);
+
 			}
 			parseMpcNeamCEL = neamParseBuilderCEL.toString();
 			parseMpcNeamSE = neamParseBuilderSE.toString();
-			operationResult = "Найдено: " + cnt + " астероидов";
+			operationResult = "Найдено: " + asteroidCnt + " астероидов ";
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	public String formatAsteroidData(CelestiaAsteroid asteroid){
+    /**
+     * update|insert db
+     * @param asteroid
+     */
+    private void updateOrInsertDb(CelestiaAsteroid asteroid) {
+        HashMap dbValues = new HashMap<>();
+        setAsterDbValues(dbValues,asteroid);
+        String cond = SqliteConnection.DB_ASTER_KEY_NAME + "='" + asteroid.getName()+"'";
+        int asterDbId = SqliteConnection.getId(connection, cond);
+        if (asterDbId != 0) {
+            SqliteConnection.updateSqliteData(connection,SqliteConnection.DB_TABLE_ASTEROIDS, dbValues, cond);
+        }else{
+            SqliteConnection.insertSqliteData(connection, SqliteConnection.DB_TABLE_ASTEROIDS, dbValues);
+        }
+    }
+
+    /**
+     * set db values
+     * @param dbValues
+     * @param asteroid
+     */
+    private void setAsterDbValues(HashMap dbValues,CelestiaAsteroid asteroid) {
+        dbValues.put(SqliteConnection.DB_ASTER_KEY_NAME, "'"+asteroid.getName()+"'");
+        dbValues.put(SqliteConnection.DB_ASTER_KEY_RADIUS, String.valueOf(asteroid.getRadius()));
+        dbValues.put(SqliteConnection.DB_ASTER_KEY_ORBIT_TYPE, "'"+asteroid.getOrbitType()+"'");
+        dbValues.put(SqliteConnection.DB_ASTER_KEY_PERIOD, String.valueOf(asteroid.getPeriod()));
+        dbValues.put(SqliteConnection.DB_ASTER_KEY_SMA, String.valueOf(asteroid.getSma()));
+        dbValues.put(SqliteConnection.DB_ASTER_KEY_INC, String.valueOf(asteroid.getInc()));
+        dbValues.put(SqliteConnection.DB_ASTER_KEY_NODE, String.valueOf(asteroid.getNode()));
+        dbValues.put(SqliteConnection.DB_ASTER_KEY_ECC, String.valueOf(asteroid.getEcc()));
+        dbValues.put(SqliteConnection.DB_ASTER_KEY_PERIC, String.valueOf(asteroid.getPeric()));
+        dbValues.put(SqliteConnection.DB_ASTER_KEY_MA, String.valueOf(asteroid.getMa()));
+        dbValues.put(SqliteConnection.DB_ASTER_KEY_EPOCH, String.valueOf(asteroid.getEpoch()));
+    }
+
+    public String formatAsteroidData(CelestiaAsteroid asteroid){
         String res = "Period:" + asteroid.getPeriod();
-        res += "\n SemiMajorAxis:" + asteroid.getSma();
-        res += "\n Inclination:" + asteroid.getInc();
-        res += "\n AscendingNode:" + asteroid.getNode();
-        res += "\n Eccentricity:" + asteroid.getEcc();
-        res += "\n ArgOfPericenter:" + asteroid.getPeric();
-        res += "\n MeanAnomaly:" + asteroid.getMa();
-        res += "\n Epoch:" + asteroid.getEpoch() + " datetime = " + BaseUtils.getDateTime(AstroUtils.getDateFromJD(asteroid.getEpoch()),"dd MM yyyy HH:mm");
+        res += "\nSemiMajorAxis:" + asteroid.getSma();
+        res += "\nInclination:" + asteroid.getInc();
+        res += "\nAscendingNode:" + asteroid.getNode();
+        res += "\nEccentricity:" + asteroid.getEcc();
+        res += "\nArgOfPericenter:" + asteroid.getPeric();
+        res += "\nMeanAnomaly:" + asteroid.getMa();
+        res += "\nEpoch:" + asteroid.getEpoch() + " datetime = " + BaseUtils.getDateTime(AstroUtils.getDateFromJD(asteroid.getEpoch()),"dd MM yyyy HH:mm");
         return res;
     }
 
@@ -317,43 +373,6 @@ public class Controller {
         }
     }
 
-    private void updateSqliteData() {
-        try {
-            Statement statement = connection.createStatement();
-            //Обновить запись
-            statement.executeUpdate(
-                    "UPDATE users SET username = 'admin' where id = 1");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void setSqliteData(){
-        try {
-            Statement statement = connection.createStatement();
-            // Вставить запись
-            statement.executeUpdate(
-                    "INSERT INTO users(username) values('name')");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void getSqliteData() {
-        try {
-            Statement statement = connection.createStatement();
-            statement.setQueryTimeout(30);
-            ResultSet resultSet = statement.executeQuery("select * from asteroids");
-            while (resultSet.next()) {
-                System.out.println("Номер в выборке #" + resultSet.getRow()
-                        + "\t Номер в базе #" + resultSet.getInt("id")
-                        + "\t" + resultSet.getString("name"));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
     private static boolean hasItemInList(String item, ArrayList<String> list) {
 		return list.indexOf(item) != -1;
 	}
@@ -375,7 +394,7 @@ public class Controller {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        cnt++;
+        asteroidCnt++;
 	}
 
 	private String getObjectOrbit(CelestiaAsteroid asteroid) {

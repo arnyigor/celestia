@@ -1,4 +1,4 @@
-package com.arny.celestiatools.models;
+package com.arny.celestiatools.utils;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
