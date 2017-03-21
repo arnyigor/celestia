@@ -10,7 +10,10 @@ import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 public class ToolsForm extends JFrame {
 	private JFrame mainFrame;
@@ -29,7 +32,8 @@ public class ToolsForm extends JFrame {
 	private JButton btnCalc;
 	private JTable tblAsteroidsData;
 	private JTextPane lblCalcRes;
-	private static final int WIDTH = 800;
+    private JTextPane pnlAsteroidData;
+    private static final int WIDTH = 800;
 	private static final int HEIGHT = 600;
 	private Controller controller;
 	private ArrayList<CelestiaAsteroid> celestiaAsteroids;
@@ -47,7 +51,13 @@ public class ToolsForm extends JFrame {
 	}
 
 	private void initUI() {
-		setFrameForm(mainFrame);
+        try {
+            ImageIcon img = new ImageIcon("icon.png");
+            mainFrame.setIconImage(img.getImage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        setFrameForm(mainFrame);
 		initButtons();
 		checkBox1.setText("Apollo");
 		checkBox2.setText("Amor");
@@ -77,6 +87,7 @@ public class ToolsForm extends JFrame {
 				});
 			}
 		});
+
 		btnUnpackJson.setText("Распаковать");
 		btnUnpackJson.addActionListener(new ActionListener() {
 			@Override
@@ -92,7 +103,6 @@ public class ToolsForm extends JFrame {
 						public void parseResult(String method, boolean success, String result) {
 							String message = Controller.getMessage(success, method);
 							JLabel1.setText(result);
-//							jLabel1.setText(message);
 							int messType = success ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE;
 							JOptionPane.showMessageDialog(null, message, method, messType);
 						}
@@ -104,7 +114,7 @@ public class ToolsForm extends JFrame {
 		btnWriteOrbits.setText("Записать орбиты");
 		celestiaAsteroids = new ArrayList<>();
 		tableModel = new AbstractTableModel() {
-			String[] columnNames = {"№","Name","Radius,km"};
+			String[] columnNames = {"№","Name","Type","Radius,km"};
 
 			@Override
 			public String getColumnName(int column) {
@@ -129,6 +139,8 @@ public class ToolsForm extends JFrame {
 					case 1:
 						return celestiaAsteroids.get(rowIndex).getName();
                     case 2:
+						return celestiaAsteroids.get(rowIndex).getOrbitType();
+                    case 3:
                         return celestiaAsteroids.get(rowIndex).getRadius();
 				}
 				return "";
@@ -166,6 +178,13 @@ public class ToolsForm extends JFrame {
 				});
 			}
 		});
+		tblAsteroidsData.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int row = tblAsteroidsData.rowAtPoint(e.getPoint());
+                pnlAsteroidData.setText(controller.formatAsteroidData(celestiaAsteroids.get(row)));
+            }
+        });
 		lblCalcRes.setText("Расстояние в au = 0");
 		btnCalc.setText("Расчет");
 		btnCalc.addActionListener(new ActionListener() {
@@ -188,4 +207,5 @@ public class ToolsForm extends JFrame {
 		int dy = (int) (dimension.getHeight() / 2);
 		frame.setLocation(dx - (WIDTH/2), dy - (HEIGHT/2));
 	}
+
 }

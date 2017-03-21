@@ -7,7 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.sql.Connection;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -26,17 +26,19 @@ public class Controller {
 	private static final String MPC_ASTER_JSON_FILE = "mpc_unpacked.json";
 	private static final String MPC_NEAM_LAST_SCC = "asteroids.ssc";
 	private static final String MPC_NEAM_LAST_SC_SE = "Asteroids.sc";
+	private static final String MPC_FILES_DIR = System.getProperty("user.dir") + "/files/";
 	private int cnt;
 	private File
-			unpackedJsonfile = new File(MPC_ASTER_JSON_FILE),
-			asteroidsFileCEL = new File(MPC_NEAM_LAST_SCC),
-			asteroidsFileSE = new File(MPC_NEAM_LAST_SCC);
+			unpackedJsonfile = new File(MPC_FILES_DIR + MPC_ASTER_JSON_FILE),
+			asteroidsFileCEL = new File(MPC_FILES_DIR + MPC_NEAM_LAST_SCC),
+			asteroidsFileSE = new File(MPC_FILES_DIR + MPC_NEAM_LAST_SCC);
 	private ArrayList<String> orbitalTypes;
 	private StringBuilder neamParseBuilderCEL, neamParseBuilderSE;
 	private ArrayList<CelestiaAsteroid> celestiaObjects;
     private Connection connection = null;
+    private CelestiaAsteroid celestiaAsteroid;
 
-	public Controller() {
+    public Controller() {
         connection = SqliteConnection.dbConnection();
     }
 
@@ -48,7 +50,7 @@ public class Controller {
 				public void run() {
 					try {
 						long start = System.currentTimeMillis();
-						FileUtils.unzipGZ(file.getAbsolutePath(), MPC_ASTER_JSON_FILE);
+						FileUtils.unzipGZ(file.getAbsolutePath(), MPC_FILES_DIR + MPC_ASTER_JSON_FILE);
 						operationResult += "\nОперация заняла:" + (System.currentTimeMillis() - start) + " ms";
 						resultParse.parseResult("json", true, operationResult);
 					} catch (Exception e) {
@@ -66,6 +68,9 @@ public class Controller {
 			@Override
 			public void run() {
 				try {
+                    File folder = new File(MPC_FILES_DIR);
+                    boolean folderFilesExist = folder.exists() || folder.mkdir();
+				    if (!folderFilesExist) return;
 
                     if (asteroidsFileCEL != null) {
                         try {
@@ -170,8 +175,11 @@ public class Controller {
 			public void run() {
 				long start = System.currentTimeMillis();
 				try {
-					FileUtils.downloadUsingStream(downloadPath, MPC_ASTER_DOWNLOADED_FILE);
-				} catch (IOException ex) {
+                    File folder = new File(MPC_FILES_DIR);
+                    boolean folderFilesExist = folder.exists() || folder.mkdir();
+                    if (!folderFilesExist) return;
+                    FileUtils.downloadUsingStream(downloadPath, MPC_FILES_DIR+ MPC_ASTER_DOWNLOADED_FILE);
+                } catch (Exception ex) {
 					ex.printStackTrace();
 				}
 				try {
@@ -210,11 +218,14 @@ public class Controller {
 			array.add(obj);
 			JSONArray asteroids = (JSONArray) array.get(0);
 			cnt = 0;
-			celestiaObjects = new ArrayList<>();
+            celestiaObjects = new ArrayList<>();
 			for (Object asteroid : asteroids) {
 				JSONObject astroObject = (JSONObject) asteroid;
-				convertJPLAsteroidsCEL(astroObject);
-				convertJPLAsteroidsSE(astroObject);
+                celestiaAsteroid = new CelestiaAsteroid();
+                convertJsonAsteroid(astroObject, celestiaAsteroid);
+                convertJPLAsteroidsCEL(celestiaAsteroid);
+				convertJPLAsteroidsSE(celestiaAsteroid);
+                celestiaObjects.add(celestiaAsteroid);
 			}
 			parseMpcNeamCEL = neamParseBuilderCEL.toString();
 			parseMpcNeamSE = neamParseBuilderSE.toString();
@@ -225,81 +236,176 @@ public class Controller {
 		}
 	}
 
-	private static boolean hasItemInList(String item, ArrayList<String> list) {
+	public String formatAsteroidData(CelestiaAsteroid asteroid){
+        String res = "Period:" + asteroid.getPeriod();
+        res += "\n SemiMajorAxis:" + asteroid.getSma();
+        res += "\n Inclination:" + asteroid.getInc();
+        res += "\n AscendingNode:" + asteroid.getNode();
+        res += "\n Eccentricity:" + asteroid.getEcc();
+        res += "\n ArgOfPericenter:" + asteroid.getPeric();
+        res += "\n MeanAnomaly:" + asteroid.getMa();
+        res += "\n Epoch:" + asteroid.getEpoch() + " datetime = " + BaseUtils.getDateTime(AstroUtils.getDateFromJD(asteroid.getEpoch()),"dd MM yyyy HH:mm");
+        return res;
+    }
+
+    private void convertJsonAsteroid(JSONObject astroObject, CelestiaAsteroid asteroid) {
+        String name = "";
+        if (astroObject.get("Name") == null) {
+            name = astroObject.get("Principal_desig").toString();
+        } else {
+            name = astroObject.get("Name").toString();
+            if (astroObject.get("Principal_desig") != null) {
+                name += ":" + astroObject.get("Principal_desig").toString();
+            }
+        }
+
+        try {
+            asteroid.setName(name);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            asteroid.setOrbitType(astroObject.get("Orbit_type").toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        double radius = AstroUtils.getRadiusFromAbsoluteMagn(Double.parseDouble(astroObject.get("H").toString()), 0.15);
+        try {
+            asteroid.setRadius(radius);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            asteroid.setPeriod(Double.parseDouble(astroObject.get("Orbital_period").toString()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            asteroid.setSma(Double.parseDouble(astroObject.get("a").toString()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            asteroid.setInc(Double.parseDouble(astroObject.get("i").toString()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            asteroid.setNode(Double.parseDouble(astroObject.get("Node").toString()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            asteroid.setEcc(Double.parseDouble(astroObject.get("e").toString()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            asteroid.setPeric(Double.parseDouble(astroObject.get("Peri").toString()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            asteroid.setMa(Double.parseDouble(astroObject.get("M").toString()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            asteroid.setEpoch(Double.parseDouble(astroObject.get("Epoch").toString()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void updateSqliteData() {
+        try {
+            Statement statement = connection.createStatement();
+            //Обновить запись
+            statement.executeUpdate(
+                    "UPDATE users SET username = 'admin' where id = 1");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setSqliteData(){
+        try {
+            Statement statement = connection.createStatement();
+            // Вставить запись
+            statement.executeUpdate(
+                    "INSERT INTO users(username) values('name')");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void getSqliteData() {
+        try {
+            Statement statement = connection.createStatement();
+            statement.setQueryTimeout(30);
+            ResultSet resultSet = statement.executeQuery("select * from asteroids");
+            while (resultSet.next()) {
+                System.out.println("Номер в выборке #" + resultSet.getRow()
+                        + "\t Номер в базе #" + resultSet.getInt("id")
+                        + "\t" + resultSet.getString("name"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static boolean hasItemInList(String item, ArrayList<String> list) {
 		return list.indexOf(item) != -1;
 	}
 
-	private void convertJPLAsteroidsCEL(JSONObject astroObject) {
-        CelestiaAsteroid asteroid = new CelestiaAsteroid();
-		if (hasItemInList(astroObject.get("Orbit_type").toString(), orbitalTypes)) {
-			try {
-				if (astroObject.get("Name") == null) {
-					neamParseBuilderCEL.append("\n\"").append(astroObject.get("Principal_desig").toString()).append("\"");
-					asteroid.setName(astroObject.get("Principal_desig").toString());
-				} else {
-					asteroid.setName(astroObject.get("Name").toString());
-					neamParseBuilderCEL.append("\n\"").append(astroObject.get("Name").toString());
-					if (astroObject.get("Principal_desig") != null) {
-						neamParseBuilderCEL.append(":").append(astroObject.get("Principal_desig").toString());
-					}
-					neamParseBuilderCEL.append("\"");
-				}
-				celestiaObjects.add(asteroid);
-
-				double radius = AstroUtils.getRadiusFromAbsoluteMagn(Double.parseDouble(astroObject.get("H").toString()), 0.15);
-				asteroid.setRadius(radius);
-				neamParseBuilderCEL
-						.append("  \"").append("Sol").append("\"")
-						.append("\n{")
-						.append("\n     Class   \"asteroid\"")
-						.append("\n     Texture \"asteroid.jpg\"")
-						.append("\n     Mesh    \"eros.cmod\"")
-						.append("\n     Radius  ").append(String.format(Locale.US, "%.3f",radius ))
-						.append("\n     EllipticalOrbit");
-				neamParseBuilderCEL.append(getObjectOrbit(astroObject));
-				neamParseBuilderCEL.append("\n}");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			cnt++;
-		}
+	private void convertJPLAsteroidsCEL(CelestiaAsteroid asteroid) {
+		if (!hasItemInList(asteroid.getOrbitType(), orbitalTypes))  return;
+        try {
+            neamParseBuilderCEL.append("\n\"").append(asteroid.getName()).append("\"");
+            neamParseBuilderCEL
+                    .append("  \"").append("Sol").append("\"")
+                    .append("\n{")
+                    .append("\n     Class   \"asteroid\"")
+                    .append("\n     Texture \"asteroid.jpg\"")
+                    .append("\n     Mesh    \"eros.cmod\"")
+                    .append("\n     Radius  ").append(String.format(Locale.US, "%.3f",asteroid.getRadius() ))
+                    .append("\n     EllipticalOrbit");
+            neamParseBuilderCEL.append(getObjectOrbit(asteroid));
+            neamParseBuilderCEL.append("\n}");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        cnt++;
 	}
 
-	private String getObjectOrbit(JSONObject astroObject) {
+	private String getObjectOrbit(CelestiaAsteroid asteroid) {
 		StringBuilder orbit = new StringBuilder();
 		orbit.append("\n	{")
-				.append("\n	    Period             ").append(astroObject.get("Orbital_period"))
-				.append("\n         SemiMajorAxis      ").append(astroObject.get("a"))
-				.append("\n         Inclination        ").append(astroObject.get("i"))
-				.append("\n         AscendingNode      ").append(astroObject.get("Node"))
-				.append("\n         Eccentricity      ").append(astroObject.get("e"))
-				.append("\n         ArgOfPericenter    ").append(astroObject.get("Peri"))
-				.append("\n         MeanAnomaly        ").append(astroObject.get("M"))
-				.append("\n         Epoch              ").append(astroObject.get("Epoch"))
+				.append("\n	        Period             ").append(asteroid.getPeriod())
+				.append("\n         SemiMajorAxis      ").append(asteroid.getSma())
+				.append("\n         Inclination        ").append(asteroid.getInc())
+				.append("\n         AscendingNode      ").append(asteroid.getNode())
+				.append("\n         Eccentricity      ").append(asteroid.getEcc())
+				.append("\n         ArgOfPericenter    ").append(asteroid.getPeric())
+				.append("\n         MeanAnomaly        ").append(asteroid.getMa())
+				.append("\n         Epoch              ").append(asteroid.getEpoch())
 				.append("\n	}");
 		return orbit.toString();
 	}
 
-	private void convertJPLAsteroidsSE(JSONObject astroObject) {
-
-		if (hasItemInList(astroObject.get("Orbit_type").toString(), orbitalTypes)) {
-			try {
-				String fullname = "";
-				if (astroObject.get("Name") == null) {
-					neamParseBuilderSE.append("\nAsteroid	    \"").append(astroObject.get("Principal_desig").toString()).append("\"");
-				} else {
-					neamParseBuilderSE.append("\nAsteroid	    \"").append(astroObject.get("Name").toString()).append("\"");
-				}
-				neamParseBuilderSE
-						.append("\n{\n	ParentBody\"").append("Sol").append("\"")
-						.append("\n     Radius  ").append(String.format(Locale.US, "%.3f", AstroUtils.getRadiusFromAbsoluteMagn(Double.parseDouble(astroObject.get("H").toString()), 0.15)))
-						.append("\n     Orbit");
-				neamParseBuilderSE.append(getObjectOrbit(astroObject));
-				neamParseBuilderSE.append("\n}");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+	private void convertJPLAsteroidsSE(CelestiaAsteroid asteroid) {
+        if (!hasItemInList(asteroid.getOrbitType(), orbitalTypes))  return;
+        try {
+            neamParseBuilderSE.append("\nAsteroid	    \"").append(asteroid.getName()).append("\"");
+            neamParseBuilderSE
+                    .append("\n{\n	ParentBody\"").append("Sol").append("\"")
+                    .append("\n     Radius  ").append(String.format(Locale.US, "%.3f", asteroid.getRadius()) )
+                    .append("\n     Orbit");
+            neamParseBuilderSE.append(getObjectOrbit(asteroid));
+            neamParseBuilderSE.append("\n}");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 	}
 
 	public void calculateMOID(onResultParse resultParse) {

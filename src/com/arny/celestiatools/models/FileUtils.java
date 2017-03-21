@@ -4,6 +4,9 @@ import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -71,17 +74,22 @@ public class FileUtils {
     }
 
     public static void downloadUsingStream(String urlStr, String file) throws IOException{
-        URL url = new URL(urlStr);
-        BufferedInputStream bis = new BufferedInputStream(url.openStream());
-        FileOutputStream fis = new FileOutputStream(file);
-        byte[] buffer = new byte[10485760];
-        int count=0;
-        while((count = bis.read(buffer,0,10485760)) != -1)
-        {
-            fis.write(buffer, 0, count);
+        BufferedInputStream bis = null;
+        FileOutputStream fis = null;
+        try {
+            URL url = new URL(urlStr);
+            bis = new BufferedInputStream(url.openStream());
+            fis = new FileOutputStream(file);
+            byte[] buffer = new byte[10485760];
+            int count=0;
+            while((count = bis.read(buffer,0,10485760)) != -1)
+            {
+                fis.write(buffer, 0, count);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        fis.close();
-        bis.close();
+
     }
     
     public static void unzipGZ(String sourcePath, String destinationPath)  throws IOException, DataFormatException {

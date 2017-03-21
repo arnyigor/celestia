@@ -10,7 +10,9 @@ public class SqliteConnection {
     public static Connection dbConnection() {
         try {
             Class.forName("org.sqlite.JDBC");
-            return DriverManager.getConnection("jdbc:sqlite:" + System.getProperty("user.dir") + "\\sqlite\\celestia.sqlite");
+            Connection connection = DriverManager.getConnection("jdbc:sqlite:" + System.getProperty("user.dir") + "/sqlite/celestia.sqlite");
+            System.out.println("url = " + connection.getMetaData().getURL());
+            return connection;
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e);
             return null;
