@@ -7,12 +7,16 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import com.sun.xml.internal.rngom.parse.host.Base;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+
+import javax.swing.*;
 
 public class Controller {
 	private String operationResult, parseMpcNeamCEL, parseMpcNeamSE;
@@ -30,10 +34,11 @@ public class Controller {
 	private ArrayList<String> orbitalTypes;
 	private StringBuilder neamParseBuilderCEL, neamParseBuilderSE;
 	private ArrayList<CelestiaAsteroid> celestiaObjects;
+    private Connection connection = null;
 
 	public Controller() {
-//		System.out.println("sett = " + System.getProperty("user.dir"));
-	}
+        connection = SqliteConnection.dbConnection();
+    }
 
 	public void workJsonFile(File file, onResultParse resultParse) {
 		operationResult = "";

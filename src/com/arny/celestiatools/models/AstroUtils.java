@@ -223,7 +223,7 @@ public class AstroUtils {
         return E;
     }
 
-    public static double getJDStol(double JD) {
+    public static double getJDT(double JD) {
         return (JD - 2415020) / 36525;
     }
 
@@ -259,7 +259,7 @@ public class AstroUtils {
         return res;
     }
 
-    public static double getEarthExcentr(double T){
+    public static double getEarthExcentricity(double T){
         double A = 0.01675104;
         double B = 0.0000418 * T;
         double C = 0.000000126 * Math.pow(T,2);
@@ -282,11 +282,11 @@ public class AstroUtils {
         return res;
     }
 
-    public static double getEarthPeric(double T){
+    public static double getEarthPericenter(double T){
         return getEarthMeanLongitude(T) - getEarthMeanAnomaly(T);
     }
 
-    public static double getTrueAnom(double e,double Exc){
+    public static double getTrueAnomaly(double e,double Exc){
         double v =  ((1 + e) / (1 - e)) * 1 / 2 * Tan(Exc / 2);
         return Atan(v) * 2;
     }
