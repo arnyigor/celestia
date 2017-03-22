@@ -95,20 +95,31 @@ public class SqliteConnection {
         }
     }
 
-    public static int getId(Connection connection,String cond) {
-        int id = 0;
+    public static CelestiaAsteroid getAsteroid(Connection connection,String cond) {
         try {
+            CelestiaAsteroid asteroid = null;
             Statement statement = connection.createStatement();
-            statement.setQueryTimeout(30);
             String sql = "SELECT * FROM " + DB_TABLE_ASTEROIDS + " WHERE " + cond;
             ResultSet resultSet = statement.executeQuery(sql);
-            if (resultSet.next()){
-                id = resultSet.getInt(DB_ASTER_KEY_ID);
+            if (resultSet.next()) {
+                asteroid = new CelestiaAsteroid();
+                asteroid.setName(resultSet.getString(DB_ASTER_KEY_NAME));
+                asteroid.setRadius(resultSet.getDouble(DB_ASTER_KEY_RADIUS));
+                asteroid.setOrbitType(resultSet.getString(DB_ASTER_KEY_ORBIT_TYPE));
+                asteroid.setPeriod(resultSet.getDouble(DB_ASTER_KEY_PERIOD));
+                asteroid.setSma(resultSet.getDouble(DB_ASTER_KEY_SMA));
+                asteroid.setInc(resultSet.getDouble(DB_ASTER_KEY_INC));
+                asteroid.setNode(resultSet.getDouble(DB_ASTER_KEY_NODE));
+                asteroid.setEcc(resultSet.getDouble(DB_ASTER_KEY_ECC));
+                asteroid.setPeric(resultSet.getDouble(DB_ASTER_KEY_PERIC));
+                asteroid.setMa(resultSet.getDouble(DB_ASTER_KEY_MA));
+                asteroid.setEpoch(resultSet.getDouble(DB_ASTER_KEY_EPOCH));
             }
+            return asteroid;
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return id;
+        return null;
     }
 
     public static ArrayList<CelestiaAsteroid> getAllCelestiaAsteroids(Connection connection) {

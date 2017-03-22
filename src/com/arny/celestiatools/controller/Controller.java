@@ -45,7 +45,7 @@ public class Controller {
     }
 
     public void getAsterTableData(onResultCelestiaAsteroids celestiaAsteroidsCallbacks) {
-        new Thread(new Runnable() {
+	    new Thread(new Runnable() {
             @Override
             public void run() {
                 celestiaAsteroidsCallbacks.dataCallback(SqliteConnection.getAllCelestiaAsteroids(connection));
@@ -239,8 +239,10 @@ public class Controller {
                 CelestiaAsteroid celestiaAsteroid = new CelestiaAsteroid();
                 convertJsonAsteroid(astroObject, celestiaAsteroid);
 
-                updateOrInsertDb(celestiaAsteroid);
-                iterateProgress++;
+
+	            updateOrInsertDb(celestiaAsteroid);
+
+	            iterateProgress++;
                 onProgressUpdate.update("dbupdate",totalProgress,iterateProgress);
 
                 convertJPLAsteroidsCEL(celestiaAsteroid);
@@ -259,26 +261,64 @@ public class Controller {
 
     /**
      * update|insert db
-     * @param asteroid
+     * @param asteroid inset
      */
     private void updateOrInsertDb(CelestiaAsteroid asteroid) {
-        HashMap dbValues = new HashMap<>();
+        HashMap<String,String> dbValues = new HashMap<>();
         setAsterDbValues(dbValues,asteroid);
         String cond = SqliteConnection.DB_ASTER_KEY_NAME + "='" + asteroid.getName()+"'";
-        int asterDbId = SqliteConnection.getId(connection, cond);
-        if (asterDbId != 0) {
-            SqliteConnection.updateSqliteData(connection,SqliteConnection.DB_TABLE_ASTEROIDS, dbValues, cond);
-        }else{
-            SqliteConnection.insertSqliteData(connection, SqliteConnection.DB_TABLE_ASTEROIDS, dbValues);
-        }
+	    CelestiaAsteroid asterDb = SqliteConnection.getAsteroid(connection, cond);
+	    if (asterDb == null) {
+		    SqliteConnection.insertSqliteData(connection, SqliteConnection.DB_TABLE_ASTEROIDS, dbValues);
+	    } else {
+		    if (isAsteroidChanged(asteroid, asterDb)) {
+			    SqliteConnection.updateSqliteData(connection, SqliteConnection.DB_TABLE_ASTEROIDS, dbValues, cond);
+		    }
+	    }
     }
 
-    /**
+	private boolean isAsteroidChanged(CelestiaAsteroid asteroid, CelestiaAsteroid asterDb) {
+		boolean changed = false;
+		if (asterDb != null) {
+			if (asteroid.getEpoch()!=asterDb.getEpoch()){
+				changed = true;
+			}
+			if (asteroid.getEcc()!=asterDb.getEcc()){
+				changed = true;
+			}
+			if (asteroid.getInc()!=asterDb.getInc()){
+				changed = true;
+			}
+			if (asteroid.getPeriod()!=asterDb.getPeriod()){
+				changed = true;
+			}
+			if (asteroid.getNode()!=asterDb.getNode()){
+				changed = true;
+			}
+			if (asteroid.getMa()!=asterDb.getMa()){
+				changed = true;
+			}
+			if (asteroid.getSma()!=asterDb.getSma()){
+				changed = true;
+			}
+			if (asteroid.getPeric()!=asterDb.getPeric()){
+				changed = true;
+			}
+			if (asteroid.getRadius()!=asterDb.getRadius()){
+				changed = true;
+			}
+		}else{
+			changed = true;
+		}
+		return changed;
+	}
+
+	/**
      * set db values
      * @param dbValues
      * @param asteroid
      */
-    private void setAsterDbValues(HashMap dbValues,CelestiaAsteroid asteroid) {
+    private void setAsterDbValues(HashMap<String,String> dbValues,CelestiaAsteroid asteroid) {
         dbValues.put(SqliteConnection.DB_ASTER_KEY_NAME, "'"+asteroid.getName()+"'");
         dbValues.put(SqliteConnection.DB_ASTER_KEY_RADIUS, String.valueOf(asteroid.getRadius()));
         dbValues.put(SqliteConnection.DB_ASTER_KEY_ORBIT_TYPE, "'"+asteroid.getOrbitType()+"'");
