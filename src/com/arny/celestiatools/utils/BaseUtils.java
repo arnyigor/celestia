@@ -13,7 +13,6 @@ import java.util.regex.Pattern;
 
 public class BaseUtils {
 
-    private static final String APP_PREFERENCES = "app_preferences";
     private static final String TIME_SEPARATOR_TWICE_DOT = ":";
     private static final String TIME_SEPARATOR_DOT = ".";
 
@@ -70,28 +69,6 @@ public class BaseUtils {
     }
 
     /**
-     * if milliseconds==0 returned current datetime,
-     * if format==null default "dd MMM yyyy HH:mm:ss.sss"
-     *
-     * @param milliseconds
-     * @param format
-     * @return String datetime
-     */
-    public static String getDateTime(long milliseconds, String format) {
-        if (milliseconds == -1) {
-            return "";
-        }
-        try {
-            milliseconds = (milliseconds == 0) ? Calendar.getInstance().getTimeInMillis() : milliseconds;
-            format = (format == null || empty(format)) ? "dd MMM yyyy HH:mm:ss.sss" : format;
-            return (new SimpleDateFormat(format, Locale.getDefault())).format(new Date(milliseconds));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    /**
      * @param date
      * @param format
      * @return String datetime
@@ -118,6 +95,33 @@ public class BaseUtils {
         return stringBuffer.toString();
     }
 
+    /**
+     * if milliseconds==0 returned current datetime,
+     * if format==null default "dd MMM yyyy HH:mm:ss.sss"
+     *
+     * @param milliseconds
+     * @param format
+     * @return String datetime
+     */
+    public static String getDateTime(long milliseconds, String format) {
+        if (milliseconds == -1) {
+            return "";
+        }
+        try {
+            milliseconds = (milliseconds == 0) ? Calendar.getInstance().getTimeInMillis() : milliseconds;
+            format = (format == null || empty(format)) ? "dd MMM yyyy HH:mm:ss.sss" : format;
+            return (new SimpleDateFormat(format, Locale.getDefault())).format(new Date(milliseconds));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    /**
+     * Преобразование строчной даты в long
+     * @param myTimestamp
+     * @param format
+     * @return long
+     */
     public static long convertTimeStringToLong(String myTimestamp, String format) {
         SimpleDateFormat formatter = new SimpleDateFormat(format, Locale.getDefault());
         Date date;
@@ -129,6 +133,7 @@ public class BaseUtils {
         }
         return date.getTime();
     }
+
 
     public static int validateInt(String val) {
         try {
@@ -160,7 +165,6 @@ public class BaseUtils {
         return pad(h) + TIME_SEPARATOR_TWICE_DOT + pad(m);
     }
 
-
     public static String convertExtendTime(long ms) {
         if (ms<=60000) {
             //TODO неверно
@@ -186,7 +190,6 @@ public class BaseUtils {
             return "0" + String.valueOf(number);
         }
     }
-
 
     public static long randLong(long min, long max) {
         Random rnd = new Random();

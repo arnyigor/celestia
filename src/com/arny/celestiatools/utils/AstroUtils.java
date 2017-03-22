@@ -1,14 +1,12 @@
 package com.arny.celestiatools.utils;
 
+import static com.arny.celestiatools.utils.MathUtils.*;
+
 /**
  * @author i.sedoy
  */
 public class AstroUtils {
-    public static final long AU = 149597870L;
-    public static final double EARTH_SMA = 1.0000002;
-    public static final double EARTH_T = 1.00004;
-    public static final double EARTH_DOLG_1980 = 98.833540;
-    public static final double EARTH_PERIC = 102.596403;
+
     private static double a1, e1, i1, peri1, node1, M1;
     private static double a2, e2, i2, peri2, node2, M2;
 
@@ -76,62 +74,43 @@ public class AstroUtils {
         AstroUtils.M2 = M2;
     }
 
-    public static double Cos(double angle) {
-        return Math.cos(Math.toRadians(angle));
-    }
-
-    public static double Sin(double angle) {
-        return Math.sin(Math.toRadians(angle));
-    }
-
-    public static double Tan(double angle) {
-        return Math.tan(Math.toRadians(angle));
-    }
-
-    public static double Atan(double rad) {
-        return Math.toDegrees(Math.atan(rad));
-    }
-
-    public static double Pow(double num,double exp) {
-        return Math.pow(num,exp);
-    }
 
     public static double getR1() {
         double delim = a1 * (1 - Math.pow(e1, 2));
-        double delit = 1 + e1 * Cos(getExc(e1,M1));
+        double delit = 1 + e1 * Cos(getTrueAnom(e1,getExcAnom(e1,M1)));
         return delim / delit;
     }
 
     public static double getX1() {
-        return getR1() * (Cos(node1) * Cos(node1 + getExc(e1,M1)) - Sin(node1) * Sin(node1 + getExc(e1,M1)) * Cos(i1));
+        return getR1() * (Cos(node1) * Cos(node1 + getTrueAnom(e1,getExcAnom(e1,M1))) - Sin(node1) * Sin(node1 + getTrueAnom(e1,getExcAnom(e1,M1))) * Cos(i1));
     }
 
     public static double getY1() {
-        return getR1() * (Sin(node1) * Cos(node1 + getExc(e1,M1)) - Cos(node1) * Sin(node1 + getExc(e1,M1)) * Cos(i1));
+        return getR1() * (Sin(node1) * Cos(node1 + getTrueAnom(e1,getExcAnom(e1,M1))) - Cos(node1) * Sin(node1 + getTrueAnom(e1,getExcAnom(e1,M1))) * Cos(i1));
     }
 
     public static double getZ1() {
-        return getR1() * Sin(node1 + getExc(e1,M1)) * Sin(i1);
+        return getR1() * Sin(node1 + getTrueAnom(e1,getExcAnom(e1,M1))) * Sin(i1);
     }
 
     public static double getR2() {
         double delim = a2 * (1 - Math.pow(e2, 2));
-        double delit = 1 + e2 * Cos(getExc(e2,M2));
+        double delit = 1 + e2 * Cos(getTrueAnom(e2,getExcAnom(e2,M2)));
         return delim / delit;
     }
 
     public static double getX2() {
-        return getR2() * (Cos(node2) * Cos(node2 + getExc(e2,M2)) - Sin(node2) * Sin(node2 + getExc(e2,M2)) * Cos(i2));
-//        return getR2() * Cos(getExc(e2,M2));
+        return getR2() * (Cos(node2) * Cos(node2 + getTrueAnom(e2,getExcAnom(e2,M2))) - Sin(node2) * Sin(node2 + getTrueAnom(e2,getExcAnom(e2,M2))) * Cos(i2));
+//        return getR2() * Cos(getExcAnom(e2,M2));
     }
 
     public static double getY2() {
-        return getR2() * (Sin(node2) * Cos(node2 + getExc(e2,M2)) - Cos(node2) * Sin(node2 + getExc(e2,M2)) * Cos(i2));
-//        return getR1() * Sin(getExc(e1,M1)) ;
+        return getR2() * (Sin(node2) * Cos(node2 + getTrueAnom(e1,getExcAnom(e2,M2))) - Cos(node2) * Sin(node2 + getTrueAnom(e2,getExcAnom(e2,M2))) * Cos(i2));
+//        return getR1() * Sin(getExcAnom(e1,M1)) ;
     }
 
     public static double getZ2() {
-        return getR2() * Sin(node2 + getExc(e2,M2)) * Sin(i2);
+        return getR2() * Sin(node2 + getTrueAnom(e2,getExcAnom(e2,M2))) * Sin(i2);
 //        return 0;
     }
 
@@ -143,7 +122,7 @@ public class AstroUtils {
      * @param day
      * @return
      */
-    public static double getJD(int year, int month, double day) {
+    public static double JD(int year, int month, double day) {
         int ytmp = 0, mtmp = 0;
         if (month == 1 || month == 2) {
             ytmp = year - 1;
@@ -165,9 +144,13 @@ public class AstroUtils {
      * @param epochMillis long
      * @return double
      */
-    public static double getJD(long epochMillis) {
+    public static double JD(long epochMillis) {
         double epochDay = epochMillis / 86400000d;
         return epochDay + 2440587.5d;
+    }
+
+    public static double MJD(double JD) {
+        return JD-2400000.5;
     }
 
     /**
@@ -190,7 +173,7 @@ public class AstroUtils {
         if (strDay != null) {
             return Integer.parseInt(strDay);
         }
-        return 0;
+        return -1;
     }
 
     public static double getRadiusFromAbsoluteMagn(double magn, double albedo) {
@@ -207,7 +190,7 @@ public class AstroUtils {
         return Math.sqrt(tmp1 + tmp2 + tmp3);
     }
 
-    public static double getExc(double e, double M) {
+    public static double getExcAnom(double e, double M) {
         double em = e * 180 / Math.PI;
         double E = M, E1;
         while (true) {
@@ -223,11 +206,29 @@ public class AstroUtils {
         return E;
     }
 
-    public static double getJDT(double JD) {
+    public  static double getTrueAnom(double e, double E){
+        double sqrt = Sqrt((1+e)/(1-e));
+        double tg = Tan(0.5*E);
+        double tmp0 = sqrt *  tg;
+        return 2 * Atan(tmp0);
+    }
+
+    /**
+     * Юлианское столетие
+     * @param JD
+     * @return
+     */
+    public static double JDT(double JD) {
         return (JD - 2415020) / 36525;
     }
 
-    public static double getPerigDist(double sma, double e) {
+    /**
+     * Растояние в перигелии
+     * @param sma
+     * @param e
+     * @return
+     */
+    public static double PerigDist(double sma, double e) {
         return sma * (1 - e);
     }
 
@@ -236,11 +237,17 @@ public class AstroUtils {
      * @param sma
      * @return
      */
-    public static double getMeanMotion(double sma){
+    public static double MeanMotion(double sma){
         return  0.985609 / (sma * Math.sqrt(sma));
     }
 
-    public static double getAfelDist(double sma, double e) {
+    /**
+     * Расстояние в афелии
+     * @param sma
+     * @param e
+     * @return
+     */
+    public static double ApogDist(double sma, double e) {
         return sma * (1 + e);
     }
 
@@ -296,7 +303,9 @@ public class AstroUtils {
     }
 
     public static double getGeocentrDist(double sma,double e,double v){
-        return sma * (1 -Pow(e,2) ) / (1 + e * Cos(v));
+        return sma * (1 - Exp(e,2) ) / (1 + e * Cos(v));
     }
+
+
 
 }

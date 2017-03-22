@@ -9,6 +9,6 @@ package com.arny.celestiatools.models;
  *
  * @author i.sedoy
  */
-public interface onResultParse {
-    void parseResult(String method, boolean success,String result);
+public interface onResultCallback {
+    void result(String method, boolean success, String result);
 }

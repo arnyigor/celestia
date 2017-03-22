@@ -3,7 +3,7 @@ import com.arny.celestiatools.models.CelestiaAsteroid;
 import com.arny.celestiatools.controller.Controller;
 import com.arny.celestiatools.models.onProgressUpdate;
 import com.arny.celestiatools.models.onResultCelestiaAsteroids;
-import com.arny.celestiatools.models.onResultParse;
+import com.arny.celestiatools.models.onResultCallback;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -92,9 +92,9 @@ public class ToolsForm extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JLabel1.setText("Загрузка файла...");
-				controller.downloadFile(jComboBoxSource.getSelectedIndex(), new onResultParse() {
+				controller.downloadFile(jComboBoxSource.getSelectedIndex(), new onResultCallback() {
 					@Override
-					public void parseResult(String method, boolean success, String result) {
+					public void result(String method, boolean success, String result) {
 						String message = Controller.getMessage(success, method);
 						JLabel1.setText(result);
 //						jTextArea1.setText(message);
@@ -116,9 +116,9 @@ public class ToolsForm extends JFrame {
 				if (ret == JFileChooser.APPROVE_OPTION) {
 					File file = fileopen.getSelectedFile();
 					JLabel1.setText("Парсинг в процессе...File:" + file.getAbsolutePath());
-					controller.workJsonFile(file, new onResultParse() {
+					controller.workJsonFile(file, new onResultCallback() {
 						@Override
-						public void parseResult(String method, boolean success, String result) {
+						public void result(String method, boolean success, String result) {
 							String message = Controller.getMessage(success, method);
 							JLabel1.setText(result);
 							int messType = success ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE;
@@ -146,9 +146,9 @@ public class ToolsForm extends JFrame {
 				if (checkBox3.isSelected()) {
 					orbitalTypes.add("Aten");
 				}
-				controller.writeOrbitalParamFile(orbitalTypes, new onResultParse() {
+				controller.writeOrbitalParamFile(orbitalTypes, new onResultCallback() {
                     @Override
-                    public void parseResult(String method, boolean success, String result) {
+                    public void result(String method, boolean success, String result) {
                         String message = Controller.getMessage(success, method);
                         JLabel1.setText(result);
                         int messType = success ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE;
@@ -181,15 +181,15 @@ public class ToolsForm extends JFrame {
                 pnlAsteroidData.setText(controller.formatAsteroidData(celestiaAsteroids.get(row)));
             }
         });
-		lblCalcRes.setText("Расстояние в au = 0");
+		lblCalcRes.setText("Результат:");
 		btnCalc.setText("Расчет");
 		btnCalc.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				controller.calculateMOID(new onResultParse() {
+				controller.calculate(new onResultCallback() {
 					@Override
-					public void parseResult(String method, boolean success, String result) {
-						lblCalcRes.setText(result);
+					public void result(String method, boolean success, String result) {
+						lblCalcRes.setText("Результат:" + result);
 					}
 				});
 			}

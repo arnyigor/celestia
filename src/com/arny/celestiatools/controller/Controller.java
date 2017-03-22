@@ -53,7 +53,7 @@ public class Controller {
         }).start();
     }
 
-    public void workJsonFile(File file, onResultParse resultParse) {
+    public void workJsonFile(File file, onResultCallback resultParse) {
 		operationResult = "";
 		if (file.length() > 0) {
 			new Thread(new Runnable() {
@@ -63,9 +63,9 @@ public class Controller {
 						long start = System.currentTimeMillis();
 						FileUtils.unzipGZ(file.getAbsolutePath(), MPC_FILES_DIR + MPC_ASTER_JSON_FILE);
 						operationResult += "\nОперация заняла:" + (System.currentTimeMillis() - start) + " ms";
-						resultParse.parseResult("json", true, operationResult);
+						resultParse.result("json", true, operationResult);
 					} catch (Exception e) {
-						resultParse.parseResult("json", false, e.getMessage());
+						resultParse.result("json", false, e.getMessage());
 					}
 
 				}
@@ -73,7 +73,7 @@ public class Controller {
 		}
 	}
 
-	public void writeOrbitalParamFile(ArrayList<String> orbitalTypes, onResultParse resultParse,onResultCelestiaAsteroids celestiaData,onProgressUpdate onProgressUpdate) {
+	public void writeOrbitalParamFile(ArrayList<String> orbitalTypes, onResultCallback resultParse, onResultCelestiaAsteroids celestiaData, onProgressUpdate onProgressUpdate) {
 		this.orbitalTypes = orbitalTypes;
 		new Thread(new Runnable() {
 			@Override
@@ -89,7 +89,7 @@ public class Controller {
                             asteroidsFileCEL.delete();
                         } catch (Exception e) {
                             e.printStackTrace();
-                            resultParse.parseResult("writessc", false, e.getMessage());
+                            resultParse.result("writessc", false, e.getMessage());
                             return;
                         }
                     }
@@ -99,13 +99,13 @@ public class Controller {
                             asteroidsFileSE.delete();
                         } catch (Exception e) {
                             e.printStackTrace();
-                            resultParse.parseResult("writessc", false, e.getMessage());
+                            resultParse.result("writessc", false, e.getMessage());
                             return;
                         }
                     }
                     if (unpackedJsonfile == null) {
 						operationResult = "Нет распакованного файла";
-						resultParse.parseResult("writessc", false, operationResult);
+						resultParse.result("writessc", false, operationResult);
 						return;
 					}
 
@@ -114,7 +114,7 @@ public class Controller {
 
 					if (BaseUtils.empty(parseMpcNeamCEL)) {
 						operationResult = "Нечего записывать";
-						resultParse.parseResult("writessc", false, operationResult);
+						resultParse.result("writessc", false, operationResult);
 						return;
 					}
 
@@ -124,10 +124,10 @@ public class Controller {
 					Files.write(Paths.get(MPC_FILES_DIR + MPC_NEAM_LAST_SC_SE), parseMpcNeamSE.getBytes(StandardCharsets.UTF_8),
 							StandardOpenOption.CREATE);
 					operationResult += " Операция заняла:" + (System.currentTimeMillis() - start) + " ms";
-					resultParse.parseResult("writessc", true, operationResult);
+					resultParse.result("writessc", true, operationResult);
 
 				} catch (IOException e) {
-					resultParse.parseResult("writessc", false, e.getMessage());
+					resultParse.result("writessc", false, e.getMessage());
 				}
 
 			}
@@ -181,7 +181,7 @@ public class Controller {
 		return message;
 	}
 
-	public void downloadFile(int source, onResultParse resultParse) {
+	public void downloadFile(int source, onResultCallback resultParse) {
 		String downloadPath = getDownloadPath(source);
 		new Thread(new Runnable() {
 			@Override
@@ -199,10 +199,10 @@ public class Controller {
 					File file = new File(MPC_ASTER_DOWNLOADED_FILE);
 					operationResult = "файл:" + file.getName() + " загружен и имеет размер " + file.length() + " байт";
 					operationResult += "\nОперация заняла:" + (System.currentTimeMillis() - start) + " ms";
-					resultParse.parseResult("download", true, operationResult);
+					resultParse.result("download", true, operationResult);
 				} catch (Exception e) {
 					e.printStackTrace();
-					resultParse.parseResult("download", false, e.getMessage());
+					resultParse.result("download", false, e.getMessage());
 				}
 			}
 		}).start();
@@ -427,19 +427,26 @@ public class Controller {
         }
 	}
 
-	public void calculateMOID(onResultParse resultParse) {
+	public void calculate(onResultCallback resultCallback) {
 		operationResult = "";
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					operationResult = "2017-Mar-02 14:05 JD = " + AstroUtils.getJD(BaseUtils.convertTimeStringToLong("2017-03-02 17:05","yyyy-MM-dd HH:mm"));
+					operationResult = "2017-Mar-02 14:05 JD = " + AstroUtils.JD(BaseUtils.convertTimeStringToLong("2017-03-02 17:05","yyyy-MM-dd HH:mm"));
 					AstroUtils.setA1(2.201273459788872);
 					AstroUtils.setE1(0.6018904752619388);
 					AstroUtils.setI1(1.375014776910502);
 					AstroUtils.setPeri1(80.37016102969110);
 					AstroUtils.setNode1(161.8394032832525);
 					AstroUtils.setM1(2.801826762569547E+0);
+
+                    AstroUtils.setA1(1.000498640811768);
+                    AstroUtils.setE1(1.666719180066958E-02);
+                    AstroUtils.setI1(3.086491258554233E-03);
+                    AstroUtils.setPeri1(2.981260335253010E+02);
+                    AstroUtils.setNode1(1.668223242649487E+02);
+                    AstroUtils.setM1(5.741534538676495E+01);
 
 					AstroUtils.setA2(1.000498640811769);
 					AstroUtils.setE2(1.666719180066958E-02);
@@ -448,14 +455,10 @@ public class Controller {
 					AstroUtils.setNode2(1.668223242649487E+02);
 					AstroUtils.setM2(5.741534538676495E+01);
 
-
-//					double res = AstroUtils.getMOID() ;
-//                    operationResult = "res = " + res;
-                    operationResult  = "\nres = " + AstroUtils.getAfelDist(2.201273459788872,6.638253324461043E-01);
-
-					resultParse.parseResult("moid", true, operationResult);
+                    operationResult  = "\ngetMOID = " + AstroUtils.getMOID() ;
+                    resultCallback.result("moid", true, operationResult);
 				} catch (Exception e) {
-					resultParse.parseResult("moid", false, e.getMessage());
+                    resultCallback.result("moid", false, e.getMessage());
 				}
 
 			}
