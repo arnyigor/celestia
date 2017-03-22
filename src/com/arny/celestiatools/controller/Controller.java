@@ -495,7 +495,7 @@ public class Controller {
 					AstroUtils.setNode2(1.668223242649487E+02);
 					AstroUtils.setM2(5.741534538676495E+01);
 
-                    operationResult  = "\ngetMOID = " + AstroUtils.getMOID() ;
+                    operationResult  = "\ngetMOID = " + AstroUtils.JDT(33282) ;
                     resultCallback.result("moid", true, operationResult);
 				} catch (Exception e) {
                     resultCallback.result("moid", false, e.getMessage());
