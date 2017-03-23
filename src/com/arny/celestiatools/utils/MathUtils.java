@@ -23,7 +23,7 @@ public class MathUtils {
      * @param x
      * @return
      */
-    public static double intact(double x) {
+    public static int intact(double x) {
         return (int) x;
     }
 

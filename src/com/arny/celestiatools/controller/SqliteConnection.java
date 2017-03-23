@@ -129,7 +129,7 @@ public class SqliteConnection {
             ResultSet resultSet = statement.executeQuery("SELECT * FROM " + DB_TABLE_ASTEROIDS);
             while (resultSet.next()) {
                 CelestiaAsteroid asteroid = new CelestiaAsteroid();
-//                System.out.println("Номер в выборке #" + resultSet.getRow()  + "\t Номер в базе #" + resultSet.getInt(DB_ASTER_KEY_ID) + "\t" + resultSet.getString(DB_ASTER_KEY_NAME));
+// System.out.println("Номер в выборке #" + resultSet.getRow()  + "\t Номер в базе #" + resultSet.getInt(DB_ASTER_KEY_ID) + "\t" + resultSet.getString(DB_ASTER_KEY_NAME));
                 asteroid.setName(resultSet.getString(DB_ASTER_KEY_NAME));
                 asteroid.setRadius(resultSet.getDouble(DB_ASTER_KEY_RADIUS));
                 asteroid.setOrbitType(resultSet.getString(DB_ASTER_KEY_ORBIT_TYPE));

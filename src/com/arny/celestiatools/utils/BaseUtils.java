@@ -11,6 +11,8 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.arny.celestiatools.utils.MathUtils.*;
+
 public class BaseUtils {
 
     private static final String TIME_SEPARATOR_TWICE_DOT = ":";
@@ -134,7 +136,6 @@ public class BaseUtils {
         return date.getTime();
     }
 
-
     public static int validateInt(String val) {
         try {
             if (val != null) {
@@ -165,16 +166,24 @@ public class BaseUtils {
         return pad(h) + TIME_SEPARATOR_TWICE_DOT + pad(m);
     }
 
-    public static String convertExtendTime(long ms) {
-        if (ms<=60000) {
-            //TODO неверно
-            float secs = ms/1000;
-          return String.format("$1%.2f сек. или $2%d мс.", secs,ms);
+    public static long getEsTime(long startTime, long curTime, int iter, int tot) {
+        if (iter == 0) {
+            return 0;
         }
-        if (ms<=3600000) {
-            int min = (int)ms/60000;
-            int sec = (int)ms%60000;
-          return pad(min) + TIME_SEPARATOR_TWICE_DOT + pad(sec);
+        long a = (curTime - startTime)/iter;
+        return (a * tot) - (a * iter);
+    }
+
+    public static String convertExtendTime(long ms) {
+        double time = (double) ms;
+        if (ms<60000) {
+            double secs = time/1000;
+            return MathUtils.round(secs,1) + " сек.";
+        }
+        if (ms<3600000) {
+            int min =  intact(time/60000);
+            int sec = intact(MathUtils.fracal(time/60000)*60);
+            return BaseUtils.pad(min) + BaseUtils.TIME_SEPARATOR_TWICE_DOT + BaseUtils.pad(sec);
         }
         return String.valueOf(ms);
     }

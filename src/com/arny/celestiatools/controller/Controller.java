@@ -109,6 +109,7 @@ public class Controller {
 						return;
 					}
 
+
 					parseJson(unpackedJsonfile,onProgressUpdate);
 					celestiaData.dataCallback(SqliteConnection.getAllCelestiaAsteroids(connection));
 
@@ -118,12 +119,12 @@ public class Controller {
 						return;
 					}
 
-
 					Files.write(Paths.get(MPC_FILES_DIR + MPC_NEAM_LAST_SCC), parseMpcNeamCEL.getBytes(StandardCharsets.UTF_8),
 							StandardOpenOption.CREATE);
 					Files.write(Paths.get(MPC_FILES_DIR + MPC_NEAM_LAST_SC_SE), parseMpcNeamSE.getBytes(StandardCharsets.UTF_8),
 							StandardOpenOption.CREATE);
-					operationResult += " Операция заняла:" + (System.currentTimeMillis() - start) + " ms";
+                    long esTime = System.currentTimeMillis() - start;
+					operationResult += " Операция заняла:" + BaseUtils.convertExtendTime(esTime);
 					resultParse.result("writessc", true, operationResult);
 
 				} catch (IOException e) {
@@ -221,6 +222,11 @@ public class Controller {
 		return downloadPath;
 	}
 
+    /**
+     * Основная ф-я парсинга
+     * @param file
+     * @param onProgressUpdate
+     */
 	private void parseJson(File file,onProgressUpdate onProgressUpdate) {
 		JSONParser parser = new JSONParser();
 		neamParseBuilderCEL = new StringBuilder();
@@ -234,21 +240,23 @@ public class Controller {
             celestiaObjects = new ArrayList<>();
             totalProgress = asteroids.size();
             iterateProgress = 0;
+            long st = System.currentTimeMillis();
             for (Object asteroid : asteroids) {
 				JSONObject astroObject = (JSONObject) asteroid;
                 CelestiaAsteroid celestiaAsteroid = new CelestiaAsteroid();
                 convertJsonAsteroid(astroObject, celestiaAsteroid);
 
+                if (hasItemInList(celestiaAsteroid.getOrbitType(), orbitalTypes)){
+                    updateOrInsertDb(celestiaAsteroid);
 
-	            updateOrInsertDb(celestiaAsteroid);
+                    long esTime = BaseUtils.getEsTime(st, System.currentTimeMillis(), iterateProgress, totalProgress);
+                    onProgressUpdate.update("dbupdate",totalProgress,iterateProgress,BaseUtils.convertExtendTime(esTime));
+                    convertJPLAsteroidsCEL(celestiaAsteroid);
+                    convertJPLAsteroidsSE(celestiaAsteroid);
+                    celestiaObjects.add(celestiaAsteroid);
+                }
 
-	            iterateProgress++;
-                onProgressUpdate.update("dbupdate",totalProgress,iterateProgress);
-
-                convertJPLAsteroidsCEL(celestiaAsteroid);
-				convertJPLAsteroidsSE(celestiaAsteroid);
-                celestiaObjects.add(celestiaAsteroid);
-
+                iterateProgress++;
 			}
 			parseMpcNeamCEL = neamParseBuilderCEL.toString();
 			parseMpcNeamSE = neamParseBuilderSE.toString();
@@ -269,7 +277,7 @@ public class Controller {
         String cond = SqliteConnection.DB_ASTER_KEY_NAME + "='" + asteroid.getName()+"'";
 	    CelestiaAsteroid asterDb = SqliteConnection.getAsteroid(connection, cond);
 	    if (asterDb == null) {
-		    SqliteConnection.insertSqliteData(connection, SqliteConnection.DB_TABLE_ASTEROIDS, dbValues);
+            SqliteConnection.insertSqliteData(connection, SqliteConnection.DB_TABLE_ASTEROIDS, dbValues);
 	    } else {
 		    if (isAsteroidChanged(asteroid, asterDb)) {
 			    SqliteConnection.updateSqliteData(connection, SqliteConnection.DB_TABLE_ASTEROIDS, dbValues, cond);

@@ -24,7 +24,7 @@ public class ToolsForm extends JFrame {
 	private JButton btnDownload;
 	private JButton btnUnpackJson;
 	private JButton btnWriteOrbits;
-	private JLabel JLabel1;
+	private JLabel labelInfo;
 	private JComboBox jComboBoxSource;
 	private JCheckBox checkBox1;
 	private JCheckBox checkBox2;
@@ -91,12 +91,12 @@ public class ToolsForm extends JFrame {
 		btnDownload.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JLabel1.setText("Загрузка файла...");
+				labelInfo.setText("Загрузка файла...");
 				controller.downloadFile(jComboBoxSource.getSelectedIndex(), new onResultCallback() {
 					@Override
 					public void result(String method, boolean success, String result) {
 						String message = Controller.getMessage(success, method);
-						JLabel1.setText(result);
+						labelInfo.setText(result);
 //						jTextArea1.setText(message);
 						int messType = success ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE;
 						JOptionPane.showMessageDialog(null, message, method, messType);
@@ -115,12 +115,12 @@ public class ToolsForm extends JFrame {
 				int ret = fileopen.showDialog(null, "Открыть файл");
 				if (ret == JFileChooser.APPROVE_OPTION) {
 					File file = fileopen.getSelectedFile();
-					JLabel1.setText("Парсинг в процессе...File:" + file.getAbsolutePath());
+					labelInfo.setText("Парсинг в процессе...File:" + file.getAbsolutePath());
 					controller.workJsonFile(file, new onResultCallback() {
 						@Override
 						public void result(String method, boolean success, String result) {
 							String message = Controller.getMessage(success, method);
-							JLabel1.setText(result);
+							labelInfo.setText(result);
 							int messType = success ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE;
 							JOptionPane.showMessageDialog(null, message, method, messType);
 						}
@@ -135,8 +135,9 @@ public class ToolsForm extends JFrame {
 		btnWriteOrbits.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JLabel1.setText("Запись файла...");
+				labelInfo.setText("Запись файла...");
 				ArrayList<String> orbitalTypes = new ArrayList<>();
+
 				if (checkBox1.isSelected()) {
 					orbitalTypes.add("Apollo");
 				}
@@ -146,11 +147,12 @@ public class ToolsForm extends JFrame {
 				if (checkBox3.isSelected()) {
 					orbitalTypes.add("Aten");
 				}
-				controller.writeOrbitalParamFile(orbitalTypes, new onResultCallback() {
+                System.out.println(orbitalTypes.toString());
+                controller.writeOrbitalParamFile(orbitalTypes, new onResultCallback() {
                     @Override
                     public void result(String method, boolean success, String result) {
                         String message = Controller.getMessage(success, method);
-                        JLabel1.setText(result);
+                        labelInfo.setText(result);
                         int messType = success ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE;
                         JOptionPane.showMessageDialog(null, message, method, messType);
 
@@ -160,16 +162,17 @@ public class ToolsForm extends JFrame {
                     public void dataCallback(ArrayList<CelestiaAsteroid> asteroids) {
                         celestiaAsteroids = asteroids;
                         setModelToTable();
-                        if (celestiaAsteroids.size()>0){
+                        if (celestiaAsteroids.size() > 0) {
                             pnlAsteroidData.setText(controller.formatAsteroidData(celestiaAsteroids.get(0)));
                         }
                         progressBar.setValue(0);
                     }
                 }, new onProgressUpdate() {
                     @Override
-                    public void update(String method, int total, int progress) {
+                    public void update(String method, int total, int progress, String estimate) {
                         progressBar.setMaximum(total);
                         progressBar.setValue(progress);
+                        labelInfo.setText("Примерно осталось:" + estimate);
                     }
                 });
 			}
