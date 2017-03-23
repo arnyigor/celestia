@@ -90,4 +90,19 @@ public class CelestiaAsteroid {
     public void setOrbitType(String orbitType) {
         OrbitType = orbitType;
     }
+
+    @Override
+    public String toString() {
+        return "Name"+getName() +
+                "\nOrbitType:" +getOrbitType() +
+                "\nradius:"+getRadius() +
+                "\nperiod:"+getPeriod() +
+                "\nsma:"+getSma() +
+                "\ninc:"+getInc() +
+                "\nnode:"+getNode() +
+                "\necc:"+getEcc() +
+                "\nperic:"+getPeric() +
+                "\nMa:"+getMa() +
+                "\nepoch" + getEpoch();
+    }
 }

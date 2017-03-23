@@ -16,6 +16,8 @@ import com.arny.celestiatools.models.*;
 import com.arny.celestiatools.utils.AstroUtils;
 import com.arny.celestiatools.utils.BaseUtils;
 import com.arny.celestiatools.utils.FileUtils;
+import com.arny.celestiatools.utils.astro.ATime;
+import com.arny.celestiatools.utils.astro.OrbitViewer;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -23,7 +25,7 @@ import org.json.simple.parser.JSONParser;
 public class Controller {
 
     private String operationResult, parseMpcNeamCEL, parseMpcNeamSE;
-	private static final String MPC_NEAs_DOWNLOAD_PATH = "http://minorplanetcenter.net/Extended_Files/nea_extended.json.gz";
+	private static final String MPC_NEAs_DOWNLOAD_PATH = "http://minorplanetcenter.net/Extended_Files/neap15_extended.json.gz";
 	private static final String MPC_PHAs_DOWNLOAD_PATH = "http://minorplanetcenter.net/Extended_Files/pha_extended.json.gz";
 	private static final String MPC_ASTER_DOWNLOADED_FILE = "mpc_downloaded.json.gz";
 	private static final String MPC_ASTER_JSON_FILE = "mpc_unpacked.json";
@@ -341,7 +343,8 @@ public class Controller {
     }
 
     public String formatAsteroidData(CelestiaAsteroid asteroid){
-        String res = "Period:" + asteroid.getPeriod();
+	    String res = "Name:" + asteroid.getName();
+        res += "\nPeriod:" + asteroid.getPeriod();
         res += "\nSemiMajorAxis:" + asteroid.getSma();
         res += "\nInclination:" + asteroid.getInc();
         res += "\nAscendingNode:" + asteroid.getNode();
@@ -475,6 +478,11 @@ public class Controller {
         }
 	}
 
+	public void orbitViewerStart(){
+		OrbitViewer orbitViewer = new OrbitViewer();
+		orbitViewer.init();
+	}
+
 	public void calculate(onResultCallback resultCallback) {
 		operationResult = "";
 		new Thread(new Runnable() {
@@ -503,10 +511,9 @@ public class Controller {
 					AstroUtils.setNode2(1.668223242649487E+02);
 					AstroUtils.setM2(5.741534538676495E+01);
 
-                    double jd = AstroUtils.JD(BaseUtils.convertTimeStringToLong("2009 09 09 09:09:09", "yyyy MM dd HH:mm:ss"));
-                    String res = String.valueOf(BaseUtils.getDateTime(AstroUtils.DateFromJD(jd),"yyyy MM") + " "+AstroUtils.dayFromJD(jd));
+                    double jd = AstroUtils.JD(2017,2,16.0);
 
-                    operationResult  = "\nres = " + res ;
+                    operationResult  = "\nres = " + ATime.getEp(jd);
                     resultCallback.result("moid", true, operationResult);
 				} catch (Exception e) {
                     resultCallback.result("moid", false, e.getMessage());

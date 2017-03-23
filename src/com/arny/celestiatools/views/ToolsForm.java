@@ -8,11 +8,9 @@ import com.arny.celestiatools.models.onResultCallback;
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.io.File;
 import java.util.ArrayList;
 public class ToolsForm extends JFrame {
@@ -34,17 +32,19 @@ public class ToolsForm extends JFrame {
 	private JTextPane lblCalcRes;
     private JTextPane pnlAsteroidData;
     private JProgressBar progressBar;
-    private static final int WIDTH = 800;
+	private JTextField textField1;
+	private static final int WIDTH = 800;
 	private static final int HEIGHT = 600;
 	private Controller controller;
 	private ArrayList<CelestiaAsteroid> celestiaAsteroids;
 	private TableModel tableModel;
-
+	private TableRowSorter<TableModel> rowSorter;
 	public ToolsForm() {
 		initUI();
 		controller = new Controller();
         initTableAsteroids();
     }
+
 
     private void initTableAsteroids() {
         celestiaAsteroids = new ArrayList<>();
@@ -59,7 +59,6 @@ public class ToolsForm extends JFrame {
                 progressBar.setValue(0);
             }
         });
-
     }
 
     private void initUI() {
@@ -147,7 +146,6 @@ public class ToolsForm extends JFrame {
 				if (checkBox3.isSelected()) {
 					orbitalTypes.add("Aten");
 				}
-                System.out.println(orbitalTypes.toString());
                 controller.writeOrbitalParamFile(orbitalTypes, new onResultCallback() {
                     @Override
                     public void result(String method, boolean success, String result) {
@@ -180,7 +178,10 @@ public class ToolsForm extends JFrame {
 		tblAsteroidsData.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
+
+	            tblAsteroidsData.convertRowIndexToModel(tblAsteroidsData.getSelectedRow());
                 int row = tblAsteroidsData.rowAtPoint(e.getPoint());
+                 row = tblAsteroidsData.convertRowIndexToModel(tblAsteroidsData.getSelectedRow());
                 pnlAsteroidData.setText(controller.formatAsteroidData(celestiaAsteroids.get(row)));
             }
         });
@@ -189,12 +190,7 @@ public class ToolsForm extends JFrame {
 		btnCalc.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				controller.calculate(new onResultCallback() {
-					@Override
-					public void result(String method, boolean success, String result) {
-						lblCalcRes.setText("Результат:" + result);
-					}
-				});
+				controller.orbitViewerStart();
 			}
 		});
 	}
@@ -232,10 +228,33 @@ public class ToolsForm extends JFrame {
                 return "";
             }
         };
-        tblAsteroidsData.setModel(tableModel);
+	    rowSorter = new TableRowSorter<TableModel>(tableModel);
+	    textField1.addKeyListener(new KeyListener() {
+		    @Override
+		    public void keyTyped(KeyEvent e) {
+
+		    }
+
+		    @Override
+		    public void keyPressed(KeyEvent e) {
+
+		    }
+
+		    @Override
+		    public void keyReleased(KeyEvent e) {
+			    String srch = textField1.getText().trim();
+			    if (srch.length() == 0) {
+				    rowSorter.setRowFilter(null);
+			    } else {
+				    rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + srch));
+			    }
+		    }
+	    });
+	    tblAsteroidsData.setModel(tableModel);
+	    tblAsteroidsData.setRowSorter(rowSorter);
     }
 
-	private void setFrameForm(JFrame frame) {
+	public static void setFrameForm(JFrame frame) {
 		frame.setPreferredSize(new Dimension(WIDTH, HEIGHT));
 		Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
 		int dx = (int) (dimension.getWidth() / 2);
