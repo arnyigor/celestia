@@ -1,6 +1,9 @@
 package com.arny.celestiatools.utils;
 
+import java.util.Calendar;
+
 import static com.arny.celestiatools.utils.MathUtils.*;
+import static com.arny.celestiatools.utils.BaseUtils.*;
 
 /**
  * @author i.sedoy
@@ -77,40 +80,40 @@ public class AstroUtils {
 
     public static double getR1() {
         double delim = a1 * (1 - Math.pow(e1, 2));
-        double delit = 1 + e1 * Cos(getTrueAnom(e1,getExcAnom(e1,M1)));
+        double delit = 1 + e1 * Cos(getTrueAnom(e1, ExcAnom(e1,M1)));
         return delim / delit;
     }
 
     public static double getX1() {
-        return getR1() * (Cos(node1) * Cos(node1 + getTrueAnom(e1,getExcAnom(e1,M1))) - Sin(node1) * Sin(node1 + getTrueAnom(e1,getExcAnom(e1,M1))) * Cos(i1));
+        return getR1() * (Cos(node1) * Cos(node1 + getTrueAnom(e1, ExcAnom(e1,M1))) - Sin(node1) * Sin(node1 + getTrueAnom(e1, ExcAnom(e1,M1))) * Cos(i1));
     }
 
     public static double getY1() {
-        return getR1() * (Sin(node1) * Cos(node1 + getTrueAnom(e1,getExcAnom(e1,M1))) - Cos(node1) * Sin(node1 + getTrueAnom(e1,getExcAnom(e1,M1))) * Cos(i1));
+        return getR1() * (Sin(node1) * Cos(node1 + getTrueAnom(e1, ExcAnom(e1,M1))) - Cos(node1) * Sin(node1 + getTrueAnom(e1, ExcAnom(e1,M1))) * Cos(i1));
     }
 
     public static double getZ1() {
-        return getR1() * Sin(node1 + getTrueAnom(e1,getExcAnom(e1,M1))) * Sin(i1);
+        return getR1() * Sin(node1 + getTrueAnom(e1, ExcAnom(e1,M1))) * Sin(i1);
     }
 
     public static double getR2() {
         double delim = a2 * (1 - Math.pow(e2, 2));
-        double delit = 1 + e2 * Cos(getTrueAnom(e2,getExcAnom(e2,M2)));
+        double delit = 1 + e2 * Cos(getTrueAnom(e2, ExcAnom(e2,M2)));
         return delim / delit;
     }
 
     public static double getX2() {
-        return getR2() * (Cos(node2) * Cos(node2 + getTrueAnom(e2,getExcAnom(e2,M2))) - Sin(node2) * Sin(node2 + getTrueAnom(e2,getExcAnom(e2,M2))) * Cos(i2));
-//        return getR2() * Cos(getExcAnom(e2,M2));
+        return getR2() * (Cos(node2) * Cos(node2 + getTrueAnom(e2, ExcAnom(e2,M2))) - Sin(node2) * Sin(node2 + getTrueAnom(e2, ExcAnom(e2,M2))) * Cos(i2));
+//        return getR2() * Cos(ExcAnom(e2,M2));
     }
 
     public static double getY2() {
-        return getR2() * (Sin(node2) * Cos(node2 + getTrueAnom(e1,getExcAnom(e2,M2))) - Cos(node2) * Sin(node2 + getTrueAnom(e2,getExcAnom(e2,M2))) * Cos(i2));
-//        return getR1() * Sin(getExcAnom(e1,M1)) ;
+        return getR2() * (Sin(node2) * Cos(node2 + getTrueAnom(e1, ExcAnom(e2,M2))) - Cos(node2) * Sin(node2 + getTrueAnom(e2, ExcAnom(e2,M2))) * Cos(i2));
+//        return getR1() * Sin(ExcAnom(e1,M1)) ;
     }
 
     public static double getZ2() {
-        return getR2() * Sin(node2 + getTrueAnom(e2,getExcAnom(e2,M2))) * Sin(i2);
+        return getR2() * Sin(node2 + getTrueAnom(e2, ExcAnom(e2,M2))) * Sin(i2);
 //        return 0;
     }
 
@@ -123,7 +126,7 @@ public class AstroUtils {
      * @return
      */
     public static double JD(int year, int month, double day) {
-        int ytmp = 0, mtmp = 0;
+        int ytmp, mtmp;
         if (month == 1 || month == 2) {
             ytmp = year - 1;
             mtmp = month + 12;
@@ -136,6 +139,16 @@ public class AstroUtils {
         int C = (int) (365.25 * ytmp);
         int D = (int) (30.6001 * (mtmp + 1));
         return B + C + D + day + 1720994.5;
+    }
+
+    public static double dayFromJD(double JD) {
+        long timestimp = DateFromJD(JD);
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(timestimp);
+        double mS = cal.get(Calendar.SECOND) / 60;
+        double mD = (mS + cal.get(Calendar.MINUTE)) / 60;
+        double h = (mD + cal.get(Calendar.HOUR)) / 24;
+        return cal.get(Calendar.DAY_OF_MONTH) + h;
     }
 
     /**
@@ -159,7 +172,7 @@ public class AstroUtils {
      * @param JD
      * @return
      */
-    public static long getDateFromJD(double JD) {
+    public static long DateFromJD(double JD) {
         double epochDay = JD - 2440587.5d;
         return (long) (epochDay * 86400000d);
     }
@@ -190,7 +203,7 @@ public class AstroUtils {
         return Math.sqrt(tmp1 + tmp2 + tmp3);
     }
 
-    public static double getExcAnom(double e, double M) {
+    public static double ExcAnom(double e, double M) {
         double em = e * 180 / Math.PI;
         double E = M, E1;
         while (true) {
