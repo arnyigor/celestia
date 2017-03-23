@@ -1,6 +1,9 @@
 package com.arny.celestiatools.utils;
 
+import java.util.Calendar;
+
 import static com.arny.celestiatools.utils.MathUtils.*;
+import static com.arny.celestiatools.utils.BaseUtils.*;
 
 /**
  * @author i.sedoy
@@ -123,7 +126,7 @@ public class AstroUtils {
      * @return
      */
     public static double JD(int year, int month, double day) {
-        int ytmp = 0, mtmp = 0;
+        int ytmp, mtmp;
         if (month == 1 || month == 2) {
             ytmp = year - 1;
             mtmp = month + 12;
@@ -136,6 +139,16 @@ public class AstroUtils {
         int C = (int) (365.25 * ytmp);
         int D = (int) (30.6001 * (mtmp + 1));
         return B + C + D + day + 1720994.5;
+    }
+
+    public static double dayFromJD(double JD) {
+        long timestimp = DateFromJD(JD);
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(timestimp);
+        double mS = cal.get(Calendar.SECOND) / 60;
+        double mD = (mS + cal.get(Calendar.MINUTE)) / 60;
+        double h = (mD + cal.get(Calendar.HOUR)) / 24;
+        return cal.get(Calendar.DAY_OF_MONTH) + h;
     }
 
     /**
@@ -159,7 +172,7 @@ public class AstroUtils {
      * @param JD
      * @return
      */
-    public static long getDateFromJD(double JD) {
+    public static long DateFromJD(double JD) {
         double epochDay = JD - 2440587.5d;
         return (long) (epochDay * 86400000d);
     }

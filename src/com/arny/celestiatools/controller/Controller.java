@@ -348,7 +348,7 @@ public class Controller {
         res += "\nEccentricity:" + asteroid.getEcc();
         res += "\nArgOfPericenter:" + asteroid.getPeric();
         res += "\nMeanAnomaly:" + asteroid.getMa();
-        res += "\nEpoch:" + asteroid.getEpoch() + " datetime = " + BaseUtils.getDateTime(AstroUtils.getDateFromJD(asteroid.getEpoch()),"dd MM yyyy HH:mm");
+        res += "\nEpoch:" + asteroid.getEpoch() + " datetime = " + BaseUtils.getDateTime(AstroUtils.DateFromJD(asteroid.getEpoch()),"dd MM yyyy HH:mm");
         return res;
     }
 
@@ -503,7 +503,10 @@ public class Controller {
 					AstroUtils.setNode2(1.668223242649487E+02);
 					AstroUtils.setM2(5.741534538676495E+01);
 
-                    operationResult  = "\ngetMOID = " + AstroUtils.JDT(33282) ;
+                    double jd = AstroUtils.JD(BaseUtils.convertTimeStringToLong("2009 09 09 09:09:09", "yyyy MM dd HH:mm:ss"));
+                    String res = String.valueOf(BaseUtils.getDateTime(AstroUtils.DateFromJD(jd),"yyyy MM") + " "+AstroUtils.dayFromJD(jd));
+
+                    operationResult  = "\nres = " + res ;
                     resultCallback.result("moid", true, operationResult);
 				} catch (Exception e) {
                     resultCallback.result("moid", false, e.getMessage());
