@@ -10,111 +10,141 @@ import static com.arny.celestiatools.utils.BaseUtils.*;
  */
 public class AstroUtils {
 
-    private static double a1, e1, i1, peri1, node1, M1;
-    private static double a2, e2, i2, peri2, node2, M2;
+    //    public static double getR1() {
+//        double delim = a1 * (1 - Math.pow(e1, 2));
+//        double delit = 1 + e1 * Cos(getTrueAnom(e1, ExcAnom(e1,M1)));
+//        return delim / delit;
+//    }
+//
+//    public static double getX1() {
+//        return getR1() * (Cos(node1) * Cos(node1 + getTrueAnom(e1, ExcAnom(e1,M1))) - Sin(node1) * Sin(node1 + getTrueAnom(e1, ExcAnom(e1,M1))) * Cos(i1));
+//    }
+//
+//    public static double getY1() {
+//        return getR1() * (Sin(node1) * Cos(node1 + getTrueAnom(e1, ExcAnom(e1,M1))) - Cos(node1) * Sin(node1 + getTrueAnom(e1, ExcAnom(e1,M1))) * Cos(i1));
+//    }
+//
+//    public static double getZ1() {
+//        return getR1() * Sin(node1 + getTrueAnom(e1, ExcAnom(e1,M1))) * Sin(i1);
+//    }
+//
+//    public static double getR2() {
+//        double delim = a2 * (1 - Math.pow(e2, 2));
+//        double delit = 1 + e2 * Cos(getTrueAnom(e2, ExcAnom(e2,M2)));
+//        return delim / delit;
+//    }
+//
+//    public static double getX2() {
+//        return getR2() * (Cos(node2) * Cos(node2 + getTrueAnom(e2, ExcAnom(e2,M2))) - Sin(node2) * Sin(node2 + getTrueAnom(e2, ExcAnom(e2,M2))) * Cos(i2));
+////        return getR2() * Cos(ExcAnom(e2,M2));
+//    }
+//
+//    public static double getY2() {
+//        return getR2() * (Sin(node2) * Cos(node2 + getTrueAnom(e1, ExcAnom(e2,M2))) - Cos(node2) * Sin(node2 + getTrueAnom(e2, ExcAnom(e2,M2))) * Cos(i2));
+////        return getR1() * Sin(ExcAnom(e1,M1)) ;
+//    }
+//
+//    public static double getZ2() {
+//        return getR2() * Sin(node2 + getTrueAnom(e2, ExcAnom(e2,M2))) * Sin(i2);
+////        return 0;
+//    }
+//public static double getMOID() {
+//    double tmp1 = Math.pow((getX1() - getX2()), 2);
+//    double tmp2 = Math.pow((getY1() - getY2()), 2);
+//    double tmp3 = Math.pow((getZ1() - getZ2()), 2);
+//    return Math.sqrt(tmp1 + tmp2 + tmp3);
+//}
 
-    public static double getA1() {
-        return a1;
+    public enum DistanceTypes{
+        metre,
+        km,
+        AU,
+        LY,
+        PC
+
     }
 
-    public static double getE1() {
-        return e1;
-    }
-
-    public static double getA2() {
-        return a2;
-    }
-
-    public static double getE2() {
-        return e2;
-    }
-
-    public static void setA1(double a1) {
-        AstroUtils.a1 = a1;
-    }
-
-    public static void setE1(double e1) {
-        AstroUtils.e1 = e1;
-    }
-
-    public static void setI1(double i1) {
-        AstroUtils.i1 = i1;
-    }
-
-    public static void setPeri1(double peri1) {
-        AstroUtils.peri1 = peri1;
-    }
-
-    public static void setNode1(double node1) {
-        AstroUtils.node1 = node1;
-    }
-
-    public static void setM1(double M1) {
-        AstroUtils.M1 = M1;
-    }
-
-    public static void setA2(double a2) {
-        AstroUtils.a2 = a2;
-    }
-
-    public static void setE2(double e2) {
-        AstroUtils.e2 = e2;
-    }
-
-    public static void setI2(double i2) {
-        AstroUtils.i2 = i2;
-    }
-
-    public static void setPeri2(double peri2) {
-        AstroUtils.peri2 = peri2;
-    }
-
-    public static void setNode2(double node2) {
-        AstroUtils.node2 = node2;
-    }
-
-    public static void setM2(double M2) {
-        AstroUtils.M2 = M2;
-    }
-
-
-    public static double getR1() {
-        double delim = a1 * (1 - Math.pow(e1, 2));
-        double delit = 1 + e1 * Cos(getTrueAnom(e1, ExcAnom(e1,M1)));
-        return delim / delit;
-    }
-
-    public static double getX1() {
-        return getR1() * (Cos(node1) * Cos(node1 + getTrueAnom(e1, ExcAnom(e1,M1))) - Sin(node1) * Sin(node1 + getTrueAnom(e1, ExcAnom(e1,M1))) * Cos(i1));
-    }
-
-    public static double getY1() {
-        return getR1() * (Sin(node1) * Cos(node1 + getTrueAnom(e1, ExcAnom(e1,M1))) - Cos(node1) * Sin(node1 + getTrueAnom(e1, ExcAnom(e1,M1))) * Cos(i1));
-    }
-
-    public static double getZ1() {
-        return getR1() * Sin(node1 + getTrueAnom(e1, ExcAnom(e1,M1))) * Sin(i1);
-    }
-
-    public static double getR2() {
-        double delim = a2 * (1 - Math.pow(e2, 2));
-        double delit = 1 + e2 * Cos(getTrueAnom(e2, ExcAnom(e2,M2)));
-        return delim / delit;
-    }
-
-    public static double getX2() {
-        return getR2() * (Cos(node2) * Cos(node2 + getTrueAnom(e2, ExcAnom(e2,M2))) - Sin(node2) * Sin(node2 + getTrueAnom(e2, ExcAnom(e2,M2))) * Cos(i2));
-//        return getR2() * Cos(ExcAnom(e2,M2));
-    }
-
-    public static double getY2() {
-        return getR2() * (Sin(node2) * Cos(node2 + getTrueAnom(e1, ExcAnom(e2,M2))) - Cos(node2) * Sin(node2 + getTrueAnom(e2, ExcAnom(e2,M2))) * Cos(i2));
-//        return getR1() * Sin(ExcAnom(e1,M1)) ;
-    }
-
-    public static double getZ2() {
-        return getR2() * Sin(node2 + getTrueAnom(e2, ExcAnom(e2,M2))) * Sin(i2);
-//        return 0;
+    public static double DistanceConvert(double distance,DistanceTypes input,DistanceTypes output){
+        double res = 0;
+        switch (input){
+            case metre:
+                switch (output){
+                    case metre:
+                        res = distance;
+                        break;
+                    case km:
+                        res = distance /1000;
+                        break;
+                    case AU:
+                        res = distance/AstroConst.AU;
+                        break;
+                    case LY:
+                        res = distance/AstroConst.LY;
+                        break;
+                    case PC:
+                        res = distance/AstroConst.PC;
+                        break;
+                }
+                break;
+            case km:
+                switch (output){
+                    case metre:
+                        res = distance * 1000;
+                        break;
+                    case km:
+                        res = distance;
+                        break;
+                    case AU:
+                        res = (distance * 1000)/AstroConst.AU;
+                        break;
+                    case LY:
+                        res = (distance * 1000)/ AstroConst.LY;
+                        break;
+                    case PC:
+                        res = (distance * 1000)/ AstroConst.PC;
+                        break;
+                }
+                break;
+            case AU:
+                switch (output){
+                    case metre:
+                        res = distance * AstroConst.AU;
+                        break;
+                    case km:
+                        res = (distance * AstroConst.AU) /1000;
+                        break;
+                    case AU:
+                        res = distance;
+                        break;
+                    case LY:
+                        res = (distance*AstroConst.AU) / AstroConst.LY;
+                        break;
+                    case PC:
+                        res = (distance * AstroConst.AU) / AstroConst.PC;
+                        break;
+                }
+                break;
+            case PC:
+                switch (output){
+                    case metre:
+                        res = distance*AstroConst.PC;
+                        break;
+                    case km:
+                        res = (distance*AstroConst.PC)/1000;
+                        break;
+                    case AU:
+                        res = (distance*AstroConst.PC)/AstroConst.AU;
+                        break;
+                    case LY:
+                        res = (distance*AstroConst.PC)/AstroConst.LY;
+                        break;
+                    case PC:
+                        res = distance;
+                        break;
+                }
+                break;
+        }
+        return res;
     }
 
     /**
@@ -149,6 +179,36 @@ public class AstroUtils {
         double mD = (mS + cal.get(Calendar.MINUTE)) / 60;
         double h = (mD + cal.get(Calendar.HOUR)) / 24;
         return cal.get(Calendar.DAY_OF_MONTH) + h;
+    }
+
+    /**
+     * JD->YMD.d
+     * @param JD
+     * @return
+     */
+    public static String YMDd(double JD) {
+        long timestimp = DateFromJD(JD);
+        String sec =  getDateTime(timestimp, "ss");
+        String min =  getDateTime(timestimp, "mm");
+        String hrs =  getDateTime(timestimp, "HH");
+        String days = getDateTime(timestimp, "dd");
+        String mth =  getDateTime(timestimp, "MM");
+        String yrs =  getDateTime(timestimp, "yyyy");
+        if (!empty(sec) && !empty(min) && !empty(hrs) && !empty(days) && !empty(mth) && !empty(yrs)){
+            double dSec = Double.parseDouble(sec)/60;
+            double mMin = (dSec + Double.parseDouble(min)) / 60;
+            double dHr = (mMin + Double.parseDouble(hrs)) / 24;
+            int mY = Integer.parseInt(yrs);
+            int mM = Integer.parseInt(mth);
+            int mD = Integer.parseInt(days);
+            String dDay = String.valueOf(fracal(round(dHr, 6)));
+            System.out.println(dDay);
+            dDay = dDay.substring(1, dDay.length());
+            System.out.println(dDay);
+            return String.valueOf(mY).concat(BaseUtils.pad(mM)).concat(String.valueOf(mD)).concat(dDay);
+        }else {
+            return "0";
+        }
     }
 
     /**
@@ -196,12 +256,7 @@ public class AstroUtils {
         return BaseUtils.roundUp(result, 3).doubleValue();
     }
 
-    public static double getMOID() {
-        double tmp1 = Math.pow((getX1() - getX2()), 2);
-        double tmp2 = Math.pow((getY1() - getY2()), 2);
-        double tmp3 = Math.pow((getZ1() - getZ2()), 2);
-        return Math.sqrt(tmp1 + tmp2 + tmp3);
-    }
+
 
     public static double ExcAnom(double e, double M) {
         double em = e * 180 / Math.PI;

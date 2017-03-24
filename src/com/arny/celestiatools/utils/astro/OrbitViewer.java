@@ -1,51 +1,22 @@
 package com.arny.celestiatools.utils.astro;
-/**
- * Orbit Projector
- * <p>
- * Example (Comet)
- * <p>
- * <APPLET CODE="OrbitViewer" WIDTH=510 HEIGHT=400>
- * <PARAM NAME="Name"  VALUE="1P/Halley">
- * <PARAM NAME="T"     VALUE="19860209.7695">
- * <PARAM NAME="e"     VALUE="0.967267">
- * <PARAM NAME="q"     VALUE="0.587096">
- * <PARAM NAME="Peri"  VALUE="111.8466">
- * <PARAM NAME="Node"  VALUE=" 58.1440">
- * <PARAM NAME="Incl"  VALUE="162.2393">
- * <PARAM NAME="Eqnx"  VALUE="1950.0">
- * </APPLET>
- * <p>
- * Example (Minor Planet)
- * <p>
- * <APPLET CODE="OrbitViewer" WIDTH=510 HEIGHT=400>
- * <PARAM NAME="Name"  VALUE="Ceres(1)">
- * <PARAM NAME="Epoch" VALUE="19991118.5">
- * <PARAM NAME="M"     VALUE="356.648434">
- * <PARAM NAME="e"     VALUE="0.07831587">
- * <PARAM NAME="a"     VALUE="2.76631592">
- * <PARAM NAME="Peri"  VALUE=" 73.917708">
- * <PARAM NAME="Node"  VALUE=" 80.495123">
- * <PARAM NAME="Incl"  VALUE=" 10.583393">
- * <PARAM NAME="Eqnx"  VALUE="2000.0">
- * </APPLET>
- * <p>
- * Optional paramter "Date" specifies initial date to display.
- * If "Date" parameter omitted, it start with current date.
- * <p>
- * <PARAM NAME="Date"  VALUE="19860209.7695">
- */
 
 import java.applet.*;
 import java.awt.*;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.*;
 import java.math.*;
 
+import com.arny.celestiatools.models.CelestiaAsteroid;
+import com.arny.celestiatools.utils.AstroUtils;
 import com.arny.celestiatools.utils.astro.*;
 import com.arny.celestiatools.views.ToolsForm;
 
 import javax.swing.*;
+
+import static com.arny.celestiatools.utils.AstroUtils.*;
 
 /**
  * Main Applet Class
@@ -54,25 +25,11 @@ public class OrbitViewer extends Applet {
 	/**
 	 * Components
 	 */
-	private Scrollbar scrollHorz;
-	private Scrollbar scrollVert;
-	private Scrollbar scrollZoom;
+	private Scrollbar scrollHorz,scrollVert,scrollZoom;
 	private OrbitCanvas orbitCanvas;
-	private Button buttonDate;
-
-	private Button buttonRevPlay;
-	private Button buttonRevStep;
-	private Button buttonStop;
-	private Button buttonForStep;
-	private Button buttonForPlay;
-	private Choice choiceTimeStep;
-	private Choice choiceCenterObject;
-	private Choice choiceOrbitObject;
-
-	private Checkbox checkPlanetName;
-	private Checkbox checkObjectName;
-	private Checkbox checkDistanceLabel;
-	private Checkbox checkDateLabel;
+	private Button buttonDate,buttonRevPlay,buttonRevStep,buttonStop,buttonForStep,buttonForPlay;
+	private Choice choiceTimeStep,choiceCenterObject,choiceOrbitObject;
+	private Checkbox checkPlanetName,checkObjectName,checkDistanceLabel,checkDateLabel;
 
 	private DateDialog dateDialog = null;
 
@@ -80,7 +37,7 @@ public class OrbitViewer extends Applet {
 	 * Player thread
 	 */
 	private OrbitPlayer orbitPlayer;
-	Thread playerThread = null;
+    private Thread playerThread = null;
 
 	/**
 	 * Current Time Setting
@@ -90,14 +47,14 @@ public class OrbitViewer extends Applet {
 	/**
 	 * Time step
 	 */
-	static final int timeStepCount = 8;
-	static final String timeStepLabel[] = {
+    private static final int timeStepCount = 8;
+    private static final String timeStepLabel[] = {
 			"1 Hour",
 			"1 Day", "3 Days", "10 Days",
 			"1 Month", "3 Months", "6 Months",
 			"1 Year"
 	};
-	static final TimeSpan timeStepSpan[] = {
+    private static final TimeSpan timeStepSpan[] = {
 			new TimeSpan(0, 0, 0, 1, 0, 0.0),
 			new TimeSpan(0, 0, 1, 0, 0, 0.0),
 			new TimeSpan(0, 0, 3, 0, 0, 0.0),
@@ -108,31 +65,31 @@ public class OrbitViewer extends Applet {
 			new TimeSpan(1, 0, 0, 0, 0, 0.0),
 	};
 	public TimeSpan timeStep = timeStepSpan[1];
-	public int playDirection = ATime.F_INCTIME;
+    public int playDirection = ATime.F_INCTIME;
 
 	/**
 	 * Centered Object
 	 */
-	static final int CenterObjectCount = 11;
-	static final String CenterObjectLabel[] = {
+    private static final int CenterObjectCount = 11;
+    private static final String CenterObjectLabel[] = {
 			"Sun", "Asteroid/Comet", "Mercury", "Venus", "Earth",
 			"Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"
 	};
-	public int CenterObjectSelected = 0;
+    private int CenterObjectSelected = 0;
 
 	/**
 	 * Orbits Displayed
 	 */
-	static final int OrbitDisplayCount = 14;
-	static final String OrbitDisplayLabel[] = {
+    private static final int OrbitDisplayCount = 14;
+    private static final String OrbitDisplayLabel[] = {
 			"Default Orbits", "All Orbits", "No Orbits", "------",
 			"Asteroid/Comet", "Mercury", "Venus", "Earth",
 			"Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"
 	};
-	public int OrbitCount = 11;
-	public boolean OrbitDisplay[] = {false, true, true, true, true, true, true,
+    private int OrbitCount = 11;
+    private boolean OrbitDisplay[] = {false, true, true, true, true, true, true,
 			false, false, false, false};
-	public boolean OrbitDisplayDefault[] = {false, true, true, true, true, true, true,
+    private boolean OrbitDisplayDefault[] = {false, true, true, true, true, true, true,
 			false, false, false, false};
 
 	/**
@@ -145,10 +102,12 @@ public class OrbitViewer extends Applet {
 	/**
 	 * Initial Settings
 	 */
-	static final int initialScrollVert = 90 + 40;
-	static final int initialScrollHorz = 255;
-	static final int initialScrollZoom = 67;
-	static final int fontSize = 16;
+    private static final int initialScrollVert = 90 + 40;
+    private static final int initialScrollHorz = 255;
+    private static final int initialScrollZoom = 67;
+    private static final int fontSize = 16;
+
+    private CelestiaAsteroid celestiaAsteroid;
 
 	/**
 	 * Applet information
@@ -194,7 +153,7 @@ public class OrbitViewer extends Applet {
 	 * Convert time in format "YYYYMMDD.D" to ATime
 	 */
 	private ATime ymdStringToAtime(String strYmd) {
-		double fYmd = Double.valueOf(strYmd).doubleValue();
+		double fYmd = Double.valueOf(strYmd);
 		int nYear = (int) Math.floor(fYmd / 10000.0);
 		fYmd -= (double) nYear * 10000.0;
 		int nMonth = (int) Math.floor(fYmd / 100.0);
@@ -211,13 +170,115 @@ public class OrbitViewer extends Applet {
 			throw new Error("Required parameter '"
 					+ strName + "' not found.");
 		}
-		return Double.valueOf(strValue).doubleValue();
+		return Double.valueOf(strValue);
 	}
+
+    @Override
+    public String getParameter(String name) {
+        String info[][] = {
+                {"Name", celestiaAsteroid.getName()},
+                {"T", },
+                {"e", String.valueOf(celestiaAsteroid.getEcc())},
+                {"q", },
+                {"Peri", String.valueOf(celestiaAsteroid.getPeric())},
+                {"Node", String.valueOf(celestiaAsteroid.getNode())},
+                {"Incl", String.valueOf(celestiaAsteroid.getInc())},
+                {"Eqnx", "2000.0"},
+                {"Epoch", String.valueOf(celestiaAsteroid.getEpoch())},
+                {"M",String.valueOf(celestiaAsteroid.getMa())},
+                {"a",String.valueOf(celestiaAsteroid.getSma())},
+                {"Date","20170216.0"},
+        };
+
+        String res = null;
+        for (String[] anInfo : info) {
+            for (int i = 0; i < anInfo.length; i++) {
+//                System.out.println(name + " " + i + "->" + anInfo[0] + " equals:" + name.equals(anInfo[0]));
+                if (name.equals(anInfo[0])) {
+                    if (anInfo.length < 2) {
+                        return null;
+                    }else{
+                        res =  anInfo[1];
+                        break;
+                    }
+                }
+            }
+        }
+        System.out.println(res);
+        return res;
+    }
+
+    private Comet getObject(){
+        String strName = getParameter("Name");
+        if (strName == null) {
+            strName = "Object";
+        }
+        double e, q;
+        ATime T;
+        String strParam;
+        if ((strParam = getParameter("e")) == null) {
+            throw new Error("required parameter 'e' not found.");
+        }
+        e = Double.valueOf(strParam);
+        if ((strParam = getParameter("T")) != null) {
+            T = ymdStringToAtime(strParam);
+            if ((strParam = getParameter("q")) != null) {
+                q = Double.valueOf(strParam);
+            } else if ((strParam = getParameter("a")) != null) {
+                double a = Double.valueOf(strParam);
+                if (Math.abs(e - 1.0) < 1.0e-15) {
+                    throw new Error("Orbit is parabolic, but 'q' not found.");
+                }
+                q = a * (1.0 - e);
+            } else {
+                throw new Error("Required parameter 'q' or 'a' not found.");
+            }
+        } else if ((strParam = getParameter("Epoch")) != null) {
+            ATime Epoch = ymdStringToAtime(strParam);
+            if (e > 0.95) {
+                throw new
+                        Error("Orbit is nearly parabolic, but 'T' not found.");
+            }
+            double a;
+            if ((strParam = getParameter("a")) != null) {
+                a = Double.valueOf(strParam);
+                q = a * (1.0 - e);
+            } else if ((strParam = getParameter("q")) != null) {
+                q = Double.valueOf(strParam);
+                a = q / (1.0 - e);
+            } else {
+                throw new Error("Required parameter 'q' or 'a' not found.");
+            }
+            if (q < 1.0e-15) {
+                throw new Error("Too small perihelion distance.");
+            }
+            double n = Astro.GAUSS / (a * Math.sqrt(a));
+            if ((strParam = getParameter("M")) == null) {
+                throw new Error("Required parameter 'M' not found.");
+            }
+            double M = Double.valueOf(strParam)
+                    * Math.PI / 180.0;
+
+            double epo = Double.parseDouble(getParameter("Epoch"));
+            if (M < Math.PI) {
+                T = new ATime( epo - M / n, 0.0);
+            } else {
+                T = new ATime(epo + (Math.PI*2.0 - M) / n, 0.0);
+            }
+        } else {
+            throw new Error("Required parameter 'T' or 'Epoch' not found.");
+        }
+        return new Comet(strName, T.getJd(), e, q,
+                getRequiredParameter("Peri")*Math.PI/180.0,
+                getRequiredParameter("Node")*Math.PI/180.0,
+                getRequiredParameter("Incl")*Math.PI/180.0,
+                getRequiredParameter("Eqnx"));
+    }
 
 	/**
 	 * Get orbital elements of the object from applet parameter
 	 */
-	private Comet getObject() {
+	private Comet getObjectNew() {
 
 //		 * <PARAM NAME="Name"  VALUE="1P/Halley">
 // * <PARAM NAME="T"     VALUE="19860209.7695">
@@ -228,61 +289,76 @@ public class OrbitViewer extends Applet {
 // * <PARAM NAME="Incl"  VALUE="162.2393">
 // * <PARAM NAME="Eqnx"  VALUE="1950.0">
 
-		String strName = "1P/Halley";
-		double e, q;
-		ATime T;
-		String strParam;
-		e = 0.967267;
-		if ((strParam = "19860209.7695") != null) {
-			T = ymdStringToAtime(strParam);
-			if ((strParam = "0.587096") != null) {
-				q = Double.valueOf(strParam);
-			} else if ((strParam = getParameter("a")) != null) {
-				double a = Double.valueOf(strParam);
-				if (Math.abs(e - 1.0) < 1.0e-15) {
-					throw new Error("Orbit is parabolic, but 'q' not found.");
-				}
-				q = a * (1.0 - e);
-			} else {
-				throw new Error("Required parameter 'q' or 'a' not found.");
-			}
-		} else if ((strParam = getParameter("Epoch")) != null) {
-			ATime Epoch = ymdStringToAtime(strParam);
-			if (e > 0.95) {
-				throw new
-						Error("Orbit is nearly parabolic, but 'T' not found.");
-			}
-			double a;
-			if ((strParam = getParameter("a")) != null) {
-				a = Double.valueOf(strParam);
-				q = a * (1.0 - e);
-			} else if ((strParam = getParameter("q")) != null) {
-				q = Double.valueOf(strParam);
-				a = q / (1.0 - e);
-			} else {
-				throw new Error("Required parameter 'q' or 'a' not found.");
-			}
-			if (q < 1.0e-15) {
-				throw new Error("Too small perihelion distance.");
-			}
-			double n = Astro.GAUSS / (a * Math.sqrt(a));
-			if ((strParam = getParameter("M")) == null) {
-				throw new Error("Required parameter 'M' not found.");
-			}
-			double M = Double.valueOf(strParam)
-					* Math.PI / 180.0;
-			if (M < Math.PI) {
-				T = new ATime(Epoch.getJd() - M / n, 0.0);
-			} else {
-				T = new ATime(Epoch.getJd() + (Math.PI * 2.0 - M) / n, 0.0);
-			}
-		} else {
-			throw new Error("Required parameter 'T' or 'Epoch' not found.");
-		}
-		return new Comet(strName, T.getJd(), e, q,
-				111.8466 * Math.PI / 180.0,
-				58.1440 * Math.PI / 180.0,
-				162.2393 * Math.PI / 180.0,1950.0);
+//		String strName = "1P/Halley";
+//		ATime T;
+//		String strParam;
+//		if ((strParam = "19860209.7695") != null) {
+//			T = ymdStringToAtime(strParam);
+//			if ((strParam = "0.587096") != null) {
+//				q = Double.valueOf(strParam);
+//			} else if ((strParam = getParameter("a")) != null) {
+//				double a = Double.valueOf(strParam);
+//				if (Math.abs(e - 1.0) < 1.0e-15) {
+//					throw new Error("Orbit is parabolic, but 'q' not found.");
+//				}
+//				q = a * (1.0 - e);
+//			} else {
+//				throw new Error("Required parameter 'q' or 'a' not found.");
+//			}
+//		}
+//
+//		else if ((strParam = getParameter("Epoch")) != null) {
+//			ATime Epoch = ymdStringToAtime(strParam);
+//			if (e > 0.95) {
+//				throw new
+//						Error("Orbit is nearly parabolic, but 'T' not found.");
+//			}
+//			double a;
+//			if ((strParam = getParameter("a")) != null) {
+//				a = Double.valueOf(strParam);
+//				q = a * (1.0 - e);
+//			} else if ((strParam = getParameter("q")) != null) {
+//				q = Double.valueOf(strParam);
+//				a = q / (1.0 - e);
+//			} else {
+//				throw new Error("Required parameter 'q' or 'a' not found.");
+//			}
+//			if (q < 1.0e-15) {
+//				throw new Error("Too small perihelion distance.");
+//			}
+//			double n = Astro.GAUSS / (a * Math.sqrt(a));
+//			if ((strParam = getParameter("M")) == null) {
+//				throw new Error("Required parameter 'M' not found.");
+//			}
+//			double M = Double.valueOf(strParam)
+//					* Math.PI / 180.0;
+//			if (M < Math.PI) {
+//				T = new ATime(Epoch.getJd() - M / n, 0.0);
+//			} else {
+//				T = new ATime(Epoch.getJd() + (Math.PI * 2.0 - M) / n, 0.0);
+//			}
+//		} else {
+//			throw new Error("Required parameter 'T' or 'Epoch' not found.");
+//		}
+        String strName = getCelestiaAsteroid().getName();
+
+        ATime Epoch = ymdStringToAtime(String.valueOf(getCelestiaAsteroid().getEpoch()));
+        ATime T;
+        double M = getCelestiaAsteroid().getMa() * Math.PI / 180.0;
+        double a = getCelestiaAsteroid().getSma();
+        double n = Astro.GAUSS / (a * Math.sqrt(a));
+        if (M < Math.PI) {
+            T = new ATime(Epoch.getJd() - M / n, 0.0);
+        } else {
+            T = new ATime(Epoch.getJd() + (Math.PI * 2.0 - M) / n, 0.0);
+        }
+        double fT = T.getJd();
+        double e = getCelestiaAsteroid().getEcc();
+        double q = a * (1.0 - e);
+        return new Comet(strName, fT, e, q,
+                getCelestiaAsteroid().getPeric() * Math.PI / 180.0,
+                getCelestiaAsteroid().getNode() * Math.PI / 180.0,
+                getCelestiaAsteroid().getInc() * Math.PI / 180.0,2000.0);
 	}
 
 	/**
@@ -322,7 +398,7 @@ public class OrbitViewer extends Applet {
 	/**
 	 * Initialization of applet
 	 */
-	public void init() {
+	public void init(String YMDd) {
 		this.setBackground(Color.white);
 		//
 		// Main Panel
@@ -334,15 +410,8 @@ public class OrbitViewer extends Applet {
 		mainPanel.setLayout(gblMainPanel);
 
 		// Orbit Canvas
-		Comet object = getObject();
-		String strParam;
-		if ((strParam = "19860209.7695") != null) {
-			this.atime = ymdStringToAtime("19860209.7695");
-		} else {
-			Date date = new Date();
-			this.atime = new ATime(date.getYear() + 1900, date.getMonth() + 1,
-					(double) date.getDate(), 0.0);
-		}
+        Comet object = getObject();
+        this.atime = ymdStringToAtime(YMDd);
 		orbitCanvas = new OrbitCanvas(object, this.atime);
 		gbcMainPanel.weightx = 1.0;
 		gbcMainPanel.weighty = 1.0;
@@ -352,47 +421,35 @@ public class OrbitViewer extends Applet {
 
 		// Vertical Scrollbar
 		scrollVert = new Scrollbar(Scrollbar.VERTICAL,
-				initialScrollVert, 12, 0, 180 + 12);
+				initialScrollVert, 12, 0, 192);
 		gbcMainPanel.weightx = 0.0;
 		gbcMainPanel.weighty = 0.0;
 		gbcMainPanel.gridwidth = GridBagConstraints.REMAINDER;
 		gblMainPanel.setConstraints(scrollVert, gbcMainPanel);
 		mainPanel.add(scrollVert);
 		orbitCanvas.setRotateVert(180 - scrollVert.getValue());
+		scrollVert.addAdjustmentListener(new AdjustmentListener() {
+            @Override
+            public void adjustmentValueChanged(AdjustmentEvent e) {
+                orbitCanvas.setRotateVert(180 - e.getValue());
+                orbitCanvas.repaint();
+            }
+        });
 
 		// Horizontal Scrollbar
 		scrollHorz = new Scrollbar(Scrollbar.HORIZONTAL,
-				initialScrollHorz, 15, 0, 360 + 15);
+				initialScrollHorz, 15, 0, 375);
 		gbcMainPanel.weightx = 1.0;
 		gbcMainPanel.weighty = 0.0;
 		gbcMainPanel.gridwidth = 1;
 		gblMainPanel.setConstraints(scrollHorz, gbcMainPanel);
-		scrollHorz.addMouseListener(new MouseListener() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-
-			}
-
-			@Override
-			public void mousePressed(MouseEvent e) {
-
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				orbitCanvas.setRotateHorz(270 - scrollHorz.getValue());
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent e) {
-
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e) {
-
-			}
-		});
+		scrollHorz.addAdjustmentListener(new AdjustmentListener() {
+            @Override
+            public void adjustmentValueChanged(AdjustmentEvent e) {
+                orbitCanvas.setRotateHorz(270 - e.getValue());
+                orbitCanvas.repaint();
+            }
+        });
 		mainPanel.add(scrollHorz);
 		orbitCanvas.setRotateHorz(270 - scrollHorz.getValue());
 
@@ -569,9 +626,7 @@ public class OrbitViewer extends Applet {
 		for (int i = 0; i < OrbitDisplayCount; i++) {
 			choiceOrbitObject.addItem(OrbitDisplayLabel[i]);
 		}
-		for (int i = 0; i < OrbitCount; i++) {
-			OrbitDisplay[i] = OrbitDisplayDefault[i];
-		}
+        System.arraycopy(OrbitDisplayDefault, 0, OrbitDisplay, 0, OrbitCount);
 		orbitCanvas.SelectOrbits(OrbitDisplay, OrbitCount);
 
 		// Date Label Checkbox
@@ -658,33 +713,14 @@ public class OrbitViewer extends Applet {
 		gbcCtrlPanel.gridwidth = 2;
 		gbcCtrlPanel.gridheight = 1;
 		gbcCtrlPanel.insets = new Insets(0, 12, 6, 2);
-		scrollZoom.addMouseListener(new MouseListener() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-
-			}
-
-			@Override
-			public void mousePressed(MouseEvent e) {
-
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent e) {
-
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent e) {
-
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e) {
-
-			}
-		});
 		gblCtrlPanel.setConstraints(scrollZoom, gbcCtrlPanel);
+		scrollZoom.addAdjustmentListener(new AdjustmentListener() {
+            @Override
+            public void adjustmentValueChanged(AdjustmentEvent e) {
+                orbitCanvas.setZoom(e.getValue());
+                orbitCanvas.repaint();
+            }
+        });
 		ctrlPanel.add(scrollZoom);
 		orbitCanvas.setZoom(scrollZoom.getValue());
 
@@ -719,7 +755,7 @@ public class OrbitViewer extends Applet {
 		JFrame mainFrame = new JFrame("Celestia orbit");
 		mainFrame.setResizable(true);
 		mainFrame.setContentPane(mainPanel);
-		mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		mainFrame.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 		ToolsForm.setFrameForm(mainFrame);
 		mainFrame.pack();
 		mainFrame.setVisible(true);
@@ -899,6 +935,14 @@ public class OrbitViewer extends Applet {
 			orbitCanvas.repaint();
 		}
 	}
+
+    public CelestiaAsteroid getCelestiaAsteroid() {
+        return celestiaAsteroid;
+    }
+
+    public void setCelestiaAsteroid(CelestiaAsteroid celestiaAsteroid) {
+        this.celestiaAsteroid = celestiaAsteroid;
+    }
 }
 
 /**
@@ -1006,20 +1050,20 @@ class OrbitCanvas extends Canvas {
 	/**
 	 * off-screen Image
 	 */
-	Image offscreen;
+    private Image offscreen;
 
 	/**
 	 * Object Name Drawing Flag
 	 */
-	boolean bPlanetName;
-	boolean bObjectName;
-	boolean bDistanceLabel;
-	boolean bDateLabel;
+    private boolean bPlanetName;
+    private boolean bObjectName;
+    private boolean bDistanceLabel;
+    private boolean bDateLabel;
 
 	/**
 	 * Constructor
 	 */
-	public OrbitCanvas(Comet object, ATime atime) {
+    public OrbitCanvas(Comet object, ATime atime) {
 		planetPos = new Xyz[9];
 		OrbitDisplay = new boolean[11];
 		this.object = object;
@@ -1390,7 +1434,7 @@ class OrbitCanvas extends Canvas {
 		}
 		if (fZoom * 0.387 >= 7.5) {
 			if (OrbitDisplay[0] || OrbitDisplay[2]) {
-				drawPlanetOrbit(og, planetOrbit[Planet.MERCURY - Planet.MERCURY],
+				drawPlanetOrbit(og, planetOrbit[0],
 						colorPlanetOrbitUpper, colorPlanetOrbitLower);
 			}
 			drawPlanetBody(og, planetPos[0], "Mercury");
@@ -1423,10 +1467,12 @@ class OrbitCanvas extends Canvas {
 			zdiff = xyz.fZ - xyz1.fZ;
 			edistance = Math.sqrt((xdiff * xdiff) + (ydiff * ydiff) +
 					(zdiff * zdiff)) + .0005;
-			edistance = (int) (edistance * 1000.0) / 1000.0;
+
+
+            edistance = (int) (edistance * 1000.0) / 1000.0;
 //			a = new BigDecimal (edistance);
 //			v = a.setScale (3, BigDecimal.ROUND_HALF_UP);
-			strDist = "Earth Distance: " + edistance + " AU";
+			strDist = "Earth Distance: " + DistanceConvert(edistance, DistanceTypes.AU, DistanceTypes.km)  + " KM";
 			point1.x = fm.charWidth('A');
 //			point1.y = this.sizeCanvas.height - fm.getDescent() - fm.getHeight() / 3;
 			point1.y = this.sizeCanvas.height - fm.getDescent() - fm.getHeight();

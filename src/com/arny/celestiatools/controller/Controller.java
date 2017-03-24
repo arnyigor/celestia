@@ -18,9 +18,11 @@ import com.arny.celestiatools.utils.BaseUtils;
 import com.arny.celestiatools.utils.FileUtils;
 import com.arny.celestiatools.utils.astro.ATime;
 import com.arny.celestiatools.utils.astro.OrbitViewer;
+import com.sun.xml.internal.rngom.parse.host.Base;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import static com.arny.celestiatools.utils.AstroUtils.*;
 
 public class Controller {
 
@@ -478,49 +480,24 @@ public class Controller {
         }
 	}
 
-	public void orbitViewerStart(){
+	public void orbitViewerStart(CelestiaAsteroid asteroid){
 		OrbitViewer orbitViewer = new OrbitViewer();
-		orbitViewer.init();
+        orbitViewer.setCelestiaAsteroid(asteroid);
+        long curtime = System.currentTimeMillis();
+		orbitViewer.init(YMDd(JD(curtime)));
 	}
 
 	public void calculate(onResultCallback resultCallback) {
 		operationResult = "";
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					operationResult = "2017-Mar-02 14:05 JD = " + AstroUtils.JD(BaseUtils.convertTimeStringToLong("2017-03-02 17:05","yyyy-MM-dd HH:mm"));
-					AstroUtils.setA1(2.201273459788872);
-					AstroUtils.setE1(0.6018904752619388);
-					AstroUtils.setI1(1.375014776910502);
-					AstroUtils.setPeri1(80.37016102969110);
-					AstroUtils.setNode1(161.8394032832525);
-					AstroUtils.setM1(2.801826762569547E+0);
-
-                    AstroUtils.setA1(1.000498640811768);
-                    AstroUtils.setE1(1.666719180066958E-02);
-                    AstroUtils.setI1(3.086491258554233E-03);
-                    AstroUtils.setPeri1(2.981260335253010E+02);
-                    AstroUtils.setNode1(1.668223242649487E+02);
-                    AstroUtils.setM1(5.741534538676495E+01);
-
-					AstroUtils.setA2(1.000498640811769);
-					AstroUtils.setE2(1.666719180066958E-02);
-					AstroUtils.setI2(3.086491258554233E-03);
-					AstroUtils.setPeri2(2.981260335253010E+02);
-					AstroUtils.setNode2(1.668223242649487E+02);
-					AstroUtils.setM2(5.741534538676495E+01);
-
-                    double jd = AstroUtils.JD(2017,2,16.0);
-
-                    operationResult  = "\nres = " + ATime.getEp(jd);
-                    resultCallback.result("moid", true, operationResult);
-				} catch (Exception e) {
-                    resultCallback.result("moid", false, e.getMessage());
-				}
-
-			}
-		}).start();
+        long curtime = BaseUtils.convertTimeStringToLong("2017 02 16","yyyy MM dd");
+        try {
+            double jd = JD(curtime);
+            operationResult  = "\nres = " + jd;
+            System.out.println(operationResult);
+            resultCallback.result("moid", true, operationResult);
+        } catch (Exception e) {
+            resultCallback.result("moid", false, e.getMessage());
+        }
 	}
 
 }

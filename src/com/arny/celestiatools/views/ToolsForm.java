@@ -33,11 +33,13 @@ public class ToolsForm extends JFrame {
     private JTextPane pnlAsteroidData;
     private JProgressBar progressBar;
 	private JTextField textField1;
-	private static final int WIDTH = 800;
+    private JButton btnOrbitViewer;
+    private static final int WIDTH = 800;
 	private static final int HEIGHT = 600;
 	private Controller controller;
 	private ArrayList<CelestiaAsteroid> celestiaAsteroids;
-	private TableModel tableModel;
+    private CelestiaAsteroid celestiaAsteroid;
+    private TableModel tableModel;
 	private TableRowSorter<TableModel> rowSorter;
 	public ToolsForm() {
 		initUI();
@@ -54,7 +56,8 @@ public class ToolsForm extends JFrame {
                 celestiaAsteroids = asteroids;
                 setModelToTable();
                 if (celestiaAsteroids.size()>0){
-                    pnlAsteroidData.setText(controller.formatAsteroidData(celestiaAsteroids.get(0)));
+                    celestiaAsteroid = celestiaAsteroids.get(0);
+                    pnlAsteroidData.setText(controller.formatAsteroidData(celestiaAsteroid));
                 }
                 progressBar.setValue(0);
             }
@@ -161,7 +164,8 @@ public class ToolsForm extends JFrame {
                         celestiaAsteroids = asteroids;
                         setModelToTable();
                         if (celestiaAsteroids.size() > 0) {
-                            pnlAsteroidData.setText(controller.formatAsteroidData(celestiaAsteroids.get(0)));
+                            celestiaAsteroid = celestiaAsteroids.get(0);
+                            pnlAsteroidData.setText(controller.formatAsteroidData(celestiaAsteroid));
                         }
                         progressBar.setValue(0);
                     }
@@ -180,9 +184,9 @@ public class ToolsForm extends JFrame {
             public void mouseClicked(MouseEvent e) {
 
 	            tblAsteroidsData.convertRowIndexToModel(tblAsteroidsData.getSelectedRow());
-                int row = tblAsteroidsData.rowAtPoint(e.getPoint());
-                 row = tblAsteroidsData.convertRowIndexToModel(tblAsteroidsData.getSelectedRow());
-                pnlAsteroidData.setText(controller.formatAsteroidData(celestiaAsteroids.get(row)));
+                int row = tblAsteroidsData.convertRowIndexToModel(tblAsteroidsData.getSelectedRow());
+                celestiaAsteroid = celestiaAsteroids.get(row);
+                pnlAsteroidData.setText(controller.formatAsteroidData(celestiaAsteroid));
             }
         });
 		lblCalcRes.setText("Результат:");
@@ -190,9 +194,20 @@ public class ToolsForm extends JFrame {
 		btnCalc.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				controller.orbitViewerStart();
+				controller.calculate(new onResultCallback() {
+                    @Override
+                    public void result(String method, boolean success, String result) {
+                        lblCalcRes.setText("Результат:" + result);
+                    }
+                });
 			}
 		});
+        btnOrbitViewer.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                controller.orbitViewerStart(celestiaAsteroid);
+            }
+        });
 	}
 
     private void setModelToTable() {
