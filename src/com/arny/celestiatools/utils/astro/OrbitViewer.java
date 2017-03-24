@@ -1593,7 +1593,7 @@ class OrbitCanvas extends Canvas {
 			xyz = this.objectPos.Rotate(this.mtxToEcl).Rotate(this.mtxRotate);
 			xyz1 = planetPos[2].Rotate(this.mtxRotate);
 //            double xCoeff = 0.0005;
-            double xCoeff = 0;//????
+            double xCoeff = 0.0005;//????
             sdistance = Math.sqrt((xyz.fX * xyz.fX) + (xyz.fY * xyz.fY) + (xyz.fZ * xyz.fZ)) + xCoeff;
 			sdistance = (int) (sdistance * 1000.0) / 1000.0;
 			xdiff = xyz.fX - xyz1.fX;
@@ -1706,9 +1706,9 @@ class DateDialog extends Frame {
 		if (evt.id == Event.ACTION_EVENT) {
 			ATime atime = null;
 			if (evt.target == buttonOk) {
-				int nYear = Integer.valueOf(tfYear.getText()).intValue();
+				int nYear = Integer.valueOf(tfYear.getText());
 				int nMonth = choiceMonth.getSelectedIndex() + 1;
-				int nDate = Integer.valueOf(tfDate.getText()).intValue();
+				int nDate = Integer.valueOf(tfDate.getText());
 				if (1600 <= nYear && nYear <= 2199 &&
 						1 <= nMonth && nMonth <= 12 &&
 						1 <= nDate && nDate <= 31) {

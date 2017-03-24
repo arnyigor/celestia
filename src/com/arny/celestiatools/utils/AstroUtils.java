@@ -188,7 +188,6 @@ public class AstroUtils {
      */
     public static String YMDd(double JD) {
         long timestimp = DateFromJD(JD);
-        System.out.println(BaseUtils.getDateTime(timestimp,null));
         String sec =  getDateTime(timestimp, "ss");
         String min =  getDateTime(timestimp, "mm");
         String hrs =  getDateTime(timestimp, "HH");

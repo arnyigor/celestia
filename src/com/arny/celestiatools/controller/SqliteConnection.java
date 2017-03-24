@@ -28,11 +28,14 @@ public class SqliteConnection {
     public static final String DB_ASTER_KEY_PERIC = "peric";
     public static final String DB_ASTER_KEY_MA = "ma";
     public static final String DB_ASTER_KEY_EPOCH = "epoch";
+    private static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS asteroids  ( id  INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL , name  VARCHAR, orbit_type VARCHAR, radius REAL, period  REAL, sma REAL, inc REAL, node REAL, ecc REAL, peric REAL, ma REAL, epoch REAL)";
 
     public static Connection dbConnection() {
         try {
             Class.forName("org.sqlite.JDBC");
             Connection connection = DriverManager.getConnection("jdbc:sqlite:" + System.getProperty("user.dir") + "/celestia.sqlite");
+            Statement statement = connection.createStatement();
+            statement.execute(CREATE_TABLE);
             System.out.println("url = " + connection.getMetaData().getURL());
             return connection;
         } catch (Exception e) {

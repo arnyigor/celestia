@@ -110,8 +110,10 @@
                     </constraints>
                     <properties>
                       <model>
+                        <item value="Dayly"/>
                         <item value="PHAs"/>
                         <item value="NEAs"/>
+                        <item value="MCORB"/>
                       </model>
                     </properties>
                   </component>

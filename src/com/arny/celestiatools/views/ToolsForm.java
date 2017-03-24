@@ -139,15 +139,15 @@ public class ToolsForm extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				labelInfo.setText("Запись файла...");
 				ArrayList<String> orbitalTypes = new ArrayList<>();
-
+				orbitalTypes.clear();
 				if (checkBox1.isSelected()) {
-					orbitalTypes.add("Apollo");
+					orbitalTypes.add(checkBox1.getText());
 				}
 				if (checkBox2.isSelected()) {
-					orbitalTypes.add("Amor");
+					orbitalTypes.add(checkBox1.getText());
 				}
 				if (checkBox3.isSelected()) {
-					orbitalTypes.add("Aten");
+					orbitalTypes.add(checkBox1.getText());
 				}
                 controller.writeOrbitalParamFile(orbitalTypes, new onResultCallback() {
                     @Override

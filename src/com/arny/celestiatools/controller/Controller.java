@@ -16,9 +16,7 @@ import com.arny.celestiatools.models.*;
 import com.arny.celestiatools.utils.AstroUtils;
 import com.arny.celestiatools.utils.BaseUtils;
 import com.arny.celestiatools.utils.FileUtils;
-import com.arny.celestiatools.utils.astro.ATime;
 import com.arny.celestiatools.utils.astro.OrbitViewer;
-import com.sun.xml.internal.rngom.parse.host.Base;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -27,8 +25,10 @@ import static com.arny.celestiatools.utils.AstroUtils.*;
 public class Controller {
 
     private String operationResult, parseMpcNeamCEL, parseMpcNeamSE;
-	private static final String MPC_NEAs_DOWNLOAD_PATH = "http://minorplanetcenter.net/Extended_Files/neap15_extended.json.gz";
+	private static final String MPC_NEAs_DOWNLOAD_PATH = "http://minorplanetcenter.net/Extended_Files/nea_extended.json.gz";
 	private static final String MPC_PHAs_DOWNLOAD_PATH = "http://minorplanetcenter.net/Extended_Files/pha_extended.json.gz";
+	private static final String MPC_DAYLY_DOWNLOAD_PATH = "http://minorplanetcenter.net/Extended_Files/daily_extended.json.gz";
+	private static final String MPC_MCORB_DOWNLOAD_PATH = "http://minorplanetcenter.net/Extended_Files/mpcorb_extended.json.gz";
 	private static final String MPC_ASTER_DOWNLOADED_FILE = "mpc_downloaded.json.gz";
 	private static final String MPC_ASTER_JSON_FILE = "mpc_unpacked.json";
 	private static final String MPC_NEAM_LAST_SCC = "asteroids.ssc";
@@ -214,13 +214,19 @@ public class Controller {
 	}
 
 	private String getDownloadPath(int source) {
-		String downloadPath = MPC_PHAs_DOWNLOAD_PATH;
+		String downloadPath = MPC_DAYLY_DOWNLOAD_PATH;
 		switch (source) {
 			case 0:
-				downloadPath = MPC_PHAs_DOWNLOAD_PATH;
+				downloadPath = MPC_DAYLY_DOWNLOAD_PATH;
 				break;
 			case 1:
+				downloadPath = MPC_PHAs_DOWNLOAD_PATH;
+				break;
+			case 2:
 				downloadPath = MPC_NEAs_DOWNLOAD_PATH;
+				break;
+			case 3:
+				downloadPath = MPC_MCORB_DOWNLOAD_PATH;
 				break;
 		}
 		return downloadPath;
@@ -249,17 +255,13 @@ public class Controller {
 				JSONObject astroObject = (JSONObject) asteroid;
                 CelestiaAsteroid celestiaAsteroid = new CelestiaAsteroid();
                 convertJsonAsteroid(astroObject, celestiaAsteroid);
-
-                if (hasItemInList(celestiaAsteroid.getOrbitType(), orbitalTypes)){
-                    updateOrInsertDb(celestiaAsteroid);
-
-                    long esTime = BaseUtils.getEsTime(st, System.currentTimeMillis(), iterateProgress, totalProgress);
-                    onProgressUpdate.update("dbupdate",totalProgress,iterateProgress,BaseUtils.convertExtendTime(esTime));
-                    convertJPLAsteroidsCEL(celestiaAsteroid);
-                    convertJPLAsteroidsSE(celestiaAsteroid);
-                    celestiaObjects.add(celestiaAsteroid);
-                }
-
+	            updateOrInsertDb(celestiaAsteroid);
+	            long esTime = BaseUtils.getEsTime(st, System.currentTimeMillis(), iterateProgress, totalProgress);
+	            onProgressUpdate.update("dbupdate", totalProgress, iterateProgress, BaseUtils.convertExtendTime(esTime));
+	            //TODO отделить запись в файлы(сделать из базы)
+	            convertJPLAsteroidsCEL(celestiaAsteroid);
+	            convertJPLAsteroidsSE(celestiaAsteroid);
+	            celestiaObjects.add(celestiaAsteroid);
                 iterateProgress++;
 			}
 			parseMpcNeamCEL = neamParseBuilderCEL.toString();
@@ -445,7 +447,9 @@ public class Controller {
 	}
 
 	private void convertJPLAsteroidsCEL(CelestiaAsteroid asteroid) {
-		if (!hasItemInList(asteroid.getOrbitType(), orbitalTypes))  return;
+		if (orbitalTypes.size() > 0) {
+			if (!hasItemInList(asteroid.getOrbitType(), orbitalTypes))  return;
+		}
         try {
             neamParseBuilderCEL.append("\n\"").append(asteroid.getName()).append("\"");
             neamParseBuilderCEL
@@ -480,8 +484,10 @@ public class Controller {
 	}
 
 	private void convertJPLAsteroidsSE(CelestiaAsteroid asteroid) {
-        if (!hasItemInList(asteroid.getOrbitType(), orbitalTypes))  return;
-        try {
+		if (orbitalTypes.size() > 0) {
+			if (!hasItemInList(asteroid.getOrbitType(), orbitalTypes)) return;
+		}
+		try {
             neamParseBuilderSE.append("\nAsteroid	    \"").append(asteroid.getName()).append("\"");
             neamParseBuilderSE
                     .append("\n{\n	ParentBody\"").append("Sol").append("\"")
