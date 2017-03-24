@@ -34,8 +34,8 @@ public class ToolsForm extends JFrame {
     private JProgressBar progressBar;
 	private JTextField textField1;
     private JButton btnOrbitViewer;
-    private static final int WIDTH = 800;
-	private static final int HEIGHT = 600;
+    public static final int WIDTH = 800;
+    public static final int HEIGHT = 600;
 	private Controller controller;
 	private ArrayList<CelestiaAsteroid> celestiaAsteroids;
     private CelestiaAsteroid celestiaAsteroid;
@@ -75,7 +75,7 @@ public class ToolsForm extends JFrame {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        setFrameForm(mainFrame);
+        setFrameForm(mainFrame,WIDTH,HEIGHT);
 		initButtons();
 		checkBox1.setText("Apollo");
 		checkBox2.setText("Amor");
@@ -269,12 +269,12 @@ public class ToolsForm extends JFrame {
 	    tblAsteroidsData.setRowSorter(rowSorter);
     }
 
-	public static void setFrameForm(JFrame frame) {
-		frame.setPreferredSize(new Dimension(WIDTH, HEIGHT));
+	public static void setFrameForm(JFrame frame,int w,int h) {
+		frame.setPreferredSize(new Dimension(w, h));
 		Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
 		int dx = (int) (dimension.getWidth() / 2);
 		int dy = (int) (dimension.getHeight() / 2);
-		frame.setLocation(dx - (WIDTH/2), dy - (HEIGHT/2));
+		frame.setLocation(dx - (w/2), dy - (h/2));
 	}
 
 }

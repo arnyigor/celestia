@@ -378,7 +378,21 @@ public class Controller {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        double radius = AstroUtils.getRadiusFromAbsoluteMagn(Double.parseDouble(astroObject.get("H").toString()), 0.15);
+        double albedo;
+        try {
+            albedo = Double.parseDouble(astroObject.get("G").toString());
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            albedo = 0.15;
+        }//TODO -0.12????
+        double magn;
+        try {
+            magn = Double.parseDouble(astroObject.get("H").toString());
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            magn = 25.0;
+        }
+        double radius = AstroUtils.getRadiusFromAbsoluteMagn(magn, 0.15);
         try {
             asteroid.setRadius(radius);
         } catch (Exception e) {
@@ -489,7 +503,7 @@ public class Controller {
 
 	public void calculate(onResultCallback resultCallback) {
 		operationResult = "";
-        long curtime = BaseUtils.convertTimeStringToLong("2017 02 16","yyyy MM dd");
+        long curtime = BaseUtils.convertTimeStringToLong("2017 02 16","yyyy ");
         try {
             double jd = JD(curtime);
             operationResult  = "\nres = " + jd;

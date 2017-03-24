@@ -2,15 +2,14 @@ package com.arny.celestiatools.utils.astro;
 
 import java.applet.*;
 import java.awt.*;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.util.*;
 import java.math.*;
 
 import com.arny.celestiatools.models.CelestiaAsteroid;
 import com.arny.celestiatools.utils.AstroUtils;
+import com.arny.celestiatools.utils.BaseUtils;
+import com.arny.celestiatools.utils.MathUtils;
 import com.arny.celestiatools.utils.astro.*;
 import com.arny.celestiatools.views.ToolsForm;
 
@@ -21,11 +20,11 @@ import static com.arny.celestiatools.utils.AstroUtils.*;
 /**
  * Main Applet Class
  */
-public class OrbitViewer extends Applet {
+public class OrbitViewer extends Applet implements ActionListener {
 	/**
 	 * Components
 	 */
-	private Scrollbar scrollHorz,scrollVert,scrollZoom;
+	private Scrollbar scrollHorz,scrollVert,scrollZoom,scrollZoomFactor;
 	private OrbitCanvas orbitCanvas;
 	private Button buttonDate,buttonRevPlay,buttonRevStep,buttonStop,buttonForStep,buttonForPlay;
 	private Choice choiceTimeStep,choiceCenterObject,choiceOrbitObject;
@@ -49,12 +48,12 @@ public class OrbitViewer extends Applet {
 	 */
     private static final int timeStepCount = 8;
     private static final String timeStepLabel[] = {
-			"1 Hour",
-			"1 Day", "3 Days", "10 Days",
+			"1 Min", "1 Hour", "1 Day", "3 Days", "10 Days",
 			"1 Month", "3 Months", "6 Months",
 			"1 Year"
 	};
     private static final TimeSpan timeStepSpan[] = {
+            new TimeSpan(0, 0, 0, 0, 1, 0.0),
 			new TimeSpan(0, 0, 0, 1, 0, 0.0),
 			new TimeSpan(0, 0, 1, 0, 0, 0.0),
 			new TimeSpan(0, 0, 3, 0, 0, 0.0),
@@ -102,9 +101,10 @@ public class OrbitViewer extends Applet {
 	/**
 	 * Initial Settings
 	 */
-    private static final int initialScrollVert = 90 + 40;
+    private static final int initialScrollVert = 180;
     private static final int initialScrollHorz = 255;
-    private static final int initialScrollZoom = 67;
+    private static final int initialScrollZoom = 100;
+    private static final int initialScrollZoomFactor = 300;
     private static final int fontSize = 16;
 
     private CelestiaAsteroid celestiaAsteroid;
@@ -204,7 +204,6 @@ public class OrbitViewer extends Applet {
                 }
             }
         }
-        System.out.println(res);
         return res;
     }
 
@@ -399,7 +398,7 @@ public class OrbitViewer extends Applet {
 	 * Initialization of applet
 	 */
 	public void init(String YMDd) {
-		this.setBackground(Color.white);
+        this.setBackground(Color.white);
 		//
 		// Main Panel
 		//
@@ -482,6 +481,13 @@ public class OrbitViewer extends Applet {
 		gbcCtrlPanel.gridheight = 2;
 		gbcCtrlPanel.insets = new Insets(0, 0, 0, 12);
 		gblCtrlPanel.setConstraints(buttonDate, gbcCtrlPanel);
+		buttonDate.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dateDialog = new DateDialog(OrbitViewer.this, atime);
+                buttonDate.setEnabled(false);
+            }
+        });
 		ctrlPanel.add(buttonDate);
 
 		// Reverse-Play Button
@@ -495,6 +501,23 @@ public class OrbitViewer extends Applet {
 		gbcCtrlPanel.gridheight = 1;
 		gbcCtrlPanel.insets = new Insets(0, 0, 3, 0);
 		gblCtrlPanel.setConstraints(buttonRevPlay, gbcCtrlPanel);
+		buttonRevPlay.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (playerThread != null
+                        && playDirection != ATime.F_DECTIME) {
+                    playerThread.interrupt();
+                    playerThread = null;
+                }
+                if (playerThread == null) {
+                    buttonDate.setEnabled(false);
+                    playDirection = ATime.F_DECTIME;
+                    playerThread = new Thread(orbitPlayer);
+                    playerThread.setPriority(Thread.MIN_PRIORITY);
+                    playerThread.start();
+                }
+            }
+        });
 		ctrlPanel.add(buttonRevPlay);
 
 		// Reverse-Step Button
@@ -509,6 +532,13 @@ public class OrbitViewer extends Applet {
 		gbcCtrlPanel.insets = new Insets(0, 0, 3, 0);
 		gblCtrlPanel.setConstraints(buttonRevStep, gbcCtrlPanel);
 		ctrlPanel.add(buttonRevStep);
+		buttonRevStep.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                atime.changeDate(timeStep, ATime.F_DECTIME);
+                setNewDate();
+            }
+        });
 
 		// Stop Button
 		buttonStop = new Button("||");
@@ -521,6 +551,16 @@ public class OrbitViewer extends Applet {
 		gbcCtrlPanel.gridheight = 1;
 		gbcCtrlPanel.insets = new Insets(0, 0, 3, 0);
 		gblCtrlPanel.setConstraints(buttonStop, gbcCtrlPanel);
+		buttonStop.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (playerThread != null) {
+                    playerThread.interrupt();
+                    playerThread = null;
+                    buttonDate.setEnabled(true);
+                }
+            }
+        });
 		ctrlPanel.add(buttonStop);
 
 		// Step Button
@@ -534,6 +574,13 @@ public class OrbitViewer extends Applet {
 		gbcCtrlPanel.gridheight = 1;
 		gbcCtrlPanel.insets = new Insets(0, 0, 3, 0);
 		gblCtrlPanel.setConstraints(buttonForStep, gbcCtrlPanel);
+        buttonForStep.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                atime.changeDate(timeStep, ATime.F_INCTIME);
+                setNewDate();
+            }
+        });
 		ctrlPanel.add(buttonForStep);
 
 		// Play Button
@@ -547,6 +594,23 @@ public class OrbitViewer extends Applet {
 		gbcCtrlPanel.gridheight = 1;
 		gbcCtrlPanel.insets = new Insets(0, 0, 3, 0);
 		gblCtrlPanel.setConstraints(buttonForPlay, gbcCtrlPanel);
+		buttonForPlay.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (playerThread != null
+                        && playDirection != ATime.F_INCTIME) {
+                    playerThread.interrupt();
+                    playerThread = null;
+                }
+                if (playerThread == null) {
+                    buttonDate.setEnabled(false);
+                    playDirection = ATime.F_INCTIME;
+                    playerThread = new Thread(orbitPlayer);
+                    playerThread.setPriority(Thread.MIN_PRIORITY);
+                    playerThread.start();
+                }
+            }
+        });
 		ctrlPanel.add(buttonForPlay);
 
 		// Step choice box
@@ -560,6 +624,17 @@ public class OrbitViewer extends Applet {
 		gbcCtrlPanel.gridheight = 1;
 		gbcCtrlPanel.insets = new Insets(0, 0, 0, 0);
 		gblCtrlPanel.setConstraints(choiceTimeStep, gbcCtrlPanel);
+		choiceTimeStep.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                for (int i = 0; i < timeStepCount; i++) {
+                    if (e.getItem() == timeStepLabel[i]) {
+                        timeStep = timeStepSpan[i];
+                        break;
+                    }
+                }
+            }
+        });
 		ctrlPanel.add(choiceTimeStep);
 		for (int i = 0; i < timeStepCount; i++) {
 			choiceTimeStep.addItem(timeStepLabel[i]);
@@ -597,6 +672,20 @@ public class OrbitViewer extends Applet {
 		}
 		orbitCanvas.SelectCenterObject(0);
 
+		choiceCenterObject.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                for (int i = 0; i < CenterObjectCount; i++) {
+                    if (e.getItem() == CenterObjectLabel[i]) {
+                        CenterObjectSelected = i;
+                        orbitCanvas.SelectCenterObject(i);
+                        orbitCanvas.repaint();
+                        break;
+                    }
+                }
+            }
+        });
+
 		// Display Orbits Label
 		Label orbitLabel = new Label("Orbits:");
 		orbitLabel.setAlignment(Label.LEFT);
@@ -629,6 +718,40 @@ public class OrbitViewer extends Applet {
         System.arraycopy(OrbitDisplayDefault, 0, OrbitDisplay, 0, OrbitCount);
 		orbitCanvas.SelectOrbits(OrbitDisplay, OrbitCount);
 
+		choiceOrbitObject.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                for (int i = 0; i < OrbitDisplayCount; i++) {
+                    if (e.getItem() == OrbitDisplayLabel[i]) {
+                        if (i == 1) {
+                            for (int j = 0; j < OrbitCount; j++) {
+                                OrbitDisplay[j] = true;
+                            }
+                        } else if (i == 2) {
+                            for (int j = 0; j < OrbitCount; j++) {
+                                OrbitDisplay[j] = false;
+                            }
+                        } else if (i == 0) {
+                            for (int j = 0; j < OrbitCount; j++) {
+                                OrbitDisplay[j] = OrbitDisplayDefault[j];
+                            }
+                        } else if (i > 3) {
+                            if (OrbitDisplay[i - 3]) {
+                                OrbitDisplay[i - 3] = false;
+                            } else {
+                                OrbitDisplay[i - 3] = true;
+                            }
+                        }
+//                        e.setSource(OrbitDisplayLabel[0]);
+//                        evt.arg = OrbitDisplayLabel[0];
+                        orbitCanvas.SelectOrbits(OrbitDisplay, OrbitCount);
+                        orbitCanvas.repaint();
+                        break;
+                    }
+                }
+            }
+        });
+
 		// Date Label Checkbox
 		checkDateLabel = new Checkbox("Date Label");
 		checkDateLabel.setState(true);
@@ -648,6 +771,13 @@ public class OrbitViewer extends Applet {
 		checkPlanetName = new Checkbox("Planet Labels");
 		checkPlanetName.setState(true);
 		checkPlanetName.setFont(new Font("Dialog", Font.PLAIN, fontSize));
+		checkPlanetName.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                orbitCanvas.switchPlanetName(checkPlanetName.getState());
+                orbitCanvas.repaint();
+            }
+        });
 		gbcCtrlPanel.gridx = 7;
 		gbcCtrlPanel.gridy = 0;
 		gbcCtrlPanel.weightx = 0.0;
@@ -699,20 +829,20 @@ public class OrbitViewer extends Applet {
 		gbcCtrlPanel.weighty = 1.0;
 		gbcCtrlPanel.gridwidth = 2;
 		gbcCtrlPanel.gridheight = 1;
-		gbcCtrlPanel.insets = new Insets(10, 12, 0, 0);
+		gbcCtrlPanel.insets = new Insets(15, 12, 0, 0);
 		gblCtrlPanel.setConstraints(zoomLabel, gbcCtrlPanel);
 		ctrlPanel.add(zoomLabel);
 
 		// Zoom Scrollbar
 		scrollZoom = new Scrollbar(Scrollbar.HORIZONTAL,
-				initialScrollZoom, 15, 5, 450);
+				initialScrollZoom, 15, 1, 350);
 		gbcCtrlPanel.gridx = 6;
 		gbcCtrlPanel.gridy = 3;
 		gbcCtrlPanel.weightx = 1.0;
 		gbcCtrlPanel.weighty = 1.0;
 		gbcCtrlPanel.gridwidth = 2;
 		gbcCtrlPanel.gridheight = 1;
-		gbcCtrlPanel.insets = new Insets(0, 12, 6, 2);
+		gbcCtrlPanel.insets = new Insets(5, 12, 30, 2);
 		gblCtrlPanel.setConstraints(scrollZoom, gbcCtrlPanel);
 		scrollZoom.addAdjustmentListener(new AdjustmentListener() {
             @Override
@@ -723,6 +853,26 @@ public class OrbitViewer extends Applet {
         });
 		ctrlPanel.add(scrollZoom);
 		orbitCanvas.setZoom(scrollZoom.getValue());
+
+		// Zoom factor Scrollbar
+        scrollZoomFactor = new Scrollbar(Scrollbar.HORIZONTAL, initialScrollZoomFactor, 2, 1, 600);
+		gbcCtrlPanel.gridx = 6;
+		gbcCtrlPanel.gridy = 3;
+		gbcCtrlPanel.weightx = 1.0;
+		gbcCtrlPanel.weighty = 1.0;
+		gbcCtrlPanel.gridwidth = 2;
+		gbcCtrlPanel.gridheight = 1;
+		gbcCtrlPanel.insets = new Insets(10, 12, 0, 2);
+		gblCtrlPanel.setConstraints(scrollZoomFactor, gbcCtrlPanel);
+        scrollZoomFactor.addAdjustmentListener(new AdjustmentListener() {
+            @Override
+            public void adjustmentValueChanged(AdjustmentEvent e) {
+                orbitCanvas.setZoomFactor(e.getValue());
+                orbitCanvas.repaint();
+            }
+        });
+		ctrlPanel.add(scrollZoomFactor);
+		orbitCanvas.setZoomFactor(scrollZoomFactor.getValue());
 
 		//
 		// Applet Layout
@@ -756,7 +906,7 @@ public class OrbitViewer extends Applet {
 		mainFrame.setResizable(true);
 		mainFrame.setContentPane(mainPanel);
 		mainFrame.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
-		ToolsForm.setFrameForm(mainFrame);
+		ToolsForm.setFrameForm(mainFrame,850,650);
 		mainFrame.pack();
 		mainFrame.setVisible(true);
 	}
@@ -889,33 +1039,7 @@ public class OrbitViewer extends Applet {
 						}
 					}
 				} else if (evt.target == choiceOrbitObject) {    // Orbit Display
-					for (int i = 0; i < OrbitDisplayCount; i++) {
-						if ((String) evt.arg == OrbitDisplayLabel[i]) {
-							if (i == 1) {
-								for (int j = 0; j < OrbitCount; j++) {
-									OrbitDisplay[j] = true;
-								}
-							} else if (i == 2) {
-								for (int j = 0; j < OrbitCount; j++) {
-									OrbitDisplay[j] = false;
-								}
-							} else if (i == 0) {
-								for (int j = 0; j < OrbitCount; j++) {
-									OrbitDisplay[j] = OrbitDisplayDefault[j];
-								}
-							} else if (i > 3) {
-								if (OrbitDisplay[i - 3]) {
-									OrbitDisplay[i - 3] = false;
-								} else {
-									OrbitDisplay[i - 3] = true;
-								}
-							}
-							evt.arg = OrbitDisplayLabel[0];
-							orbitCanvas.SelectOrbits(OrbitDisplay, OrbitCount);
-							orbitCanvas.repaint();
-							break;
-						}
-					}
+
 				}
 				return false;
 			default:
@@ -942,6 +1066,11 @@ public class OrbitViewer extends Applet {
 
     public void setCelestiaAsteroid(CelestiaAsteroid celestiaAsteroid) {
         this.celestiaAsteroid = celestiaAsteroid;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        System.out.println(e.getSource());
     }
 }
 
@@ -1010,6 +1139,7 @@ class OrbitCanvas extends Canvas {
 	private double fRotateH = 0.0;
 	private double fRotateV = 0.0;
 	private double fZoom = 5.0;
+	private double fZoomFactor = 600;
 
 	/**
 	 * Rotation Matrix
@@ -1125,6 +1255,12 @@ class OrbitCanvas extends Canvas {
 	public void setZoom(int nZoom) {
 		this.fZoom = (double) nZoom;
 	}
+	/**
+	 * Zoom factor Parameter Set
+	 */
+	public void setZoomFactor(int nZoomFactor) {
+		this.fZoomFactor = (double) nZoomFactor;
+	}
 
 	/**
 	 * Date Parameter Set
@@ -1186,8 +1322,7 @@ class OrbitCanvas extends Canvas {
 	 */
 	private Point getDrawPoint(Xyz xyz) {
 		// 600 means 5...fZoom...100 -> 120AU...Width...6AU
-		double fMul = this.fZoom * (double) sizeCanvas.width / 600.0
-				* (1.0 + xyz.fZ / 250.0);        // Parse
+		double fMul = this.fZoom * (double) sizeCanvas.width / fZoomFactor * (1.0 + xyz.fZ / 250.0);        // Parse
 		int nX = this.nX0 + (int) Math.round(xyz.fX * fMul);
 		int nY = this.nY0 - (int) Math.round(xyz.fY * fMul);
 		return new Point(nX, nY);
@@ -1447,7 +1582,6 @@ class OrbitCanvas extends Canvas {
 
 		// Object Name String
 		point1.x = fm.charWidth('A');
-//		point1.y = this.sizeCanvas.height - fm.getDescent() - fm.getHeight() / 3;
 		point1.y = 2 * fm.charWidth('A');
 		og.drawString(object.getName(), point1.x, point1.y);
 
@@ -1455,31 +1589,22 @@ class OrbitCanvas extends Canvas {
 			// Earth & Sun Distance
 			double edistance, sdistance;
 			double xdiff, ydiff, zdiff;
-//			BigDecimal a,v;
 			String strDist;
 			xyz = this.objectPos.Rotate(this.mtxToEcl).Rotate(this.mtxRotate);
 			xyz1 = planetPos[2].Rotate(this.mtxRotate);
-			sdistance = Math.sqrt((xyz.fX * xyz.fX) + (xyz.fY * xyz.fY) +
-					(xyz.fZ * xyz.fZ)) + .0005;
+//            double xCoeff = 0.0005;
+            double xCoeff = 0;//????
+            sdistance = Math.sqrt((xyz.fX * xyz.fX) + (xyz.fY * xyz.fY) + (xyz.fZ * xyz.fZ)) + xCoeff;
 			sdistance = (int) (sdistance * 1000.0) / 1000.0;
 			xdiff = xyz.fX - xyz1.fX;
 			ydiff = xyz.fY - xyz1.fY;
 			zdiff = xyz.fZ - xyz1.fZ;
-			edistance = Math.sqrt((xdiff * xdiff) + (ydiff * ydiff) +
-					(zdiff * zdiff)) + .0005;
-
-
-            edistance = (int) (edistance * 1000.0) / 1000.0;
-//			a = new BigDecimal (edistance);
-//			v = a.setScale (3, BigDecimal.ROUND_HALF_UP);
-			strDist = "Earth Distance: " + DistanceConvert(edistance, DistanceTypes.AU, DistanceTypes.km)  + " KM";
+			edistance = Math.sqrt((xdiff * xdiff) + (ydiff * ydiff) + (zdiff * zdiff)) + xCoeff;
+            strDist = "Earth Distance: " + MathUtils.round(DistanceConvert(edistance, DistanceTypes.AU, DistanceTypes.km),3) + " km";
 			point1.x = fm.charWidth('A');
-//			point1.y = this.sizeCanvas.height - fm.getDescent() - fm.getHeight() / 3;
-			point1.y = this.sizeCanvas.height - fm.getDescent() - fm.getHeight();
+			point1.y = this.sizeCanvas.height - fm.getDescent() - fm.getHeight() - 10;
 			og.drawString(strDist, point1.x, point1.y);
 
-//			a = new BigDecimal (sdistance);
-//			v = a.setScale (3, BigDecimal.ROUND_HALF_UP);
 			strDist = "Sun Distance  : " + sdistance + " AU";
 			point1.x = fm.charWidth('A');
 			point1.y = this.sizeCanvas.height - fm.getDescent() - fm.getHeight() / 3;
@@ -1488,8 +1613,9 @@ class OrbitCanvas extends Canvas {
 
 		if (bDateLabel) {
 			// Date String
-			String strDate = ATime.getMonthAbbr(atime.getMonth())
-					+ " " + atime.getDay() + ", " + atime.getYear();
+
+//			String strDate = ATime.getMonthAbbr(atime.getMonth()) + " " + atime.getDay() + ", " + atime.getYear();
+			String strDate = BaseUtils.getDateTime(AstroUtils.DateFromJD(atime.getJd()),"HH:mm dd MMM yyyy");
 			point1.x = this.sizeCanvas.width - fm.stringWidth(strDate)
 					- fm.charWidth('A');
 			point1.y = this.sizeCanvas.height - fm.getDescent() - fm.getHeight() / 3;

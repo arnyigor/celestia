@@ -188,23 +188,25 @@ public class AstroUtils {
      */
     public static String YMDd(double JD) {
         long timestimp = DateFromJD(JD);
+        System.out.println(BaseUtils.getDateTime(timestimp,null));
         String sec =  getDateTime(timestimp, "ss");
         String min =  getDateTime(timestimp, "mm");
         String hrs =  getDateTime(timestimp, "HH");
         String days = getDateTime(timestimp, "dd");
         String mth =  getDateTime(timestimp, "MM");
         String yrs =  getDateTime(timestimp, "yyyy");
-        if (!empty(sec) && !empty(min) && !empty(hrs) && !empty(days) && !empty(mth) && !empty(yrs)){
+        String Z =  getDateTime(timestimp, "Z");
+        if (!empty(sec) && !empty(min) && !empty(hrs) && !empty(days) && !empty(mth) && !empty(yrs) && !empty(Z)){
             double dSec = Double.parseDouble(sec)/60;
             double mMin = (dSec + Double.parseDouble(min)) / 60;
-            double dHr = (mMin + Double.parseDouble(hrs)) / 24;
+            double timeZ = Double.parseDouble(Z)/100;
+            double mHrs = Double.parseDouble(hrs);
+            double dHr = (mMin + (mHrs-timeZ)) / 24;
             int mY = Integer.parseInt(yrs);
             int mM = Integer.parseInt(mth);
             int mD = Integer.parseInt(days);
             String dDay = String.valueOf(fracal(round(dHr, 6)));
-            System.out.println(dDay);
             dDay = dDay.substring(1, dDay.length());
-            System.out.println(dDay);
             return String.valueOf(mY).concat(BaseUtils.pad(mM)).concat(String.valueOf(mD)).concat(dDay);
         }else {
             return "0";
