@@ -2,6 +2,7 @@ package com.arny.celestiatools.controller;
 
 
 import com.arny.celestiatools.models.CelestiaAsteroid;
+import com.arny.celestiatools.utils.BaseUtils;
 import org.sqlite.util.StringUtils;
 
 import java.sql.*;
@@ -28,7 +29,9 @@ public class SqliteConnection {
     public static final String DB_ASTER_KEY_PERIC = "peric";
     public static final String DB_ASTER_KEY_MA = "ma";
     public static final String DB_ASTER_KEY_EPOCH = "epoch";
-    private static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS asteroids  ( id  INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL , name  VARCHAR, orbit_type VARCHAR, radius REAL, period  REAL, sma REAL, inc REAL, node REAL, ecc REAL, peric REAL, ma REAL, epoch REAL)";
+    public static final String DB_ASTER_UPDATE_TIME = "update_datetime";
+    public static final String DB_ASTER_UPDATE_TIME_FORMAT = "dd MM yyyy";
+    private static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS asteroids  ( id  INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL , name  VARCHAR, orbit_type VARCHAR, radius REAL, period  REAL, sma REAL, inc REAL, node REAL, ecc REAL, peric REAL, ma REAL, epoch REAL,update_datetime TEXT)";
 
     public static Connection dbConnection() {
         try {
@@ -106,23 +109,48 @@ public class SqliteConnection {
             ResultSet resultSet = statement.executeQuery(sql);
             if (resultSet.next()) {
                 asteroid = new CelestiaAsteroid();
-                asteroid.setName(resultSet.getString(DB_ASTER_KEY_NAME));
-                asteroid.setRadius(resultSet.getDouble(DB_ASTER_KEY_RADIUS));
-                asteroid.setOrbitType(resultSet.getString(DB_ASTER_KEY_ORBIT_TYPE));
-                asteroid.setPeriod(resultSet.getDouble(DB_ASTER_KEY_PERIOD));
-                asteroid.setSma(resultSet.getDouble(DB_ASTER_KEY_SMA));
-                asteroid.setInc(resultSet.getDouble(DB_ASTER_KEY_INC));
-                asteroid.setNode(resultSet.getDouble(DB_ASTER_KEY_NODE));
-                asteroid.setEcc(resultSet.getDouble(DB_ASTER_KEY_ECC));
-                asteroid.setPeric(resultSet.getDouble(DB_ASTER_KEY_PERIC));
-                asteroid.setMa(resultSet.getDouble(DB_ASTER_KEY_MA));
-                asteroid.setEpoch(resultSet.getDouble(DB_ASTER_KEY_EPOCH));
+                setAsteroidData(asteroid, resultSet);
             }
             return asteroid;
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * set db values
+     * @param dbValues
+     * @param asteroid
+     */
+    public static void setAsterDbValues(HashMap<String,String> dbValues,CelestiaAsteroid asteroid) {
+        dbValues.put(SqliteConnection.DB_ASTER_KEY_NAME, "'"+asteroid.getName()+"'");
+        dbValues.put(SqliteConnection.DB_ASTER_KEY_RADIUS, String.valueOf(asteroid.getRadius()));
+        dbValues.put(SqliteConnection.DB_ASTER_KEY_ORBIT_TYPE, "'"+asteroid.getOrbitType()+"'");
+        dbValues.put(SqliteConnection.DB_ASTER_KEY_PERIOD, String.valueOf(asteroid.getPeriod()));
+        dbValues.put(SqliteConnection.DB_ASTER_KEY_SMA, String.valueOf(asteroid.getSma()));
+        dbValues.put(SqliteConnection.DB_ASTER_KEY_INC, String.valueOf(asteroid.getInc()));
+        dbValues.put(SqliteConnection.DB_ASTER_KEY_NODE, String.valueOf(asteroid.getNode()));
+        dbValues.put(SqliteConnection.DB_ASTER_KEY_ECC, String.valueOf(asteroid.getEcc()));
+        dbValues.put(SqliteConnection.DB_ASTER_KEY_PERIC, String.valueOf(asteroid.getPeric()));
+        dbValues.put(SqliteConnection.DB_ASTER_KEY_MA, String.valueOf(asteroid.getMa()));
+        dbValues.put(SqliteConnection.DB_ASTER_KEY_EPOCH, String.valueOf(asteroid.getEpoch()));
+        dbValues.put(SqliteConnection.DB_ASTER_UPDATE_TIME, "'"+String.valueOf(BaseUtils.getDateTime(System.currentTimeMillis(),DB_ASTER_UPDATE_TIME_FORMAT))+"'");
+    }
+
+    private static void setAsteroidData(CelestiaAsteroid asteroid, ResultSet resultSet) throws SQLException {
+        asteroid.setName(resultSet.getString(DB_ASTER_KEY_NAME));
+        asteroid.setRadius(resultSet.getDouble(DB_ASTER_KEY_RADIUS));
+        asteroid.setOrbitType(resultSet.getString(DB_ASTER_KEY_ORBIT_TYPE));
+        asteroid.setPeriod(resultSet.getDouble(DB_ASTER_KEY_PERIOD));
+        asteroid.setSma(resultSet.getDouble(DB_ASTER_KEY_SMA));
+        asteroid.setInc(resultSet.getDouble(DB_ASTER_KEY_INC));
+        asteroid.setNode(resultSet.getDouble(DB_ASTER_KEY_NODE));
+        asteroid.setEcc(resultSet.getDouble(DB_ASTER_KEY_ECC));
+        asteroid.setPeric(resultSet.getDouble(DB_ASTER_KEY_PERIC));
+        asteroid.setMa(resultSet.getDouble(DB_ASTER_KEY_MA));
+        asteroid.setEpoch(resultSet.getDouble(DB_ASTER_KEY_EPOCH));
+        asteroid.setUpdateTime(resultSet.getString(DB_ASTER_UPDATE_TIME));
     }
 
     public static ArrayList<CelestiaAsteroid> getAllCelestiaAsteroids(Connection connection) {
@@ -133,17 +161,7 @@ public class SqliteConnection {
             while (resultSet.next()) {
                 CelestiaAsteroid asteroid = new CelestiaAsteroid();
 // System.out.println("Номер в выборке #" + resultSet.getRow()  + "\t Номер в базе #" + resultSet.getInt(DB_ASTER_KEY_ID) + "\t" + resultSet.getString(DB_ASTER_KEY_NAME));
-                asteroid.setName(resultSet.getString(DB_ASTER_KEY_NAME));
-                asteroid.setRadius(resultSet.getDouble(DB_ASTER_KEY_RADIUS));
-                asteroid.setOrbitType(resultSet.getString(DB_ASTER_KEY_ORBIT_TYPE));
-                asteroid.setPeriod(resultSet.getDouble(DB_ASTER_KEY_PERIOD));
-                asteroid.setSma(resultSet.getDouble(DB_ASTER_KEY_SMA));
-                asteroid.setInc(resultSet.getDouble(DB_ASTER_KEY_INC));
-                asteroid.setNode(resultSet.getDouble(DB_ASTER_KEY_NODE));
-                asteroid.setEcc(resultSet.getDouble(DB_ASTER_KEY_ECC));
-                asteroid.setPeric(resultSet.getDouble(DB_ASTER_KEY_PERIC));
-                asteroid.setMa(resultSet.getDouble(DB_ASTER_KEY_MA));
-                asteroid.setEpoch(resultSet.getDouble(DB_ASTER_KEY_EPOCH));
+                setAsteroidData(asteroid, resultSet);
                 asteroids.add(asteroid);
             }
             return asteroids;

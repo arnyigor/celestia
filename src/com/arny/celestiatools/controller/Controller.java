@@ -49,12 +49,7 @@ public class Controller {
     }
 
     public void getAsterTableData(onResultCelestiaAsteroids celestiaAsteroidsCallbacks) {
-	    new Thread(new Runnable() {
-            @Override
-            public void run() {
-                celestiaAsteroidsCallbacks.dataCallback(SqliteConnection.getAllCelestiaAsteroids(connection));
-            }
-        }).start();
+			    celestiaAsteroidsCallbacks.dataCallback(SqliteConnection.getAllCelestiaAsteroids(connection));
     }
 
     public void workJsonFile(File file, onResultCallback resultParse) {
@@ -279,7 +274,7 @@ public class Controller {
      */
     private void updateOrInsertDb(CelestiaAsteroid asteroid) {
         HashMap<String,String> dbValues = new HashMap<>();
-        setAsterDbValues(dbValues,asteroid);
+        SqliteConnection.setAsterDbValues(dbValues,asteroid);
         String cond = SqliteConnection.DB_ASTER_KEY_NAME + "='" + asteroid.getName()+"'";
 	    CelestiaAsteroid asterDb = SqliteConnection.getAsteroid(connection, cond);
 	    if (asterDb == null) {
@@ -327,24 +322,7 @@ public class Controller {
 		return changed;
 	}
 
-	/**
-     * set db values
-     * @param dbValues
-     * @param asteroid
-     */
-    private void setAsterDbValues(HashMap<String,String> dbValues,CelestiaAsteroid asteroid) {
-        dbValues.put(SqliteConnection.DB_ASTER_KEY_NAME, "'"+asteroid.getName()+"'");
-        dbValues.put(SqliteConnection.DB_ASTER_KEY_RADIUS, String.valueOf(asteroid.getRadius()));
-        dbValues.put(SqliteConnection.DB_ASTER_KEY_ORBIT_TYPE, "'"+asteroid.getOrbitType()+"'");
-        dbValues.put(SqliteConnection.DB_ASTER_KEY_PERIOD, String.valueOf(asteroid.getPeriod()));
-        dbValues.put(SqliteConnection.DB_ASTER_KEY_SMA, String.valueOf(asteroid.getSma()));
-        dbValues.put(SqliteConnection.DB_ASTER_KEY_INC, String.valueOf(asteroid.getInc()));
-        dbValues.put(SqliteConnection.DB_ASTER_KEY_NODE, String.valueOf(asteroid.getNode()));
-        dbValues.put(SqliteConnection.DB_ASTER_KEY_ECC, String.valueOf(asteroid.getEcc()));
-        dbValues.put(SqliteConnection.DB_ASTER_KEY_PERIC, String.valueOf(asteroid.getPeric()));
-        dbValues.put(SqliteConnection.DB_ASTER_KEY_MA, String.valueOf(asteroid.getMa()));
-        dbValues.put(SqliteConnection.DB_ASTER_KEY_EPOCH, String.valueOf(asteroid.getEpoch()));
-    }
+
 
     public String formatAsteroidData(CelestiaAsteroid asteroid){
 	    String res = "Name:" + asteroid.getName();

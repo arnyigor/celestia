@@ -88,6 +88,40 @@ public class BaseUtils {
         }
     }
 
+    public static String getDateTime(Date date) {
+        try {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            long milliseconds = calendar.getTimeInMillis();
+            return (new SimpleDateFormat("dd MMM yyyy HH:mm:ss.sss", Locale.getDefault())).format(new Date(milliseconds));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static String getDateTime(long milliseconds) {
+        if (milliseconds == -1) {
+            return "";
+        }
+        try {
+            milliseconds = (milliseconds == 0) ? Calendar.getInstance().getTimeInMillis() : milliseconds;
+            return (new SimpleDateFormat("dd MMM yyyy HH:mm:ss.sss", Locale.getDefault())).format(new Date(milliseconds));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static String getDateTime() {
+        try {
+            return (new SimpleDateFormat("dd MMM yyyy HH:mm:ss.sss", Locale.getDefault())).format(new Date(System.currentTimeMillis()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     private static String convertByteArrayToHexString(byte[] arrayBytes) {
         StringBuilder stringBuffer = new StringBuilder();
         for (byte arrayByte : arrayBytes) {

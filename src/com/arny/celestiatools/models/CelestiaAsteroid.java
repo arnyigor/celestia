@@ -1,6 +1,7 @@
 package com.arny.celestiatools.models;
+import com.arny.celestiatools.utils.BaseUtils;
 public class CelestiaAsteroid {
-	private String Name,OrbitType;
+	private String Name,OrbitType,updateTime;
 	private double radius,period,sma,inc,node,ecc,peric,Ma,epoch;
 
 	public String getName() {
@@ -103,6 +104,15 @@ public class CelestiaAsteroid {
                 "\necc:"+getEcc() +
                 "\nperic:"+getPeric() +
                 "\nMa:"+getMa() +
-                "\nepoch" + getEpoch();
+                "\nepoch" + getEpoch() +
+                "\nupdateTime" + getUpdateTime();
+    }
+
+    public String getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(String updateTime) {
+        this.updateTime = updateTime;
     }
 }

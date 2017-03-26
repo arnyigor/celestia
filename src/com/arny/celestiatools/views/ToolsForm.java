@@ -1,9 +1,11 @@
 package com.arny.celestiatools.views;
+import com.arny.celestiatools.controller.SqliteConnection;
 import com.arny.celestiatools.models.CelestiaAsteroid;
 import com.arny.celestiatools.controller.Controller;
 import com.arny.celestiatools.models.onProgressUpdate;
 import com.arny.celestiatools.models.onResultCelestiaAsteroids;
 import com.arny.celestiatools.models.onResultCallback;
+import com.arny.celestiatools.utils.BaseUtils;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -47,21 +49,28 @@ public class ToolsForm extends JFrame {
         initTableAsteroids();
     }
 
-
     private void initTableAsteroids() {
         celestiaAsteroids = new ArrayList<>();
-        controller.getAsterTableData(new onResultCelestiaAsteroids() {
-            @Override
-            public void dataCallback(ArrayList<CelestiaAsteroid> asteroids) {
-                celestiaAsteroids = asteroids;
-                setModelToTable();
-                if (celestiaAsteroids.size()>0){
-                    celestiaAsteroid = celestiaAsteroids.get(0);
-                    pnlAsteroidData.setText(controller.formatAsteroidData(celestiaAsteroid));
-                }
-                progressBar.setValue(0);
-            }
-        });
+	    System.out.println(BaseUtils.getDateTime());
+	    new Thread(new Runnable() {
+		    @Override
+		    public void run() {
+			    controller.getAsterTableData(new onResultCelestiaAsteroids() {
+				    @Override
+				    public void dataCallback(ArrayList<CelestiaAsteroid> asteroids) {
+					    System.out.println("get table dataCallback= " + BaseUtils.getDateTime());
+					    celestiaAsteroids = asteroids;
+					    setModelToTable();
+					    if (celestiaAsteroids.size()>0){
+						    celestiaAsteroid = celestiaAsteroids.get(0);
+						    pnlAsteroidData.setText(controller.formatAsteroidData(celestiaAsteroid));
+					    }
+					    progressBar.setValue(0);
+				    }
+			    });
+		    }
+	    }).start();
+	    System.out.println(BaseUtils.getDateTime());
     }
 
     private void initUI() {
@@ -212,7 +221,7 @@ public class ToolsForm extends JFrame {
 
     private void setModelToTable() {
         tableModel = new AbstractTableModel() {
-            String[] columnNames = {"№","Name","Type","Radius,km"};
+            String[] columnNames = {"№","Name","Type","Radius,km","Update"};
             @Override
             public String getColumnName(int column) {
                 return columnNames[column];
@@ -239,6 +248,8 @@ public class ToolsForm extends JFrame {
                         return celestiaAsteroids.get(rowIndex).getOrbitType();
                     case 3:
                         return celestiaAsteroids.get(rowIndex).getRadius();
+                    case 4:
+                        return celestiaAsteroids.get(rowIndex).getUpdateTime();
                 }
                 return "";
             }
