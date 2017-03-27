@@ -13,7 +13,7 @@ public class AstroConst {
     public static final double EARTH_DOLG_1980 = 98.833540;
     public static final double EARTH_PERIC = 102.596403;
     // Radius of Earth, Sun and Moon
-    public static final double R_Earth = 63781366;     // [m]
+    public static final double R_Earth = 6378136.6;     // [m]
     public static final double R_Sun = 696000.0;       // [km]
     public static final double R_Moon = 1738.0;       // [km]
 }

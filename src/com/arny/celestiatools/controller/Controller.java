@@ -10,6 +10,7 @@ import java.nio.file.StandardOpenOption;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 import com.arny.celestiatools.models.*;
@@ -17,9 +18,13 @@ import com.arny.celestiatools.utils.AstroUtils;
 import com.arny.celestiatools.utils.BaseUtils;
 import com.arny.celestiatools.utils.FileUtils;
 import com.arny.celestiatools.utils.astro.OrbitViewer;
+import javafx.concurrent.Worker;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+
+import javax.swing.*;
+
 import static com.arny.celestiatools.utils.AstroUtils.*;
 
 public class Controller {
@@ -40,94 +45,122 @@ public class Controller {
 			asteroidsFileSE = new File(MPC_FILES_DIR + MPC_NEAM_LAST_SC_SE);
 	private ArrayList<String> orbitalTypes;
 	private StringBuilder neamParseBuilderCEL, neamParseBuilderSE;
-	private ArrayList<CelestiaAsteroid> celestiaObjects;
     private Connection connection = null;
     private int asteroidCnt,totalProgress,iterateProgress;
     private int changed,added;
+	private Worker worker;
+	private Thread write;
 
-    public Controller() {
+	public Controller() {
         connection = SqliteConnection.dbConnection();
     }
 
     public void getAsterTableData(onResultCelestiaAsteroids celestiaAsteroidsCallbacks) {
-			    new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        celestiaAsteroidsCallbacks.dataCallback(SqliteConnection.getAllCelestiaAsteroids(connection));
-                    }
-                }).start();
+			    new Thread(() -> celestiaAsteroidsCallbacks.dataCallback(SqliteConnection.getAllCelestiaAsteroids(connection))).start();
     }
 
     public void workJsonFile(File file, onResultCallback resultParse) {
 		operationResult = "";
 		if (file.length() > 0) {
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						long start = System.currentTimeMillis();
-						FileUtils.unzipGZ(file.getAbsolutePath(), MPC_FILES_DIR + MPC_ASTER_JSON_FILE);
-						operationResult += "\nРаспаковка заняла:" + BaseUtils.convertExtendTime((System.currentTimeMillis() - start));
-						resultParse.result("unzip", true, operationResult);
-					} catch (Exception e) {
-						resultParse.result("unzip", false, e.getMessage());
-					}
-
+			new Thread(() -> {
+				try {
+					long start = System.currentTimeMillis();
+					FileUtils.unzipGZ(file.getAbsolutePath(), MPC_FILES_DIR + MPC_ASTER_JSON_FILE);
+					operationResult += "\nРаспаковка заняла:" + BaseUtils.convertExtendTime((System.currentTimeMillis() - start));
+					resultParse.result("unzip", true, operationResult);
+				} catch (Exception e) {
+					resultParse.result("unzip", false, e.getMessage());
 				}
+
 			}).start();
 		}
 	}
 
+//	class Worker extends SwingWorker<Void, Integer> {
+//
+//		int counter = 0;
+//
+//		@Override
+//		protected Void doInBackground() throws Exception {
+//			while(true) {
+//				counter++;
+//				publish(counter);
+//				Thread.sleep(60);
+//			}
+//		}
+//
+//		@Override
+//		protected void process(List<Integer> chunk) {
+//			// get last result
+//			Integer counterChunk = chunk.get(chunk.size()-1);
+//			counterLabel.setText(counterChunk.toString());
+//		}
+//
+//	}
+
 	public void writeOrbitalParamFile(ArrayList<String> orbitalTypes, onResultCallback resultParse, onResultCelestiaAsteroids celestiaData, onProgressUpdate onProgressUpdate) {
 		this.orbitalTypes = orbitalTypes;
-		new Thread(new Runnable() {
+
+		write = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				try {
-                    long start = System.currentTimeMillis();
-                    File folder = new File(MPC_FILES_DIR);
-                    boolean folderFilesExist = folder.exists() || folder.mkdir();
-				    if (!folderFilesExist) return;
-
-//                    if (asteroidsFileCEL != null) {
-//                        try {
-//                            asteroidsFileCEL.delete();
-//                        } catch (Exception e) {
-//                            e.printStackTrace();
-//                            resultParse.result("writessc", false, e.getMessage());
-//                            return;
-//                        }
-//                    }
-
-//                    if (asteroidsFileSE != null) {
-//                        try {
-//                            asteroidsFileSE.delete();
-//                        } catch (Exception e) {
-//                            e.printStackTrace();
-//                            resultParse.result("writessc", false, e.getMessage());
-//                            return;
-//                        }
-//                    }
-                    if (unpackedJsonfile == null) {
+					long start = System.currentTimeMillis();
+					File folder = new File(MPC_FILES_DIR);
+					boolean folderFilesExist = folder.exists() || folder.mkdir();
+					if (!folderFilesExist) return;
+					if (unpackedJsonfile == null) {
 						operationResult = "Нет распакованного файла";
 						resultParse.result("writessc", false, operationResult);
 						return;
 					}
+//				parseJson(unpackedJsonfile, onProgressUpdate);
 
+					JSONParser parser = new JSONParser();
+					try {
+						Object obj = parser.parse(new FileReader(unpackedJsonfile));
+						JSONArray array = new JSONArray();
+						array.add(obj);
+						JSONArray asteroids = (JSONArray) array.get(0);
+						totalProgress = asteroids.size();
+						long st = System.currentTimeMillis();
+						changed = added = asteroidCnt = iterateProgress = 0;
+						for (Object asteroid : asteroids) {
+							asteroidCnt++;
+							JSONObject astroObject = (JSONObject) asteroid;
+							CelestiaAsteroid celestiaAsteroid = new CelestiaAsteroid();
+							convertJsonAsteroid(astroObject, celestiaAsteroid);
+							updateOrInsertDb(celestiaAsteroid);
+							long esTime = BaseUtils.getEsTime(st, System.currentTimeMillis(), iterateProgress, totalProgress);
+							onProgressUpdate.update("dbupdate", totalProgress, iterateProgress, BaseUtils.convertExtendTime(esTime));
+							iterateProgress++;
+						}
+						operationResult = "Найдено: " + asteroidCnt + " астероидов,добавлено:" + added + " обновлено:" + changed;
 
-					parseJson(unpackedJsonfile,onProgressUpdate);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 					celestiaData.dataCallback(SqliteConnection.getAllCelestiaAsteroids(connection));
-                    long esTime = System.currentTimeMillis() - start;
+					long esTime = System.currentTimeMillis() - start;
 					operationResult += " Операция заняла:" + BaseUtils.convertExtendTime(esTime);
 					resultParse.result("dbwrite", true, operationResult);
 
 				} catch (Exception e) {
-					resultParse.result("writessc", false, e.getMessage());
+					resultParse.result("dbwrite", false, e.getMessage());
 				}
-
 			}
-		}).start();
+		});
+		write.start();
 	}
+
+	public void InterruptThread(onResultCallback callback){
+		try {
+			write.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		callback.result("dbwrite",true,"Операция прервана");
+	};
 
 	public static File getSettingsDirectory() {
 		String userHome = System.getProperty("user.home");
@@ -187,26 +220,22 @@ public class Controller {
 
 	public void downloadFile(int source, onResultCallback resultParse) {
 		String downloadPath = getDownloadPath(source);
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				long start = System.currentTimeMillis();
-				try {
-                    File folder = new File(MPC_FILES_DIR);
-                    boolean folderFilesExist = folder.exists() || folder.mkdir();
-                    if (!folderFilesExist) return;
-                    FileUtils.downloadUsingStream(downloadPath, MPC_FILES_DIR+ MPC_ASTER_DOWNLOADED_FILE);
-                } catch (Exception ex) {
-					ex.printStackTrace();
-				}
-				try {
-					File file = new File(MPC_FILES_DIR+ MPC_ASTER_DOWNLOADED_FILE);
-					operationResult = "файл загружен,размер " + BaseUtils.convertExtendFileLength( file.length());
-					resultParse.result("download", true, operationResult);
-				} catch (Exception e) {
-					e.printStackTrace();
-					resultParse.result("download", false, e.getMessage());
-				}
+		new Thread(() -> {
+			try {
+				File folder = new File(MPC_FILES_DIR);
+				boolean folderFilesExist = folder.exists() || folder.mkdir();
+				if (!folderFilesExist) return;
+				FileUtils.downloadUsingStream(downloadPath, MPC_FILES_DIR + MPC_ASTER_DOWNLOADED_FILE);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+			try {
+				File file = new File(MPC_FILES_DIR + MPC_ASTER_DOWNLOADED_FILE);
+				operationResult = "файл загружен,размер " + BaseUtils.convertExtendFileLength(file.length());
+				resultParse.result("download", true, operationResult);
+			} catch (Exception e) {
+				e.printStackTrace();
+				resultParse.result("download", false, e.getMessage());
 			}
 		}).start();
 	}
@@ -231,49 +260,56 @@ public class Controller {
 	}
 
     public void writeOrbitsFiles(ArrayList<CelestiaAsteroid> celestiaAsteroids,onResultCallback resultCallback){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    neamParseBuilderCEL = new StringBuilder();
-                    neamParseBuilderSE = new StringBuilder();
-                    if (celestiaAsteroids != null) {
-                        iterateProgress = 0;
-                        for (CelestiaAsteroid asteroid : celestiaAsteroids) {
-                            convertJPLAsteroidsCEL(asteroid);
-                            convertJPLAsteroidsSE(asteroid);
-                            iterateProgress++;
-                        }
-                        parseMpcNeamCEL = neamParseBuilderCEL.toString();
-                        parseMpcNeamSE = neamParseBuilderSE.toString();
-
-                        if (BaseUtils.empty(parseMpcNeamCEL)) {
-                            operationResult = "Нечего записывать";
-                            resultCallback.result("writessc", false, operationResult);
-                            return;
-                        }
-
-                        Files.write(Paths.get(MPC_FILES_DIR + MPC_NEAM_LAST_SCC), parseMpcNeamCEL.getBytes(StandardCharsets.UTF_8),
-                                StandardOpenOption.CREATE);
-                        Files.write(Paths.get(MPC_FILES_DIR + MPC_NEAM_LAST_SC_SE), parseMpcNeamSE.getBytes(StandardCharsets.UTF_8),
-                                StandardOpenOption.CREATE);
-
-                        operationResult = "Орбит записано:" + iterateProgress;
-                        resultCallback.result("writessc", true, operationResult);
+        new Thread(() -> {
+            try {
+                neamParseBuilderCEL = new StringBuilder();
+                neamParseBuilderSE = new StringBuilder();
+                if (celestiaAsteroids != null) {
+	                try {
+		                asteroidsFileCEL.delete();
+	                } catch (Exception e) {
+		                e.printStackTrace();
+	                }
+	                try {
+		                asteroidsFileSE.delete();
+	                } catch (Exception e) {
+		                e.printStackTrace();
+	                }
+                    iterateProgress = 0;
+                    for (CelestiaAsteroid asteroid : celestiaAsteroids) {
+                        convertJPLAsteroidsCEL(asteroid);
+                        convertJPLAsteroidsSE(asteroid);
+                        iterateProgress++;
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    resultCallback.result("writessc", false, e.getMessage());
+                    parseMpcNeamCEL = neamParseBuilderCEL.toString();
+                    parseMpcNeamSE = neamParseBuilderSE.toString();
+
+                    if (BaseUtils.empty(parseMpcNeamCEL)) {
+                        operationResult = "Нечего записывать";
+                        resultCallback.result("writessc", false, operationResult);
+                        return;
+                    }
+
+                    Files.write(Paths.get(MPC_FILES_DIR + MPC_NEAM_LAST_SCC), parseMpcNeamCEL.getBytes(StandardCharsets.UTF_8),
+                            StandardOpenOption.CREATE);
+                    Files.write(Paths.get(MPC_FILES_DIR + MPC_NEAM_LAST_SC_SE), parseMpcNeamSE.getBytes(StandardCharsets.UTF_8),
+                            StandardOpenOption.CREATE);
+
+                    operationResult = "Орбит записано:" + iterateProgress;
+                    resultCallback.result("writessc", true, operationResult);
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
+                resultCallback.result("writessc", false, e.getMessage());
             }
         }).start();
     }
 
-    /**
-     * Основная ф-я парсинга
-     * @param file
-     * @param onProgressUpdate
-     */
+	/**
+	 *  Основная ф-я парсинга
+	 * @param file
+	 * @param onProgressUpdate
+	 */
 	private void parseJson(File file,onProgressUpdate onProgressUpdate) {
 		JSONParser parser = new JSONParser();
 		try {
@@ -281,17 +317,15 @@ public class Controller {
 			JSONArray array = new JSONArray();
 			array.add(obj);
 			JSONArray asteroids = (JSONArray) array.get(0);
-            celestiaObjects = new ArrayList<>();
             totalProgress = asteroids.size();
             long st = System.currentTimeMillis();
             changed = added = asteroidCnt = iterateProgress = 0;
             for (Object asteroid : asteroids) {
                 asteroidCnt++;
-                JSONObject astroObject = (JSONObject) asteroid;
+	            JSONObject astroObject = (JSONObject) asteroid;
                 CelestiaAsteroid celestiaAsteroid = new CelestiaAsteroid();
                 convertJsonAsteroid(astroObject, celestiaAsteroid);
 	            updateOrInsertDb(celestiaAsteroid);
-                celestiaObjects.add(celestiaAsteroid);
 	            long esTime = BaseUtils.getEsTime(st, System.currentTimeMillis(), iterateProgress, totalProgress);
 	            onProgressUpdate.update("dbupdate", totalProgress, iterateProgress, BaseUtils.convertExtendTime(esTime));
                 iterateProgress++;
@@ -376,7 +410,7 @@ public class Controller {
     }
 
     private void convertJsonAsteroid(JSONObject astroObject, CelestiaAsteroid asteroid) {
-        String name = "";
+        String name;
         if (astroObject.get("Name") == null) {
             name = astroObject.get("Principal_desig").toString();
         } else {
@@ -475,18 +509,16 @@ public class Controller {
 	}
 
 	private String getObjectOrbit(CelestiaAsteroid asteroid) {
-		StringBuilder orbit = new StringBuilder();
-		orbit.append("\n	{")
-				.append("\n	        Period             ").append(asteroid.getPeriod())
-				.append("\n         SemiMajorAxis      ").append(asteroid.getSma())
-				.append("\n         Inclination        ").append(asteroid.getInc())
-				.append("\n         AscendingNode      ").append(asteroid.getNode())
-				.append("\n         Eccentricity      ").append(asteroid.getEcc())
-				.append("\n         ArgOfPericenter    ").append(asteroid.getPeric())
-				.append("\n         MeanAnomaly        ").append(asteroid.getMa())
-				.append("\n         Epoch              ").append(asteroid.getEpoch())
-				.append("\n	}");
-		return orbit.toString();
+		return "\n	{" +
+				"\n	        Period             " + asteroid.getPeriod() +
+				"\n         SemiMajorAxis      " + asteroid.getSma() +
+				"\n         Inclination        " + asteroid.getInc() +
+				"\n         AscendingNode      " + asteroid.getNode() +
+				"\n         Eccentricity      " + asteroid.getEcc() +
+				"\n         ArgOfPericenter    " + asteroid.getPeric() +
+				"\n         MeanAnomaly        " + asteroid.getMa() +
+				"\n         Epoch              " + asteroid.getEpoch() +
+				"\n	}";
 	}
 
 	private void convertJPLAsteroidsSE(CelestiaAsteroid asteroid) {

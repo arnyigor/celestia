@@ -19,7 +19,7 @@ public class ToolsForm extends JFrame {
 	private JPanel panel;
 	private JTabbedPane tabbedPane1;
 	private JPanel asteroidPanel,CalcPanel;
-	private JButton btnDownload,btnUnpackJson,btnWriteOrbits,btnOrbitViewer,btnCelestiaFiles,btnCalc;
+	private JButton btnDownload,btnUnpackJson,btnWriteOrbits,btnOrbitViewer,btnCelestiaFiles,btnCalc,btnThreadCancel;
 	private JLabel labelInfo;
 	private JComboBox jComboBoxSource;
 	private JCheckBox checkBox1,checkBox2,checkBox3;
@@ -27,7 +27,7 @@ public class ToolsForm extends JFrame {
 	private JTextPane lblCalcRes,pnlAsteroidData;
     private JProgressBar progressBar;
 	private JTextField textField1;
-    public static final int WIDTH = 1024;
+	public static final int WIDTH = 1024;
     public static final int HEIGHT = 600;
 	private Controller controller;
 	private ArrayList<CelestiaAsteroid> celestiaAsteroids;
@@ -202,6 +202,18 @@ public class ToolsForm extends JFrame {
                 });
             }
         });
+		btnThreadCancel.setText("Отмена");
+		btnThreadCancel.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				controller.InterruptThread(new onResultCallback() {
+					@Override
+					public void result(String method, boolean success, String result) {
+						MessageResultCallback(method,success,result);
+					}
+				});
+			}
+		});
 	}
 
     private void MessageResultCallback(String method, boolean success, String result) {

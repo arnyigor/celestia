@@ -11,6 +11,7 @@ import java.util.*;
 import java.math.*;
 
 import com.arny.celestiatools.models.CelestiaAsteroid;
+import com.arny.celestiatools.utils.AstroConst;
 import com.arny.celestiatools.utils.AstroUtils;
 import com.arny.celestiatools.utils.BaseUtils;
 import com.arny.celestiatools.utils.MathUtils;
@@ -1078,7 +1079,7 @@ class OrbitPlayer implements Runnable {
 	public void run() {
 		while (true) {
 			try {
-				Thread.sleep(25);
+				Thread.sleep(10);
 			} catch (InterruptedException e) {
 				break;
 			}
@@ -1581,7 +1582,7 @@ class OrbitCanvas extends Canvas {
 			xdiff = xyz.fX - xyz1.fX;
 			ydiff = xyz.fY - xyz1.fY;
 			zdiff = xyz.fZ - xyz1.fZ;
-			edistance = Math.sqrt((xdiff * xdiff) + (ydiff * ydiff) + (zdiff * zdiff));
+			edistance = Math.sqrt((xdiff * xdiff) + (ydiff * ydiff) + (zdiff * zdiff)) - DistanceConvert(AstroConst.R_Earth, DistanceTypes.metre, DistanceTypes.AU);
             strDist = "Earth Distance: " + MathUtils.round(DistanceConvert(edistance, DistanceTypes.AU, DistanceTypes.km),3) + " km, min:" + MathUtils.round(DistanceConvert(minEdist, DistanceTypes.AU, DistanceTypes.km),3) + " date:" + strATime;
 			point1.x = fm.charWidth('A');
 			point1.y = this.sizeCanvas.height - fm.getDescent() - fm.getHeight() - 10;
