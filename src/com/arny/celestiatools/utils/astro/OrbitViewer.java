@@ -55,7 +55,7 @@ public class OrbitViewer extends Applet implements ActionListener {
     private static final String timeStepLabel[] = {
 			"1 Min", "1 Hour", "1 Day", "3 Days", "10 Days",
 			"1 Month", "3 Months", "6 Months",
-			"1 Year"
+			"1 Year","20 Sec"
 	};
     private static final TimeSpan timeStepSpan[] = {
             new TimeSpan(0, 0, 0, 0, 1, 0.0),
@@ -67,6 +67,7 @@ public class OrbitViewer extends Applet implements ActionListener {
 			new TimeSpan(0, 3, 0, 0, 0, 0.0),
 			new TimeSpan(0, 6, 0, 0, 0, 0.0),
 			new TimeSpan(1, 0, 0, 0, 0, 0.0),
+			new TimeSpan(0, 0, 0, 0, 0, 20.0),
 	};
 	public TimeSpan timeStep = timeStepSpan[3];
     public int playDirection = ATime.F_INCTIME;
@@ -116,29 +117,38 @@ public class OrbitViewer extends Applet implements ActionListener {
 
 
     public void DynamicTimeStep(double edistance) {
-        double stepSecDistKm = AstroUtils.DistanceConvert(0.1E6,DistanceTypes.km,DistanceTypes.AU) ;
-        double stepMinDistKm = AstroUtils.DistanceConvert(1E6,DistanceTypes.km,DistanceTypes.AU) ;
-        double stepHourDistKm = AstroUtils.DistanceConvert(10E6,DistanceTypes.km,DistanceTypes.AU) ;
-        double stepDayDistKm = AstroUtils.DistanceConvert(45E6,DistanceTypes.km,DistanceTypes.AU) ;
-        if (edistance >= stepDayDistKm) {
-            timeStep = timeStepSpan[3];
-        } else if (edistance >= stepHourDistKm) {
-            timeStep = timeStepSpan[2];
-        } else if (edistance >= stepMinDistKm) {
-            timeStep = timeStepSpan[1];
-        } else if (edistance >= stepSecDistKm) {
-            timeStep = timeStepSpan[0];
-        } else {
-            timeStep = timeStepSpan[0];
+        double stepLessSecDistKm = AstroUtils.DistanceConvert(0.075E6,DistanceTypes.km,DistanceTypes.AU) ;
+        double stepSecDistKm = AstroUtils.DistanceConvert(0.325E6,DistanceTypes.km,DistanceTypes.AU) ;
+        double stepMinDistKm = AstroUtils.DistanceConvert(0.75E6,DistanceTypes.km,DistanceTypes.AU) ;
+        double stepHourDistKm = AstroUtils.DistanceConvert(3.25E6,DistanceTypes.km,DistanceTypes.AU) ;
+        double stepDayDistKm = AstroUtils.DistanceConvert(7.5E6,DistanceTypes.km,DistanceTypes.AU) ;
+        int step = 2;
+        if (edistance <=stepLessSecDistKm){
+            step = 9;
+        }else if (edistance>stepLessSecDistKm && edistance<=stepMinDistKm){
+            step = 0;
+        }else if(edistance>stepSecDistKm && edistance<=stepMinDistKm){
+            step = 1;
+        }else if(edistance>stepMinDistKm && edistance<=stepHourDistKm){
+            step = 2;
+        }else if(edistance>stepHourDistKm && edistance<=stepDayDistKm){
+            step = 3;
+        }else if(edistance>stepDayDistKm){
+            step = 4;
         }
-
+        timeStep = timeStepSpan[step];
+        choiceTimeStep.select(timeStepLabel[step]);
     }
 
-    public void minEdistance(double ed){
+    public void minEdistance(double ed,ATime atime){
         if (minDist == 0) {
             minDist = ed;
+            String mindisttime = BaseUtils.getDateTime(AstroUtils.DateFromJD(atime.getJd()), "dd MMM yyyy HH:mm");
+            orbitCanvas.setStrATime(mindisttime);
         } else if (ed < minDist) {
             minDist = ed;
+            String mindisttime = BaseUtils.getDateTime(AstroUtils.DateFromJD(atime.getJd()), "dd MMM yyyy HH:mm");
+            orbitCanvas.setStrATime(mindisttime);
         }
         orbitCanvas.setMinEdist(minDist);
     }
@@ -946,9 +956,7 @@ public class OrbitViewer extends Applet implements ActionListener {
 		JFrame mainFrame = new JFrame("Celestia orbit");
 		mainFrame.setResizable(true);
 		mainFrame.setContentPane(mainPanel);
-		mainFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-
+        mainFrame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         mainFrame.addWindowListener(new WindowListener() {
             @Override
             public void windowOpened(WindowEvent e) {
@@ -963,7 +971,6 @@ public class OrbitViewer extends Applet implements ActionListener {
                 }
                 e.getWindow().setVisible(false);
                 e.getWindow().dispose();
-//                System.exit(0);
             }
 
             @Override
@@ -991,9 +998,6 @@ public class OrbitViewer extends Applet implements ActionListener {
 
             }
         });
-
-
-
 		ToolsForm.setFrameForm(mainFrame,850,650);
 		mainFrame.pack();
 		mainFrame.setVisible(true);
@@ -1026,113 +1030,6 @@ public class OrbitViewer extends Applet implements ActionListener {
 	 */
 	public void destroy() {
 		removeAll();
-	}
-
-	/**
-	 * Event Handler
-	 */
-	public boolean handleEvent(Event evt) {
-		switch (evt.id) {
-			case Event.SCROLL_ABSOLUTE:
-			case Event.SCROLL_LINE_DOWN:
-			case Event.SCROLL_LINE_UP:
-			case Event.SCROLL_PAGE_UP:
-			case Event.SCROLL_PAGE_DOWN:
-				if (evt.target == scrollHorz) {
-					orbitCanvas.setRotateHorz(270 - scrollHorz.getValue());
-				} else if (evt.target == scrollVert) {
-					orbitCanvas.setRotateVert(180 - scrollVert.getValue());
-				} else if (evt.target == scrollZoom) {
-					orbitCanvas.setZoom(scrollZoom.getValue());
-				} else {
-					return false;
-				}
-				orbitCanvas.repaint();
-				return true;
-			case Event.ACTION_EVENT:
-				if (evt.target == buttonDate) {                    // Set Date
-					dateDialog = new DateDialog(this, atime);
-					buttonDate.disable();
-					return true;
-				} else if (evt.target == buttonForPlay) {        // ForPlay
-					if (playerThread != null
-							&& playDirection != ATime.F_INCTIME) {
-						playerThread.stop();
-						playerThread = null;
-					}
-					if (playerThread == null) {
-						buttonDate.disable();
-						playDirection = ATime.F_INCTIME;
-						playerThread = new Thread(orbitPlayer);
-						playerThread.setPriority(Thread.MIN_PRIORITY);
-						playerThread.start();
-					}
-				} else if (evt.target == buttonRevPlay) {        // RevPlay
-					if (playerThread != null
-							&& playDirection != ATime.F_DECTIME) {
-						playerThread.stop();
-						playerThread = null;
-					}
-					if (playerThread == null) {
-						buttonDate.disable();
-						playDirection = ATime.F_DECTIME;
-						playerThread = new Thread(orbitPlayer);
-						playerThread.setPriority(Thread.MIN_PRIORITY);
-						playerThread.start();
-					}
-				} else if (evt.target == buttonStop) {            // Stop
-					if (playerThread != null) {
-						playerThread.stop();
-						playerThread = null;
-						buttonDate.enable();
-					}
-				} else if (evt.target == buttonForStep) {        // +1 Step
-					atime.changeDate(timeStep, ATime.F_INCTIME);
-					setNewDate();
-					return true;
-				} else if (evt.target == buttonRevStep) {        // -1 Step
-					atime.changeDate(timeStep, ATime.F_DECTIME);
-					setNewDate();
-					return true;
-				} else if (evt.target == checkPlanetName) {        // Planet Name
-					orbitCanvas.switchPlanetName(checkPlanetName.getState());
-					orbitCanvas.repaint();
-					return true;
-				} else if (evt.target == checkObjectName) {        // Object Name
-					orbitCanvas.switchObjectName(checkObjectName.getState());
-					orbitCanvas.repaint();
-					return true;
-				} else if (evt.target == checkDistanceLabel) {    // Distance
-					orbitCanvas.switchDistanceLabel(checkDistanceLabel.getState());
-					orbitCanvas.repaint();
-					return true;
-				} else if (evt.target == checkDateLabel) {        // Date
-					orbitCanvas.switchDateLabel(checkDateLabel.getState());
-					orbitCanvas.repaint();
-					return true;
-				} else if (evt.target == choiceTimeStep) {        // Time Step
-					for (int i = 0; i < timeStepCount; i++) {
-						if ((String) evt.arg == timeStepLabel[i]) {
-							timeStep = timeStepSpan[i];
-							break;
-						}
-					}
-				} else if (evt.target == choiceCenterObject) {    // Center Object
-					for (int i = 0; i < CenterObjectCount; i++) {
-						if ((String) evt.arg == CenterObjectLabel[i]) {
-							CenterObjectSelected = i;
-							orbitCanvas.SelectCenterObject(i);
-							orbitCanvas.repaint();
-							break;
-						}
-					}
-				} else if (evt.target == choiceOrbitObject) {    // Orbit Display
-
-				}
-				return false;
-			default:
-				return false;
-		}
 	}
 
 	/**
@@ -1181,15 +1078,14 @@ class OrbitPlayer implements Runnable {
 	public void run() {
 		while (true) {
 			try {
-				Thread.sleep(50);
+				Thread.sleep(25);
 			} catch (InterruptedException e) {
 				break;
 			}
 			ATime atime = orbitViewer.getAtime();
-            System.out.println(BaseUtils.getDateTime(AstroUtils.DateFromJD(atime.getJd())));
             double ed = orbitViewer.getEsDistance();
             orbitViewer.DynamicTimeStep(ed);
-            orbitViewer.minEdistance(ed);
+            orbitViewer.minEdistance(ed,atime);
             atime.changeDate(orbitViewer.timeStep, orbitViewer.playDirection);
             orbitViewer.setNewDate(atime);
 		}
@@ -1283,6 +1179,7 @@ class OrbitCanvas extends Canvas {
     private boolean bDateLabel;
     private double sdistance;
     private double edistance,minEdist;
+    private String strATime = "";
 
     public double getEdistance() {
         return edistance;
@@ -1291,7 +1188,6 @@ class OrbitCanvas extends Canvas {
     public void setMinEdist(double minEdist) {
         this.minEdist = minEdist;
     }
-
 
     /**
 	 * Constructor
@@ -1404,20 +1300,6 @@ class OrbitCanvas extends Canvas {
 	 */
 	public void switchObjectName(boolean bObjectName) {
 		this.bObjectName = bObjectName;
-	}
-
-	/**
-	 * Switch Distance Label ON/OFF
-	 */
-	public void switchDistanceLabel(boolean bDistanceLabel) {
-		this.bDistanceLabel = bDistanceLabel;
-	}
-
-	/**
-	 * Switch Date Label ON/OFF
-	 */
-	public void switchDateLabel(boolean bDateLabel) {
-		this.bDateLabel = bDateLabel;
 	}
 
 	/**
@@ -1700,7 +1582,7 @@ class OrbitCanvas extends Canvas {
 			ydiff = xyz.fY - xyz1.fY;
 			zdiff = xyz.fZ - xyz1.fZ;
 			edistance = Math.sqrt((xdiff * xdiff) + (ydiff * ydiff) + (zdiff * zdiff));
-            strDist = "Earth Distance: " + MathUtils.round(DistanceConvert(edistance, DistanceTypes.AU, DistanceTypes.km),3) + " km, min:" + MathUtils.round(DistanceConvert(minEdist, DistanceTypes.AU, DistanceTypes.km),3);
+            strDist = "Earth Distance: " + MathUtils.round(DistanceConvert(edistance, DistanceTypes.AU, DistanceTypes.km),3) + " km, min:" + MathUtils.round(DistanceConvert(minEdist, DistanceTypes.AU, DistanceTypes.km),3) + " date:" + strATime;
 			point1.x = fm.charWidth('A');
 			point1.y = this.sizeCanvas.height - fm.getDescent() - fm.getHeight() - 10;
 			og.drawString(strDist, point1.x, point1.y);
@@ -1744,6 +1626,10 @@ class OrbitCanvas extends Canvas {
 			g.drawImage(offscreen, 0, 0, null);
 		}
 	}
+
+    public void setStrATime(String strATime) {
+        this.strATime = strATime;
+    }
 }
 
 /**
@@ -1792,7 +1678,6 @@ class DateDialog extends Frame {
 		add(buttonCancel);
 
 		pack();
-
 		setTitle("Date");
 		setResizable(false);
 		show();

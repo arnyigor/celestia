@@ -98,78 +98,74 @@ public class ATime {
 		this.fSec   = (fMin - this.nMin) * 60.0;
 	}
 
-	public void changeDate(TimeSpan Span, int nIncOrDec) {
-		//
-		// First, calculate new Hour,Minute,Second
-		//
-		double fHms1 = this.nHour * 60.0 * 60.0
-			+ this.nMin  * 60.0 + this.fSec;
-		double fHms2 = Span.nHour * 60.0 * 60.0
-			+ Span.nMin  * 60.0 + Span.fSec;
-		fHms1 += (nIncOrDec == F_INCTIME) ? fHms2 : -fHms2;
-		int nDay1;
-		if (0.0 <= fHms1 && fHms1 < 24.0 * 60.0 * 60.0) {
-			nDay1 = 0;
-		} else if (fHms1 >= 24.0 * 60.0 * 60.0) {
-			nDay1 = (int)Math.floor(fHms1 / 24.0 / 60.0 / 60.0);
-			fHms1 = UdMath.fmod(fHms1, 24.0 * 60.0 * 60.0);
-		} else {
-			nDay1 = (int)Math.ceil(fHms1 / 24.0 / 60.0 / 60.0) - 1;
-			fHms1 = UdMath.fmod(fHms1, 24.0 * 60.0 * 60.0)
-				+ 24.0 * 60.0 * 60.0;
-		}
+    public void changeDate(TimeSpan Span, int nIncOrDec) {
+        //
+        // First, calculate new Hour,Minute,Second
+        //
+        double fHms1 = this.nHour * 60.0 * 60.0 + this.nMin * 60.0 + this.fSec;
+        double fHms2 = Span.nHour * 60.0 * 60.0 + Span.nMin * 60.0 + Span.fSec;
+        fHms1 += (nIncOrDec == F_INCTIME) ? fHms2 : -fHms2;
+        int nDay1;
+        if (0.0 <= fHms1 && fHms1 < 24.0 * 60.0 * 60.0) {
+            nDay1 = 0;
+        } else if (fHms1 >= 24.0 * 60.0 * 60.0) {
+            nDay1 = (int) Math.floor(fHms1 / 24.0 / 60.0 / 60.0);
+            fHms1 = UdMath.fmod(fHms1, 24.0 * 60.0 * 60.0);
+        } else {
+            nDay1 = (int) Math.ceil(fHms1 / 24.0 / 60.0 / 60.0) - 1;
+            fHms1 = UdMath.fmod(fHms1, 24.0 * 60.0 * 60.0) + 24.0 * 60.0 * 60.0;
+        }
 
-		int    nNewHour = (int)Math.floor(fHms1 / 60.0 / 60.0);
-		int    nNewMin  = (int)Math.floor(fHms1 / 60.0) - nNewHour * 60;
-		double fNewSec  = fHms1 - ((double)nNewHour * 60.0 * 60.0
-								 + (double)nNewMin * 60.0);
+        int nNewHour = (int) Math.floor(fHms1 / 60.0 / 60.0);
+        int nNewMin = (int) Math.floor(fHms1 / 60.0) - nNewHour * 60;
+        double fNewSec = fHms1 - ((double) nNewHour * 60.0 * 60.0
+                + (double) nNewMin * 60.0);
 
-		//
-		// Next, calculate new Year, Month, Day
-		//
-		ATime newDate = new ATime(this.getYear(), this.getMonth(),
-								  this.getDay(), 12, 0, 0.0, 0.0);
-		double fJd = newDate.getJd();
-		fJd += (nIncOrDec == F_INCTIME) ? nDay1 + Span.nDay
-										: nDay1 - Span.nDay;
-		newDate = new ATime(fJd, 0.0);
-		
-		int nNewYear  = newDate.getYear();
-		int nNewMonth = newDate.getMonth();
-		int nNewDay   = newDate.getDay();
-		nNewMonth += (nIncOrDec == F_INCTIME) ? Span.nMonth : -Span.nMonth;
-		if (1 > nNewMonth) {
-			nNewYear -= nNewMonth / 12 + 1;
-			nNewMonth = 12 + nNewMonth % 12;
-		} else if (nNewMonth > 12) {
-			nNewYear += nNewMonth / 12;
-			nNewMonth = 1 + (nNewMonth - 1) % 12;
-		}
-		nNewYear += (nIncOrDec == F_INCTIME) ? Span.nYear : -Span.nYear;
-		
-		// check bound between julian and gregorian
-		if (nNewYear == 1582 && nNewMonth == 10) {
-			if (5 <= nNewDay && nNewDay < 10) {
-				nNewDay = 4;
-			} else if (10 <= nNewDay && nNewDay < 15) {
-				nNewDay = 15;
-			}
-		}
-		newDate = new ATime(nNewYear, nNewMonth, nNewDay, 12, 0, 0, 0.0);
-		nNewYear  = newDate.getYear();
-		nNewMonth = newDate.getMonth();
-		nNewDay   = newDate.getDay();
+        //
+        // Next, calculate new Year, Month, Day
+        //
+        ATime newDate = new ATime(this.getYear(), this.getMonth(),
+                this.getDay(), 12, 0, 0.0, 0.0);
+        double fJd = newDate.getJd();
+        fJd += (nIncOrDec == F_INCTIME) ? nDay1 + Span.nDay : nDay1 - Span.nDay;
+        newDate = new ATime(fJd, 0.0);
 
-		this.nYear  = nNewYear;
-		this.nMonth = nNewMonth;
-		this.nDay   = nNewDay;
-		this.nHour  = nNewHour;
-		this.nMin   = nNewMin;
-		this.fSec   = fNewSec;
-		this.fJd = makeJd() - fTimezone / 24.0;
-		this.fT  = makeT();
-		this.fT2 = makeT2();
-	}
+        int nNewYear = newDate.getYear();
+        int nNewMonth = newDate.getMonth();
+        int nNewDay = newDate.getDay();
+        nNewMonth += (nIncOrDec == F_INCTIME) ? Span.nMonth : -Span.nMonth;
+        if (1 > nNewMonth) {
+            nNewYear -= nNewMonth / 12 + 1;
+            nNewMonth = 12 + nNewMonth % 12;
+        } else if (nNewMonth > 12) {
+            nNewYear += nNewMonth / 12;
+            nNewMonth = 1 + (nNewMonth - 1) % 12;
+        }
+        nNewYear += (nIncOrDec == F_INCTIME) ? Span.nYear : -Span.nYear;
+
+        // check bound between julian and gregorian
+        if (nNewYear == 1582 && nNewMonth == 10) {
+            if (5 <= nNewDay && nNewDay < 10) {
+                nNewDay = 4;
+            } else if (10 <= nNewDay && nNewDay < 15) {
+                nNewDay = 15;
+            }
+        }
+        newDate = new ATime(nNewYear, nNewMonth, nNewDay, 12, 0, 0, 0.0);
+        nNewYear = newDate.getYear();
+        nNewMonth = newDate.getMonth();
+        nNewDay = newDate.getDay();
+
+        this.nYear = nNewYear;
+        this.nMonth = nNewMonth;
+        this.nDay = nNewDay;
+        this.nHour = nNewHour;
+        this.nMin = nNewMin;
+        this.fSec = fNewSec;
+        this.fJd = makeJd() - fTimezone / 24.0;
+        this.fT = makeT();
+        this.fT2 = makeT2();
+    }
 
 	/**
 	 * Constructor (YMD/HMS,TZ)
