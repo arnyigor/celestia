@@ -221,6 +221,19 @@ public class BaseUtils {
         }
         return String.valueOf(ms);
     }
+
+    public static String convertExtendFileLength(long length) {
+        if (length < 1024) {
+            return length + " байт";
+        }
+        if (length < 1048576) {
+            return round((length / 1024), 3) + " кБайт";
+        }
+        if (length < 1073741824) {
+            return round((length / 1048576), 3) + " МБайт";
+        }
+        return length + " байт";
+    }
     /**
      * add '0' to number before 10
      * @param number

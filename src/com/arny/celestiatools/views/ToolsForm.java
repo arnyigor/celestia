@@ -1,5 +1,4 @@
 package com.arny.celestiatools.views;
-import com.arny.celestiatools.controller.SqliteConnection;
 import com.arny.celestiatools.models.CelestiaAsteroid;
 import com.arny.celestiatools.controller.Controller;
 import com.arny.celestiatools.models.onProgressUpdate;
@@ -19,30 +18,23 @@ public class ToolsForm extends JFrame {
 	private JFrame mainFrame;
 	private JPanel panel;
 	private JTabbedPane tabbedPane1;
-	private JPanel asteroidPanel;
-	private JPanel CalcPanel;
-	private JButton btnDownload;
-	private JButton btnUnpackJson;
-	private JButton btnWriteOrbits;
+	private JPanel asteroidPanel,CalcPanel;
+	private JButton btnDownload,btnUnpackJson,btnWriteOrbits,btnOrbitViewer,btnCelestiaFiles,btnCalc;
 	private JLabel labelInfo;
 	private JComboBox jComboBoxSource;
-	private JCheckBox checkBox1;
-	private JCheckBox checkBox2;
-	private JCheckBox checkBox3;
-	private JButton btnCalc;
+	private JCheckBox checkBox1,checkBox2,checkBox3;
 	private JTable tblAsteroidsData;
-	private JTextPane lblCalcRes;
-    private JTextPane pnlAsteroidData;
+	private JTextPane lblCalcRes,pnlAsteroidData;
     private JProgressBar progressBar;
 	private JTextField textField1;
-    private JButton btnOrbitViewer;
-    public static final int WIDTH = 800;
+    public static final int WIDTH = 1024;
     public static final int HEIGHT = 600;
 	private Controller controller;
 	private ArrayList<CelestiaAsteroid> celestiaAsteroids;
     private CelestiaAsteroid celestiaAsteroid;
-    private TableModel tableModel;
-	private TableRowSorter<TableModel> rowSorter;
+    private TableAsteroidModel tableModel;
+	private TableRowSorter<TableAsteroidModel> rowSorter;
+
 	public ToolsForm() {
 		initUI();
 		controller = new Controller();
@@ -52,24 +44,19 @@ public class ToolsForm extends JFrame {
     private void initTableAsteroids() {
         celestiaAsteroids = new ArrayList<>();
 	    System.out.println(BaseUtils.getDateTime());
-	    new Thread(new Runnable() {
-		    @Override
-		    public void run() {
-			    controller.getAsterTableData(new onResultCelestiaAsteroids() {
-				    @Override
-				    public void dataCallback(ArrayList<CelestiaAsteroid> asteroids) {
-					    System.out.println("get table dataCallback= " + BaseUtils.getDateTime());
-					    celestiaAsteroids = asteroids;
-					    setModelToTable();
-					    if (celestiaAsteroids.size()>0){
-						    celestiaAsteroid = celestiaAsteroids.get(0);
-						    pnlAsteroidData.setText(controller.formatAsteroidData(celestiaAsteroid));
-					    }
-					    progressBar.setValue(0);
-				    }
-			    });
-		    }
-	    }).start();
+        controller.getAsterTableData(new onResultCelestiaAsteroids() {
+            @Override
+            public void dataCallback(ArrayList<CelestiaAsteroid> asteroids) {
+                System.out.println("get table dataCallback= " + BaseUtils.getDateTime());
+                celestiaAsteroids = asteroids;
+                setModelToTable();
+                if (celestiaAsteroids.size()>0){
+                    celestiaAsteroid = celestiaAsteroids.get(0);
+                    pnlAsteroidData.setText(controller.formatAsteroidData(celestiaAsteroid));
+                }
+                progressBar.setValue(0);
+            }
+        });
 	    System.out.println(BaseUtils.getDateTime());
     }
 
@@ -106,17 +93,11 @@ public class ToolsForm extends JFrame {
 				controller.downloadFile(jComboBoxSource.getSelectedIndex(), new onResultCallback() {
 					@Override
 					public void result(String method, boolean success, String result) {
-						String message = Controller.getMessage(success, method);
-						labelInfo.setText(result);
-//						jTextArea1.setText(message);
-						int messType = success ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE;
-						JOptionPane.showMessageDialog(null, message, method, messType);
-
-					}
+                        MessageResultCallback(method, success, result);
+                    }
 				});
 			}
 		});
-
 		btnUnpackJson.setText("Распаковать");
 		btnUnpackJson.addActionListener(new ActionListener() {
 			@Override
@@ -126,21 +107,17 @@ public class ToolsForm extends JFrame {
 				int ret = fileopen.showDialog(null, "Открыть файл");
 				if (ret == JFileChooser.APPROVE_OPTION) {
 					File file = fileopen.getSelectedFile();
-					labelInfo.setText("Парсинг в процессе...File:" + file.getAbsolutePath());
 					controller.workJsonFile(file, new onResultCallback() {
 						@Override
 						public void result(String method, boolean success, String result) {
-							String message = Controller.getMessage(success, method);
-							labelInfo.setText(result);
-							int messType = success ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE;
-							JOptionPane.showMessageDialog(null, message, method, messType);
+                            MessageResultCallback(method, success, result);
 						}
 					});
 
 				}
 			}
 		});
-		btnWriteOrbits.setText("Записать орбиты");
+		btnWriteOrbits.setText("Обновить БД");
         progressBar.setMinimum(0);
         progressBar.setStringPainted(true);
 		btnWriteOrbits.addActionListener(new ActionListener() {
@@ -153,19 +130,15 @@ public class ToolsForm extends JFrame {
 					orbitalTypes.add(checkBox1.getText());
 				}
 				if (checkBox2.isSelected()) {
-					orbitalTypes.add(checkBox1.getText());
+					orbitalTypes.add(checkBox2.getText());
 				}
 				if (checkBox3.isSelected()) {
-					orbitalTypes.add(checkBox1.getText());
+					orbitalTypes.add(checkBox3.getText());
 				}
                 controller.writeOrbitalParamFile(orbitalTypes, new onResultCallback() {
                     @Override
                     public void result(String method, boolean success, String result) {
-                        String message = Controller.getMessage(success, method);
-                        labelInfo.setText(result);
-                        int messType = success ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE;
-                        JOptionPane.showMessageDialog(null, message, method, messType);
-
+                        MessageResultCallback(method, success, result);
                     }
                 }, new onResultCelestiaAsteroids() {
                     @Override
@@ -191,7 +164,6 @@ public class ToolsForm extends JFrame {
 		tblAsteroidsData.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-
 	            tblAsteroidsData.convertRowIndexToModel(tblAsteroidsData.getSelectedRow());
                 int row = tblAsteroidsData.convertRowIndexToModel(tblAsteroidsData.getSelectedRow());
                 celestiaAsteroid = celestiaAsteroids.get(row);
@@ -217,44 +189,74 @@ public class ToolsForm extends JFrame {
                 controller.orbitViewerStart(celestiaAsteroid);
             }
         });
+        btnCelestiaFiles.setText("Записать орбиты");
+        btnCelestiaFiles.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ArrayList<CelestiaAsteroid> asteroids = tableModel.getSelected(tblAsteroidsData.getSelectedRows());
+                controller.writeOrbitsFiles(asteroids, new onResultCallback() {
+                    @Override
+                    public void result(String method, boolean success, String result) {
+                        MessageResultCallback(method, success, result);
+                    }
+                });
+            }
+        });
 	}
 
+    private void MessageResultCallback(String method, boolean success, String result) {
+        String message = Controller.getMessage(success, method);
+        labelInfo.setText(message);
+        int messType = success ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE;
+        JOptionPane.showMessageDialog(null, result, method, messType);
+    }
+
+    private class TableAsteroidModel extends AbstractTableModel {
+        String[] columnNames = {"№","Name","Type","Radius,km","Update"};
+        @Override
+        public String getColumnName(int column) {
+            return columnNames[column];
+        }
+
+        @Override
+        public int getRowCount() {
+            return celestiaAsteroids.size();
+        }
+
+        @Override
+        public int getColumnCount() {
+            return columnNames.length;
+        }
+
+        @Override
+        public Object getValueAt(int rowIndex, int columnIndex) {
+            switch (columnIndex) {
+                case 0:
+                    return rowIndex+1;
+                case 1:
+                    return celestiaAsteroids.get(rowIndex).getName();
+                case 2:
+                    return celestiaAsteroids.get(rowIndex).getOrbitType();
+                case 3:
+                    return celestiaAsteroids.get(rowIndex).getRadius();
+                case 4:
+                    return celestiaAsteroids.get(rowIndex).getUpdateTime();
+            }
+            return "";
+        }
+
+        private ArrayList<CelestiaAsteroid> getSelected(int[] rows) {
+            ArrayList<CelestiaAsteroid> selectedAsteroids = new ArrayList<>();
+            for (int i = 0; i < rows.length; i++) {
+                selectedAsteroids.add(celestiaAsteroids.get(i));
+            }
+            return selectedAsteroids;
+        }
+    }
+
     private void setModelToTable() {
-        tableModel = new AbstractTableModel() {
-            String[] columnNames = {"№","Name","Type","Radius,km","Update"};
-            @Override
-            public String getColumnName(int column) {
-                return columnNames[column];
-            }
-
-            @Override
-            public int getRowCount() {
-                return celestiaAsteroids.size();
-            }
-
-            @Override
-            public int getColumnCount() {
-                return columnNames.length;
-            }
-
-            @Override
-            public Object getValueAt(int rowIndex, int columnIndex) {
-                switch (columnIndex) {
-                    case 0:
-                        return rowIndex+1;
-                    case 1:
-                        return celestiaAsteroids.get(rowIndex).getName();
-                    case 2:
-                        return celestiaAsteroids.get(rowIndex).getOrbitType();
-                    case 3:
-                        return celestiaAsteroids.get(rowIndex).getRadius();
-                    case 4:
-                        return celestiaAsteroids.get(rowIndex).getUpdateTime();
-                }
-                return "";
-            }
-        };
-	    rowSorter = new TableRowSorter<TableModel>(tableModel);
+        tableModel = new TableAsteroidModel();
+	    rowSorter = new TableRowSorter<>(tableModel);
 	    textField1.addKeyListener(new KeyListener() {
 		    @Override
 		    public void keyTyped(KeyEvent e) {

@@ -3,6 +3,10 @@ package com.arny.celestiatools.utils.astro;
 import java.applet.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.PathIterator;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.*;
 import java.math.*;
 
@@ -12,6 +16,7 @@ import com.arny.celestiatools.utils.BaseUtils;
 import com.arny.celestiatools.utils.MathUtils;
 import com.arny.celestiatools.utils.astro.*;
 import com.arny.celestiatools.views.ToolsForm;
+import javafx.scene.shape.Sphere;
 
 import javax.swing.*;
 
@@ -63,7 +68,7 @@ public class OrbitViewer extends Applet implements ActionListener {
 			new TimeSpan(0, 6, 0, 0, 0, 0.0),
 			new TimeSpan(1, 0, 0, 0, 0, 0.0),
 	};
-	public TimeSpan timeStep = timeStepSpan[1];
+	public TimeSpan timeStep = timeStepSpan[3];
     public int playDirection = ATime.F_INCTIME;
 
 	/**
@@ -74,7 +79,7 @@ public class OrbitViewer extends Applet implements ActionListener {
 			"Sun", "Asteroid/Comet", "Mercury", "Venus", "Earth",
 			"Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"
 	};
-    private int CenterObjectSelected = 0;
+    private int CenterObjectSelected = 1;
 
 	/**
 	 * Orbits Displayed
@@ -106,8 +111,41 @@ public class OrbitViewer extends Applet implements ActionListener {
     private static final int initialScrollZoom = 100;
     private static final int initialScrollZoomFactor = 300;
     private static final int fontSize = 16;
-
     private CelestiaAsteroid celestiaAsteroid;
+    private double minDist;
+
+
+    public void DynamicTimeStep(double edistance) {
+        double stepSecDistKm = AstroUtils.DistanceConvert(0.1E6,DistanceTypes.km,DistanceTypes.AU) ;
+        double stepMinDistKm = AstroUtils.DistanceConvert(1E6,DistanceTypes.km,DistanceTypes.AU) ;
+        double stepHourDistKm = AstroUtils.DistanceConvert(10E6,DistanceTypes.km,DistanceTypes.AU) ;
+        double stepDayDistKm = AstroUtils.DistanceConvert(45E6,DistanceTypes.km,DistanceTypes.AU) ;
+        if (edistance >= stepDayDistKm) {
+            timeStep = timeStepSpan[3];
+        } else if (edistance >= stepHourDistKm) {
+            timeStep = timeStepSpan[2];
+        } else if (edistance >= stepMinDistKm) {
+            timeStep = timeStepSpan[1];
+        } else if (edistance >= stepSecDistKm) {
+            timeStep = timeStepSpan[0];
+        } else {
+            timeStep = timeStepSpan[0];
+        }
+
+    }
+
+    public void minEdistance(double ed){
+        if (minDist == 0) {
+            minDist = ed;
+        } else if (ed < minDist) {
+            minDist = ed;
+        }
+        orbitCanvas.setMinEdist(minDist);
+    }
+
+    public double getEsDistance(){
+        return orbitCanvas.getEdistance();
+    }
 
 	/**
 	 * Applet information
@@ -365,8 +403,10 @@ public class OrbitViewer extends Applet implements ActionListener {
 	 */
 	private ATime limitATime(ATime atime) {
 		if (atime.getJd() <= minATime.getJd()) {
-			return new ATime(minATime);
+            System.out.println("minATime");
+            return new ATime(minATime);
 		} else if (maxATime.getJd() <= atime.getJd()) {
+            System.out.println("maxATime");
 			return new ATime(maxATime);
 		}
 		return atime;
@@ -638,7 +678,7 @@ public class OrbitViewer extends Applet implements ActionListener {
 		ctrlPanel.add(choiceTimeStep);
 		for (int i = 0; i < timeStepCount; i++) {
 			choiceTimeStep.addItem(timeStepLabel[i]);
-			choiceTimeStep.select(timeStepLabel[1]);
+			choiceTimeStep.select(timeStepLabel[2]);
 		}
 
 		// Center Object Label
@@ -670,7 +710,8 @@ public class OrbitViewer extends Applet implements ActionListener {
 		for (int i = 0; i < CenterObjectCount; i++) {
 			choiceCenterObject.addItem(CenterObjectLabel[i]);
 		}
-		orbitCanvas.SelectCenterObject(0);
+		orbitCanvas.SelectCenterObject(CenterObjectSelected);
+        choiceCenterObject.select(CenterObjectSelected);
 
 		choiceCenterObject.addItemListener(new ItemListener() {
             @Override
@@ -905,7 +946,54 @@ public class OrbitViewer extends Applet implements ActionListener {
 		JFrame mainFrame = new JFrame("Celestia orbit");
 		mainFrame.setResizable(true);
 		mainFrame.setContentPane(mainPanel);
-		mainFrame.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+		mainFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+
+        mainFrame.addWindowListener(new WindowListener() {
+            @Override
+            public void windowOpened(WindowEvent e) {
+
+            }
+
+            @Override
+            public void windowClosing(WindowEvent e) {
+                if (playerThread != null) {
+                    playerThread.interrupt();
+                    playerThread = null;
+                }
+                e.getWindow().setVisible(false);
+                e.getWindow().dispose();
+//                System.exit(0);
+            }
+
+            @Override
+            public void windowClosed(WindowEvent e) {
+
+            }
+
+            @Override
+            public void windowIconified(WindowEvent e) {
+
+            }
+
+            @Override
+            public void windowDeiconified(WindowEvent e) {
+
+            }
+
+            @Override
+            public void windowActivated(WindowEvent e) {
+
+            }
+
+            @Override
+            public void windowDeactivated(WindowEvent e) {
+
+            }
+        });
+
+
+
 		ToolsForm.setFrameForm(mainFrame,850,650);
 		mainFrame.pack();
 		mainFrame.setVisible(true);
@@ -1098,8 +1186,12 @@ class OrbitPlayer implements Runnable {
 				break;
 			}
 			ATime atime = orbitViewer.getAtime();
-			atime.changeDate(orbitViewer.timeStep, orbitViewer.playDirection);
-			orbitViewer.setNewDate(atime);
+            System.out.println(BaseUtils.getDateTime(AstroUtils.DateFromJD(atime.getJd())));
+            double ed = orbitViewer.getEsDistance();
+            orbitViewer.DynamicTimeStep(ed);
+            orbitViewer.minEdistance(ed);
+            atime.changeDate(orbitViewer.timeStep, orbitViewer.playDirection);
+            orbitViewer.setNewDate(atime);
 		}
 	}
 }
@@ -1189,8 +1281,19 @@ class OrbitCanvas extends Canvas {
     private boolean bObjectName;
     private boolean bDistanceLabel;
     private boolean bDateLabel;
+    private double sdistance;
+    private double edistance,minEdist;
 
-	/**
+    public double getEdistance() {
+        return edistance;
+    }
+
+    public void setMinEdist(double minEdist) {
+        this.minEdist = minEdist;
+    }
+
+
+    /**
 	 * Constructor
 	 */
     public OrbitCanvas(Comet object, ATime atime) {
@@ -1333,7 +1436,7 @@ class OrbitCanvas extends Canvas {
 	 */
 	private void drawPlanetOrbit(Graphics g, PlanetOrbit planetOrbit,
 	                             Color colorUpper, Color colorLower) {
-		Point point1, point2;
+        Point point1, point2;
 		Xyz xyz = planetOrbit.getAt(0).Rotate(this.mtxToEcl)
 				.Rotate(this.mtxRotate);
 		point1 = getDrawPoint(xyz);
@@ -1434,7 +1537,7 @@ class OrbitCanvas extends Canvas {
 
 		// If center object is comet/asteroid
 		if (CenterObjectSelected == 1) {
-			xyz = this.objectOrbit.getAt(0).Rotate(this.mtxToEcl).Rotate(this.mtxRotate);
+//			xyz = this.objectOrbit.getAt(0).Rotate(this.mtxToEcl).Rotate(this.mtxRotate);
 			xyz = this.objectPos.Rotate(this.mtxToEcl).Rotate(this.mtxRotate);
 			point3 = getDrawPoint(xyz);
 
@@ -1585,31 +1688,27 @@ class OrbitCanvas extends Canvas {
 		point1.y = 2 * fm.charWidth('A');
 		og.drawString(object.getName(), point1.x, point1.y);
 
-		if (bDistanceLabel) {
+//		if (bDistanceLabel) {
 			// Earth & Sun Distance
-			double edistance, sdistance;
 			double xdiff, ydiff, zdiff;
 			String strDist;
 			xyz = this.objectPos.Rotate(this.mtxToEcl).Rotate(this.mtxRotate);
 			xyz1 = planetPos[2].Rotate(this.mtxRotate);
-//            double xCoeff = 0.0005;
-            double xCoeff = 0.0005;//????
-            sdistance = Math.sqrt((xyz.fX * xyz.fX) + (xyz.fY * xyz.fY) + (xyz.fZ * xyz.fZ)) + xCoeff;
+            sdistance = Math.sqrt((xyz.fX * xyz.fX) + (xyz.fY * xyz.fY) + (xyz.fZ * xyz.fZ));
 			sdistance = (int) (sdistance * 1000.0) / 1000.0;
 			xdiff = xyz.fX - xyz1.fX;
 			ydiff = xyz.fY - xyz1.fY;
 			zdiff = xyz.fZ - xyz1.fZ;
-			edistance = Math.sqrt((xdiff * xdiff) + (ydiff * ydiff) + (zdiff * zdiff)) + xCoeff;
-            strDist = "Earth Distance: " + MathUtils.round(DistanceConvert(edistance, DistanceTypes.AU, DistanceTypes.km),3) + " km";
+			edistance = Math.sqrt((xdiff * xdiff) + (ydiff * ydiff) + (zdiff * zdiff));
+            strDist = "Earth Distance: " + MathUtils.round(DistanceConvert(edistance, DistanceTypes.AU, DistanceTypes.km),3) + " km, min:" + MathUtils.round(DistanceConvert(minEdist, DistanceTypes.AU, DistanceTypes.km),3);
 			point1.x = fm.charWidth('A');
 			point1.y = this.sizeCanvas.height - fm.getDescent() - fm.getHeight() - 10;
 			og.drawString(strDist, point1.x, point1.y);
-
 			strDist = "Sun Distance  : " + sdistance + " AU";
 			point1.x = fm.charWidth('A');
 			point1.y = this.sizeCanvas.height - fm.getDescent() - fm.getHeight() / 3;
 			og.drawString(strDist, point1.x, point1.y);
-		}
+//		}
 
 		if (bDateLabel) {
 			// Date String
