@@ -115,27 +115,29 @@ public class OrbitViewer extends Applet implements ActionListener {
     private static final int fontSize = 16;
     private CelestiaAsteroid celestiaAsteroid;
     private double minDist;
+    private ArrayList<Double> averDist = new ArrayList<>();
 
 
     public void DynamicTimeStep(double edistance) {
-        double stepLessSecDistKm = AstroUtils.DistanceConvert(0.075E6,DistanceTypes.km,DistanceTypes.AU) ;
-        double stepSecDistKm = AstroUtils.DistanceConvert(0.325E6,DistanceTypes.km,DistanceTypes.AU) ;
-        double stepMinDistKm = AstroUtils.DistanceConvert(0.75E6,DistanceTypes.km,DistanceTypes.AU) ;
-        double stepHourDistKm = AstroUtils.DistanceConvert(3.25E6,DistanceTypes.km,DistanceTypes.AU) ;
-        double stepDayDistKm = AstroUtils.DistanceConvert(7.5E6,DistanceTypes.km,DistanceTypes.AU) ;
-        int step = 2;
-        if (edistance <=stepLessSecDistKm){
-            step = 9;
-        }else if (edistance>stepLessSecDistKm && edistance<=stepMinDistKm){
-            step = 0;
-        }else if(edistance>stepSecDistKm && edistance<=stepMinDistKm){
-            step = 1;
-        }else if(edistance>stepMinDistKm && edistance<=stepHourDistKm){
-            step = 2;
-        }else if(edistance>stepHourDistKm && edistance<=stepDayDistKm){
-            step = 3;
-        }else if(edistance>stepDayDistKm){
+        double stepLessSecDistKm = AstroUtils.DistanceConvert(0.05E6,DistanceTypes.km,DistanceTypes.AU) ;
+        double stepSecDistKm = AstroUtils.DistanceConvert(0.1E6,DistanceTypes.km,DistanceTypes.AU) ;
+        double stepMinDistKm = AstroUtils.DistanceConvert(0.5E6,DistanceTypes.km,DistanceTypes.AU) ;
+        double stepHourDistKm = AstroUtils.DistanceConvert(5E6,DistanceTypes.km,DistanceTypes.AU) ;
+        double stepDayDistKm = AstroUtils.DistanceConvert(50E6,DistanceTypes.km,DistanceTypes.AU) ;
+        double step3DayDistKm = AstroUtils.DistanceConvert(500E6,DistanceTypes.km,DistanceTypes.AU) ;
+        int step = 3;
+        if (edistance>=step3DayDistKm){
             step = 4;
+        }else if(edistance<=stepDayDistKm && edistance>step3DayDistKm){
+            step = 3;
+        }else if(edistance<=stepHourDistKm && edistance>stepMinDistKm){
+            step = 2;
+        }else if(edistance<=stepMinDistKm && edistance>stepSecDistKm){
+            step = 1;
+        }else if(edistance<=stepSecDistKm && edistance>stepLessSecDistKm){
+            step = 0;
+        }else if(edistance<=stepLessSecDistKm){
+            step = 9;
         }
         timeStep = timeStepSpan[step];
         choiceTimeStep.select(timeStepLabel[step]);
@@ -154,6 +156,21 @@ public class OrbitViewer extends Applet implements ActionListener {
         orbitCanvas.setMinEdist(minDist);
     }
 
+    public void averageEdistance(double ed){
+        double average = 0;
+        if (averDist.size()<10){
+            averDist.add(ed);
+        }
+        for (int x = 0; x < averDist.size(); x++){
+            average = (average / (x+1)) * (x) + averDist.get(x) / (x+1);
+        }
+        if (averDist.size()>=10){
+            averDist.remove(0);
+            averDist.add(ed);
+        }
+//        System.out.println("Tim:d"+timeStep.nDay+" h:"+timeStep.nHour+" m:"+timeStep.nMin+" aver:" + MathUtils.round(AstroUtils.DistanceConvert(average,DistanceTypes.AU,DistanceTypes.km),3));
+    }
+
     public double getEsDistance(){
         return orbitCanvas.getEdistance();
     }
@@ -163,39 +180,6 @@ public class OrbitViewer extends Applet implements ActionListener {
 	 */
 	public String getAppletInfo() {
 		return "OrbitViewer v1.3 Copyright(C) 1996-2001 by O.Ajiki/R.Baalke";
-	}
-
-	/**
-	 * Parameter Information
-	 */
-	public String[][] getParameterInfo() {
-		String info[][] = {
-				{"Name",
-						"String", "Name of the object          ex. 1P/Halley"},
-				{"T",
-						"double", "Time of perihelion passage  ex. 19860209.7695"},
-				{"e",
-						"double", "Eccentricity                ex. 0.967267"},
-				{"q",
-						"double", "Perihelion distance AU      ex. 0.587096"},
-				{"Peri",
-						"double", "Argument of perihelion deg. ex. 111.8466"},
-				{"Node",
-						"double", "Ascending node deg.         ex.  58.1440"},
-				{"Incl",
-						"double", "Inclination deg.            ex. 162.2393"},
-				{"Eqnx",
-						"double", "Year of equinox             ex. 1950.0"},
-				{"Epoch",
-						"double", "Year/Month/Day of epoch     ex. 19991118.5"},
-				{"M",
-						"double", "Mean anomaly deg.           ex. 356.648434"},
-				{"a",
-						"double", "Semimajor axis AU           ex. 2.76631592"},
-				{"Date",
-						"double", "Initial date                ex. 19860209.7695"},
-		};
-		return info;
 	}
 
 	/**
@@ -414,10 +398,8 @@ public class OrbitViewer extends Applet implements ActionListener {
 	 */
 	private ATime limitATime(ATime atime) {
 		if (atime.getJd() <= minATime.getJd()) {
-            System.out.println("minATime");
             return new ATime(minATime);
 		} else if (maxATime.getJd() <= atime.getJd()) {
-            System.out.println("maxATime");
 			return new ATime(maxATime);
 		}
 		return atime;
@@ -1079,7 +1061,7 @@ class OrbitPlayer implements Runnable {
 	public void run() {
 		while (true) {
 			try {
-				Thread.sleep(10);
+				Thread.sleep(100);
 			} catch (InterruptedException e) {
 				break;
 			}
@@ -1087,6 +1069,7 @@ class OrbitPlayer implements Runnable {
             double ed = orbitViewer.getEsDistance();
             orbitViewer.DynamicTimeStep(ed);
             orbitViewer.minEdistance(ed,atime);
+            orbitViewer.averageEdistance(ed);
             atime.changeDate(orbitViewer.timeStep, orbitViewer.playDirection);
             orbitViewer.setNewDate(atime);
 		}

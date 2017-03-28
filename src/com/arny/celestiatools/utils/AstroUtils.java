@@ -56,12 +56,7 @@ public class AstroUtils {
 //}
 
     public enum DistanceTypes{
-        metre,
-        km,
-        AU,
-        LY,
-        PC
-
+        metre, km, AU, LY, PC
     }
 
     public static double DistanceConvert(double distance,DistanceTypes input,DistanceTypes output){

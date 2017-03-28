@@ -2,6 +2,8 @@
  * Astronomical Time Class
  */
 package com.arny.celestiatools.utils.astro;
+import com.arny.celestiatools.utils.AstroUtils;
+import com.arny.celestiatools.utils.BaseUtils;
 import com.arny.celestiatools.utils.astro.TimeSpan;
 
 public class ATime {
@@ -102,38 +104,50 @@ public class ATime {
         //
         // First, calculate new Hour,Minute,Second
         //
-        double fHms1 = this.nHour * 60.0 * 60.0 + this.nMin * 60.0 + this.fSec;
-        double fHms2 = Span.nHour * 60.0 * 60.0 + Span.nMin * 60.0 + Span.fSec;
+        System.out.println(Span.toString());
+        double fHms1 = this.nHour * 3600 + this.nMin * 60.0 + this.fSec;
+        double fHms2 = Span.getnHour() * 3600 + Span.getnMin() * 60.0 + Span.getfSec();
+        System.out.println(fHms1);
         fHms1 += (nIncOrDec == F_INCTIME) ? fHms2 : -fHms2;
         int nDay1;
-        if (0.0 <= fHms1 && fHms1 < 24.0 * 60.0 * 60.0) {
+        if (0.0 <= fHms1 && fHms1 < 86400.0) {
+            System.out.println("0.0 <= fHms1 && fHms1 < 86400.0");
             nDay1 = 0;
-        } else if (fHms1 >= 24.0 * 60.0 * 60.0) {
-            nDay1 = (int) Math.floor(fHms1 / 24.0 / 60.0 / 60.0);
-            fHms1 = UdMath.fmod(fHms1, 24.0 * 60.0 * 60.0);
+        } else if (fHms1 >= 86400) {
+            System.out.println("fHms1 >= 86400");
+            nDay1 = (int) Math.floor(fHms1 / 86400);
+            fHms1 = UdMath.fmod(fHms1, 86400);
         } else {
-            nDay1 = (int) Math.ceil(fHms1 / 24.0 / 60.0 / 60.0) - 1;
-            fHms1 = UdMath.fmod(fHms1, 24.0 * 60.0 * 60.0) + 24.0 * 60.0 * 60.0;
+            System.out.println("else");
+            nDay1 = (int) Math.ceil(fHms1 / 86400) - 1;
+            fHms1 = UdMath.fmod(fHms1, 86400) + 86400;
         }
 
-        int nNewHour = (int) Math.floor(fHms1 / 60.0 / 60.0);
+        int nNewHour = (int) Math.floor(fHms1 / 3600);
         int nNewMin = (int) Math.floor(fHms1 / 60.0) - nNewHour * 60;
-        double fNewSec = fHms1 - ((double) nNewHour * 60.0 * 60.0
-                + (double) nNewMin * 60.0);
+        double fNewSec = fHms1 - ((double) nNewHour * 3600 + (double) nNewMin * 60.0);
 
         //
         // Next, calculate new Year, Month, Day
         //
-        ATime newDate = new ATime(this.getYear(), this.getMonth(),
-                this.getDay(), 12, 0, 0.0, 0.0);
+        ATime newDate = new ATime(this.getYear(), this.getMonth(), this.getDay(), 12, 0, 0.0, 0.0);
         double fJd = newDate.getJd();
-        fJd += (nIncOrDec == F_INCTIME) ? nDay1 + Span.nDay : nDay1 - Span.nDay;
+        System.out.println(BaseUtils.getDateTime(AstroUtils.DateFromJD(fJd)));
+        System.out.println(nDay1);
+        System.out.println(Span.getnDay());
+        System.out.println(nDay1 + Span.getnDay());
+
+        fJd += (nIncOrDec == F_INCTIME) ? nDay1 + Span.getnDay() : nDay1 - Span.getnDay();
+
+        System.out.println(BaseUtils.getDateTime(AstroUtils.DateFromJD(fJd)));
+        System.out.println("");
+        System.out.println("");
         newDate = new ATime(fJd, 0.0);
 
         int nNewYear = newDate.getYear();
         int nNewMonth = newDate.getMonth();
         int nNewDay = newDate.getDay();
-        nNewMonth += (nIncOrDec == F_INCTIME) ? Span.nMonth : -Span.nMonth;
+        nNewMonth += (nIncOrDec == F_INCTIME) ? Span.getnMonth() : -Span.getnMonth();
         if (1 > nNewMonth) {
             nNewYear -= nNewMonth / 12 + 1;
             nNewMonth = 12 + nNewMonth % 12;
@@ -141,16 +155,16 @@ public class ATime {
             nNewYear += nNewMonth / 12;
             nNewMonth = 1 + (nNewMonth - 1) % 12;
         }
-        nNewYear += (nIncOrDec == F_INCTIME) ? Span.nYear : -Span.nYear;
+        nNewYear += (nIncOrDec == F_INCTIME) ? Span.getnYear() : -Span.getnYear();
 
         // check bound between julian and gregorian
-        if (nNewYear == 1582 && nNewMonth == 10) {
-            if (5 <= nNewDay && nNewDay < 10) {
-                nNewDay = 4;
-            } else if (10 <= nNewDay && nNewDay < 15) {
-                nNewDay = 15;
-            }
-        }
+//        if (nNewYear == 1582 && nNewMonth == 10) {
+//            if (5 <= nNewDay && nNewDay < 10) {
+//                nNewDay = 4;
+//            } else if (10 <= nNewDay && nNewDay < 15) {
+//                nNewDay = 15;
+//            }
+//        }
         newDate = new ATime(nNewYear, nNewMonth, nNewDay, 12, 0, 0, 0.0);
         nNewYear = newDate.getYear();
         nNewMonth = newDate.getMonth();
