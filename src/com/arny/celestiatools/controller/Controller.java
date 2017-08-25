@@ -225,22 +225,25 @@ public class Controller {
 
 	public void downloadFile(int source, onResultCallback resultParse) {
 		String downloadPath = getDownloadPath(source);
-		new Thread(() -> {
-			try {
-				File folder = new File(MPC_FILES_DIR);
-				boolean folderFilesExist = folder.exists() || folder.mkdir();
-				if (!folderFilesExist) return;
-				FileUtils.downloadUsingStream(downloadPath, MPC_FILES_DIR + MPC_ASTER_DOWNLOADED_FILE);
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-			try {
-				File file = new File(MPC_FILES_DIR + MPC_ASTER_DOWNLOADED_FILE);
-				operationResult = "файл загружен,размер " + BaseUtils.convertExtendFileLength(file.length());
-				resultParse.result("download", true, operationResult);
-			} catch (Exception e) {
-				e.printStackTrace();
-				resultParse.result("download", false, e.getMessage());
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					File folder = new File(MPC_FILES_DIR);
+					boolean folderFilesExist = folder.exists() || folder.mkdir();
+					if (!folderFilesExist) return;
+					FileUtils.downloadUsingStream(downloadPath, MPC_FILES_DIR + MPC_ASTER_DOWNLOADED_FILE);
+					File file = new File(MPC_FILES_DIR + MPC_ASTER_DOWNLOADED_FILE);
+					operationResult = "файл загружен,размер " + BaseUtils.convertExtendFileLength(file.length());
+					long start = System.currentTimeMillis();
+					FileUtils.unzipGZ(file.getAbsolutePath(), MPC_FILES_DIR + MPC_ASTER_JSON_FILE);
+					FileUtils.deleteFile(file.getAbsolutePath());
+					operationResult += "\nРаспаковка заняла:" + BaseUtils.convertExtendTime((System.currentTimeMillis() - start));
+					resultParse.result("download", true, operationResult);
+				} catch (Exception e) {
+					e.printStackTrace();
+					resultParse.result("download", false, e.getMessage());
+				}
 			}
 		}).start();
 	}

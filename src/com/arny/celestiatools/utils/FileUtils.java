@@ -19,61 +19,74 @@ public class FileUtils {
 
     private static final String DOCUMENT_SEPARATOR = ":";
     private static final String FOLDER_SEPARATOR = "/";
+
     public static void unzipFunction(String destinationFolder, String zipFile) {
-	File directory = new File(destinationFolder);
-	System.out.println("directory = " + directory.exists());
-	// if the output directory doesn't exist, create it
-	if (!directory.exists()) {
-	    directory.mkdirs();
-	}
+        File directory = new File(destinationFolder);
+        System.out.println("directory = " + directory.exists());
+        // if the output directory doesn't exist, create it
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
 
-	// buffer for read and write data to file
-	byte[] buffer = new byte[2048];
+        // buffer for read and write data to file
+        byte[] buffer = new byte[2048];
 
-	try {
-	    FileInputStream fInput = new FileInputStream(zipFile);
-	    ZipInputStream zipInput = new ZipInputStream(fInput);
+        try {
+            FileInputStream fInput = new FileInputStream(zipFile);
+            ZipInputStream zipInput = new ZipInputStream(fInput);
 
-	    ZipEntry entry = zipInput.getNextEntry();
+            ZipEntry entry = zipInput.getNextEntry();
 
-	    while (entry != null) {
-		String entryName = entry.getName();
-		File file = new File(destinationFolder + File.separator + entryName);
-		System.out.println("Unzip file " + entryName + " to " + file.getAbsolutePath());
-		// create the directories of the zip directory
-		if (entry.isDirectory()) {
-		    File newDir = new File(file.getAbsolutePath());
-		    if (!newDir.exists()) {
-			boolean success = newDir.mkdirs();
-			if (success == false) {
-			    System.out.println("Problem creating Folder");
-			}
-		    }
-		} else {
-		    FileOutputStream fOutput = new FileOutputStream(file);
-		    int count = 0;
-		    while ((count = zipInput.read(buffer)) > 0) {
-			// write 'count' bytes to the file output stream
-			fOutput.write(buffer, 0, count);
-		    }
-		    fOutput.close();
-		}
-		// close ZipEntry and take the next one
-		zipInput.closeEntry();
-		entry = zipInput.getNextEntry();
-	    }
+            while (entry != null) {
+                String entryName = entry.getName();
+                File file = new File(destinationFolder + File.separator + entryName);
+                System.out.println("Unzip file " + entryName + " to " + file.getAbsolutePath());
+                // create the directories of the zip directory
+                if (entry.isDirectory()) {
+                    File newDir = new File(file.getAbsolutePath());
+                    if (!newDir.exists()) {
+                        boolean success = newDir.mkdirs();
+                        if (success == false) {
+                            System.out.println("Problem creating Folder");
+                        }
+                    }
+                } else {
+                    FileOutputStream fOutput = new FileOutputStream(file);
+                    int count = 0;
+                    while ((count = zipInput.read(buffer)) > 0) {
+                        // write 'count' bytes to the file output stream
+                        fOutput.write(buffer, 0, count);
+                    }
+                    fOutput.close();
+                }
+                // close ZipEntry and take the next one
+                zipInput.closeEntry();
+                entry = zipInput.getNextEntry();
+            }
 
-	    // close the last ZipEntry
-	    zipInput.closeEntry();
+            // close the last ZipEntry
+            zipInput.closeEntry();
 
-	    zipInput.close();
-	    fInput.close();
-	} catch (IOException e) {
-	    e.printStackTrace();
-	}
+            zipInput.close();
+            fInput.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    public static void downloadUsingStream(String urlStr, String file) throws IOException{
+    public static boolean deleteFile(String path) {
+        try {
+            File file = new File(path);
+            if (file.exists()) {
+                return file.delete();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static void downloadUsingStream(String urlStr, String file) throws IOException {
         BufferedInputStream bis = null;
         FileOutputStream fis = null;
         try {
@@ -81,9 +94,8 @@ public class FileUtils {
             bis = new BufferedInputStream(url.openStream());
             fis = new FileOutputStream(file);
             byte[] buffer = new byte[10485760];
-            int count=0;
-            while((count = bis.read(buffer,0,10485760)) != -1)
-            {
+            int count = 0;
+            while ((count = bis.read(buffer, 0, 10485760)) != -1) {
                 fis.write(buffer, 0, count);
             }
         } catch (IOException e) {
@@ -91,8 +103,8 @@ public class FileUtils {
         }
 
     }
-    
-    public static void unzipGZ(String sourcePath, String destinationPath)  throws IOException, DataFormatException {
+
+    public static void unzipGZ(String sourcePath, String destinationPath) throws IOException, DataFormatException {
         //Allocate resources.
         FileInputStream fis = new FileInputStream(sourcePath);
         FileOutputStream fos = new FileOutputStream(destinationPath);

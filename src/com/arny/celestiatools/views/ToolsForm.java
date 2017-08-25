@@ -19,7 +19,7 @@ public class ToolsForm extends JFrame {
 	private JPanel panel;
 	private JTabbedPane tabbedPane1;
 	private JPanel asteroidPanel,CalcPanel;
-	private JButton btnDownload,btnUnpackJson,btnWriteOrbits,btnOrbitViewer,btnCelestiaFiles,btnCalc,btnThreadCancel;
+	private JButton btnDownload, btnWriteOrbits,btnOrbitViewer,btnCelestiaFiles,btnCalc,btnThreadCancel;
 	private JLabel labelInfo;
 	private JComboBox jComboBoxSource;
 	private JCheckBox checkBox1,checkBox2,checkBox3;
@@ -98,25 +98,6 @@ public class ToolsForm extends JFrame {
 				});
 			}
 		});
-		btnUnpackJson.setText("Распаковать");
-		btnUnpackJson.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JFileChooser fileopen = new JFileChooser();
-				fileopen.setCurrentDirectory(new File(System.getProperty("user.dir")));
-				int ret = fileopen.showDialog(null, "Открыть файл");
-				if (ret == JFileChooser.APPROVE_OPTION) {
-					File file = fileopen.getSelectedFile();
-					controller.workJsonFile(file, new onResultCallback() {
-						@Override
-						public void result(String method, boolean success, String result) {
-                            MessageResultCallback(method, success, result);
-						}
-					});
-
-				}
-			}
-		});
 		btnWriteOrbits.setText("Обновить БД");
         progressBar.setMinimum(0);
         progressBar.setStringPainted(true);
@@ -189,7 +170,7 @@ public class ToolsForm extends JFrame {
                 controller.orbitViewerStart(celestiaAsteroid);
             }
         });
-        btnCelestiaFiles.setText("Записать орбиты");
+        btnCelestiaFiles.setText("Записать орбиты Celestia");
         btnCelestiaFiles.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
