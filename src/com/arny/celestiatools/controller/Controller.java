@@ -56,7 +56,12 @@ public class Controller {
     }
 
     public void getAsterTableData(onResultCelestiaAsteroids celestiaAsteroidsCallbacks) {
-			    new Thread(() -> celestiaAsteroidsCallbacks.dataCallback(SqliteConnection.getAllCelestiaAsteroids(connection))).start();
+			    new Thread(new Runnable() {
+					@Override
+					public void run() {
+						celestiaAsteroidsCallbacks.dataCallback(SqliteConnection.getAllCelestiaAsteroids(connection));
+					}
+				}).start();
     }
 
     public void workJsonFile(File file, onResultCallback resultParse) {

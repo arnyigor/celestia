@@ -2,6 +2,7 @@ package com.arny.celestiatools;
 import com.arny.celestiatools.views.ToolsForm;
 
 import javax.swing.*;
+
 public class Main {
 	public static void main(String[] args) {
 
