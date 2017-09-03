@@ -16,6 +16,7 @@ import java.io.File;
 import java.util.ArrayList;
 public class ToolsForm extends JFrame {
 	private JFrame mainFrame;
+	private CalcFrame calcFrame;
 	private JPanel panel;
 	private JTabbedPane tabbedPane1;
 	private JPanel asteroidPanel,CalcPanel;
@@ -43,11 +44,9 @@ public class ToolsForm extends JFrame {
 
     private void initTableAsteroids() {
         celestiaAsteroids = new ArrayList<>();
-	    System.out.println(BaseUtils.getDateTime());
         controller.getAsterTableData(new onResultCelestiaAsteroids() {
             @Override
             public void dataCallback(ArrayList<CelestiaAsteroid> asteroids) {
-                System.out.println("get table dataCallback= " + BaseUtils.getDateTime());
                 celestiaAsteroids = asteroids;
                 setModelToTable();
                 if (celestiaAsteroids.size()>0){
@@ -57,7 +56,6 @@ public class ToolsForm extends JFrame {
                 progressBar.setValue(0);
             }
         });
-	    System.out.println(BaseUtils.getDateTime());
     }
 
     private void initUI() {
@@ -156,12 +154,12 @@ public class ToolsForm extends JFrame {
 		btnCalc.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				controller.calculate(new onResultCallback() {
+                controller.calculate(new onResultCallback() {
                     @Override
                     public void result(String method, boolean success, String result) {
                         lblCalcRes.setText("Результат:" + result);
                     }
-                });
+                }, lblCalcRes.getText());
 			}
 		});
         btnOrbitViewer.addActionListener(new ActionListener() {

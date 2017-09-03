@@ -10,20 +10,18 @@ import java.nio.file.StandardOpenOption;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 
 import com.arny.celestiatools.models.*;
 import com.arny.celestiatools.utils.AstroUtils;
 import com.arny.celestiatools.utils.BaseUtils;
+import com.arny.celestiatools.utils.DateTimeUtils;
 import com.arny.celestiatools.utils.FileUtils;
 import com.arny.celestiatools.utils.astro.OrbitViewer;
 import javafx.concurrent.Worker;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-
-import javax.swing.*;
 
 import static com.arny.celestiatools.utils.AstroUtils.*;
 
@@ -313,38 +311,6 @@ public class Controller {
         }).start();
     }
 
-	/**
-	 *  Основная ф-я парсинга
-	 * @param file
-	 * @param onProgressUpdate
-	 */
-	private void parseJson(File file,onProgressUpdate onProgressUpdate) {
-		JSONParser parser = new JSONParser();
-		try {
-			Object obj = parser.parse(new FileReader(file));
-			JSONArray array = new JSONArray();
-			array.add(obj);
-			JSONArray asteroids = (JSONArray) array.get(0);
-            totalProgress = asteroids.size();
-            long st = System.currentTimeMillis();
-            changed = added = asteroidCnt = iterateProgress = 0;
-            for (Object asteroid : asteroids) {
-                asteroidCnt++;
-	            JSONObject astroObject = (JSONObject) asteroid;
-                CelestiaAsteroid celestiaAsteroid = new CelestiaAsteroid();
-                convertJsonAsteroid(astroObject, celestiaAsteroid);
-	            updateOrInsertDb(celestiaAsteroid);
-	            long esTime = BaseUtils.getEsTime(st, System.currentTimeMillis(), iterateProgress, totalProgress);
-	            onProgressUpdate.update("dbupdate", totalProgress, iterateProgress, BaseUtils.convertExtendTime(esTime));
-                iterateProgress++;
-			}
-			operationResult = "Найдено: " + asteroidCnt + " астероидов,добавлено:" + added + " обновлено:" + changed;
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
     /**
      * update|insert db
      * @param asteroid inset
@@ -550,13 +516,12 @@ public class Controller {
 		orbitViewer.init(YMDd(JD(curtime)));
 	}
 
-	public void calculate(onResultCallback resultCallback) {
+	public void calculate(onResultCallback resultCallback, String input) {
 		operationResult = "";
         long curtime = BaseUtils.convertTimeStringToLong("2017 02 16","yyyy ");
         try {
             double jd = JD(curtime);
-            operationResult  = "\nres = " + jd;
-            System.out.println(operationResult);
+            operationResult  = AstroUtils.getPashaPravoslavDate(Integer.parseInt(input));
             resultCallback.result("moid", true, operationResult);
         } catch (Exception e) {
             resultCallback.result("moid", false, e.getMessage());

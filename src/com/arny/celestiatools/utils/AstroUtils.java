@@ -1,5 +1,6 @@
 package com.arny.celestiatools.utils;
 
+import java.math.BigDecimal;
 import java.util.Calendar;
 
 import static com.arny.celestiatools.utils.MathUtils.*;
@@ -55,34 +56,34 @@ public class AstroUtils {
 //    return Math.sqrt(tmp1 + tmp2 + tmp3);
 //}
 
-    public enum DistanceTypes{
+    public enum DistanceTypes {
         metre, km, AU, LY, PC
     }
 
-    public static double DistanceConvert(double distance,DistanceTypes input,DistanceTypes output){
+    public static double DistanceConvert(double distance, DistanceTypes input, DistanceTypes output) {
         double res = 0;
-        switch (input){
+        switch (input) {
             case metre:
-                switch (output){
+                switch (output) {
                     case metre:
                         res = distance;
                         break;
                     case km:
-                        res = distance /1000;
+                        res = distance / 1000;
                         break;
                     case AU:
-                        res = distance/AstroConst.AU;
+                        res = distance / AstroConst.AU;
                         break;
                     case LY:
-                        res = distance/AstroConst.LY;
+                        res = distance / AstroConst.LY;
                         break;
                     case PC:
-                        res = distance/AstroConst.PC;
+                        res = distance / AstroConst.PC;
                         break;
                 }
                 break;
             case km:
-                switch (output){
+                switch (output) {
                     case metre:
                         res = distance * 1000;
                         break;
@@ -90,29 +91,29 @@ public class AstroUtils {
                         res = distance;
                         break;
                     case AU:
-                        res = (distance * 1000)/AstroConst.AU;
+                        res = (distance * 1000) / AstroConst.AU;
                         break;
                     case LY:
-                        res = (distance * 1000)/ AstroConst.LY;
+                        res = (distance * 1000) / AstroConst.LY;
                         break;
                     case PC:
-                        res = (distance * 1000)/ AstroConst.PC;
+                        res = (distance * 1000) / AstroConst.PC;
                         break;
                 }
                 break;
             case AU:
-                switch (output){
+                switch (output) {
                     case metre:
                         res = distance * AstroConst.AU;
                         break;
                     case km:
-                        res = (distance * AstroConst.AU) /1000;
+                        res = (distance * AstroConst.AU) / 1000;
                         break;
                     case AU:
                         res = distance;
                         break;
                     case LY:
-                        res = (distance*AstroConst.AU) / AstroConst.LY;
+                        res = (distance * AstroConst.AU) / AstroConst.LY;
                         break;
                     case PC:
                         res = (distance * AstroConst.AU) / AstroConst.PC;
@@ -120,18 +121,18 @@ public class AstroUtils {
                 }
                 break;
             case PC:
-                switch (output){
+                switch (output) {
                     case metre:
-                        res = distance*AstroConst.PC;
+                        res = distance * AstroConst.PC;
                         break;
                     case km:
-                        res = (distance*AstroConst.PC)/1000;
+                        res = (distance * AstroConst.PC) / 1000;
                         break;
                     case AU:
-                        res = (distance*AstroConst.PC)/AstroConst.AU;
+                        res = (distance * AstroConst.PC) / AstroConst.AU;
                         break;
                     case LY:
-                        res = (distance*AstroConst.PC)/AstroConst.LY;
+                        res = (distance * AstroConst.PC) / AstroConst.LY;
                         break;
                     case PC:
                         res = distance;
@@ -178,31 +179,32 @@ public class AstroUtils {
 
     /**
      * JD->YMD.d
+     *
      * @param JD
      * @return
      */
     public static String YMDd(double JD) {
         long timestimp = DateFromJD(JD);
-        String sec =  getDateTime(timestimp, "ss");
-        String min =  getDateTime(timestimp, "mm");
-        String hrs =  getDateTime(timestimp, "HH");
+        String sec = getDateTime(timestimp, "ss");
+        String min = getDateTime(timestimp, "mm");
+        String hrs = getDateTime(timestimp, "HH");
         String days = getDateTime(timestimp, "dd");
-        String mth =  getDateTime(timestimp, "MM");
-        String yrs =  getDateTime(timestimp, "yyyy");
-        String Z =  getDateTime(timestimp, "Z");
-        if (!empty(sec) && !empty(min) && !empty(hrs) && !empty(days) && !empty(mth) && !empty(yrs) && !empty(Z)){
-            double dSec = Double.parseDouble(sec)/60;
+        String mth = getDateTime(timestimp, "MM");
+        String yrs = getDateTime(timestimp, "yyyy");
+        String Z = getDateTime(timestimp, "Z");
+        if (!empty(sec) && !empty(min) && !empty(hrs) && !empty(days) && !empty(mth) && !empty(yrs) && !empty(Z)) {
+            double dSec = Double.parseDouble(sec) / 60;
             double mMin = (dSec + Double.parseDouble(min)) / 60;
-            double timeZ = Double.parseDouble(Z)/100;
+            double timeZ = Double.parseDouble(Z) / 100;
             double mHrs = Double.parseDouble(hrs);
-            double dHr = (mMin + (mHrs-timeZ)) / 24;
+            double dHr = (mMin + (mHrs - timeZ)) / 24;
             int mY = Integer.parseInt(yrs);
             int mM = Integer.parseInt(mth);
             int mD = Integer.parseInt(days);
             String dDay = String.valueOf(fracal(round(dHr, 6)));
             dDay = dDay.substring(1, dDay.length());
             return String.valueOf(mY).concat(BaseUtils.pad(mM)).concat(String.valueOf(mD)).concat(dDay);
-        }else {
+        } else {
             return "0";
         }
     }
@@ -219,7 +221,7 @@ public class AstroUtils {
     }
 
     public static double MJD(double JD) {
-        return JD-2400000.5;
+        return JD - 2400000.5;
     }
 
     /**
@@ -245,6 +247,13 @@ public class AstroUtils {
         return -1;
     }
 
+    /**
+     * Вычисление радиуса астеройда по апсолютной магнитюде
+     *
+     * @param magn
+     * @param albedo
+     * @return
+     */
     public static double getRadiusFromAbsoluteMagn(double magn, double albedo) {
         double logr = Math.log10(albedo);
         double step = 0.5 * (6.259 - logr - (0.4 * magn));
@@ -252,6 +261,70 @@ public class AstroUtils {
         return BaseUtils.roundUp(result, 3).doubleValue();
     }
 
+    /**
+     * Вычисление пасхи католической
+     *
+     * @param year год
+     * @return дата
+     */
+    public static String getCatholicPasha(int year) {
+        double a = getOstatok(year, 19);
+        double b = getCeloe(year, 100);
+        double c = getOstatok(year, 100);
+        double d = getCeloe(b, 4);
+        double e = getOstatok(b, 4);
+        double f = getCeloe(b + 8, 25);
+        double g = getCeloe(b - f + 1, 3);
+        double h = getOstatok((19 * a) + b - d - g + 15, 30);
+        double i = getCeloe(c, 4);
+        double k = getOstatok(c, 4);
+        double l = getOstatok(32 + (2 * e) + (2 * i) - h - k, 7);
+        double m = getCeloe(a + (11 * h) + (22 * l), 451);
+        double n = getCeloe(h + l - (7 * m) + 114, 31);
+        double p = getOstatok(h + l - (7 * m) + 114, 31);
+        double date = p + 1;
+        return String.valueOf((int)date) + " " + String.valueOf((int)n);
+    }
+    /**
+     * Вычисление пасхи православной
+     *
+     * @param year год
+     * @return дата
+     */
+    public static String getPashaPravoslavDate(int year) {
+        int a = (int) getOstatok(year, 19);
+        int b = (int) getOstatok(year, 4);
+        int c = (int) getOstatok(year, 7);
+        int d = (int) getOstatok((19 * a) + 15, 30);
+        int e = (int) getOstatok((2 * b) + (4 * c) + (6 * d) + 6, 7);
+        int f = d + e;
+        if (f <= 9) {
+            String day = String.valueOf(22 + f);
+            String month = "03";
+            String Y = String.valueOf(year);
+            String datetime = day + " " + month + " " + Y;
+            long dt = DateTimeUtils.convertTimeStringToLong(datetime, "dd MM yyyy");
+            long res = DateTimeUtils.addDays(dt, 13);
+            return DateTimeUtils.getDateTime(res,"dd MMM yyyy");
+        }else{
+            String day = String.valueOf(f-9);
+            String month = "04";
+            String Y = String.valueOf(year);
+            String datetime = day + " " + month + " " + Y;
+            long dt = DateTimeUtils.convertTimeStringToLong(datetime, "dd MM yyyy");
+            long res = DateTimeUtils.addDays(dt, 13);
+            return DateTimeUtils.getDateTime(res,"dd MMM yyyy");
+        }
+    }
+
+
+    private static int getCeloe(double first, double second) {
+        return MathUtils.intact(first / second);
+    }
+
+    private static double getOstatok(double first, double second) {
+        return MathUtils.round((MathUtils.fracal((first / second)) * second), 0);
+    }
 
 
     public static double ExcAnom(double e, double M) {
@@ -270,15 +343,16 @@ public class AstroUtils {
         return E;
     }
 
-    public  static double getTrueAnom(double e, double E){
-        double sqrt = Sqrt((1+e)/(1-e));
-        double tg = Tan(0.5*E);
-        double tmp0 = sqrt *  tg;
+    public static double getTrueAnom(double e, double E) {
+        double sqrt = Sqrt((1 + e) / (1 - e));
+        double tg = Tan(0.5 * E);
+        double tmp0 = sqrt * tg;
         return 2 * Atan(tmp0);
     }
 
     /**
      * Юлианское столетие
+     *
      * @param JD
      * @return
      */
@@ -288,6 +362,7 @@ public class AstroUtils {
 
     /**
      * Растояние в перигелии
+     *
      * @param sma
      * @param e
      * @return
@@ -298,15 +373,17 @@ public class AstroUtils {
 
     /**
      * Mean motion, n (degrees/day)
+     *
      * @param sma
      * @return
      */
-    public static double MeanMotion(double sma){
-        return  0.985609 / (sma * Math.sqrt(sma));
+    public static double MeanMotion(double sma) {
+        return 0.985609 / (sma * Math.sqrt(sma));
     }
 
     /**
      * Расстояние в афелии
+     *
      * @param sma
      * @param e
      * @return
@@ -315,61 +392,60 @@ public class AstroUtils {
         return sma * (1 + e);
     }
 
-    public static double getEarthMeanLongitude(double T){
+    public static double getEarthMeanLongitude(double T) {
         double A = 99.69668;
         double B = 36000.76892 * T;
-        double C = 0.0003025 * Math.pow(T,2);
+        double C = 0.0003025 * Math.pow(T, 2);
         double res = A + B + C;
-        while (true){
+        while (true) {
             if (res > 360) {
-                res-=360;
-            }else{
+                res -= 360;
+            } else {
                 break;
             }
         }
         return res;
     }
 
-    public static double getEarthExcentricity(double T){
+    public static double getEarthExcentricity(double T) {
         double A = 0.01675104;
         double B = 0.0000418 * T;
-        double C = 0.000000126 * Math.pow(T,2);
+        double C = 0.000000126 * Math.pow(T, 2);
         return A - B - C;
     }
 
-    public static double getEarthMeanAnomaly(double T){
+    public static double getEarthMeanAnomaly(double T) {
         double A = 358.47583;
         double B = 35999.04975 * T;
-        double C = 0.000150 * Math.pow(T,2);
-        double D = 0.0000033 * Math.pow(T,3);
-        double res =  A + B - C - D;
-        while (true){
+        double C = 0.000150 * Math.pow(T, 2);
+        double D = 0.0000033 * Math.pow(T, 3);
+        double res = A + B - C - D;
+        while (true) {
             if (res > 360) {
-                res-=360;
-            }else{
+                res -= 360;
+            } else {
                 break;
             }
         }
         return res;
     }
 
-    public static double getEarthPericenter(double T){
+    public static double getEarthPericenter(double T) {
         return getEarthMeanLongitude(T) - getEarthMeanAnomaly(T);
     }
 
-    public static double getTrueAnomaly(double e,double Exc){
-        double v =  ((1 + e) / (1 - e)) * 1 / 2 * Tan(Exc / 2);
+    public static double getTrueAnomaly(double e, double Exc) {
+        double v = ((1 + e) / (1 - e)) * 1 / 2 * Tan(Exc / 2);
         return Atan(v) * 2;
     }
 
-    public static double getArgLat(double v,double peri){
+    public static double getArgLat(double v, double peri) {
         return v + peri;
     }
 
-    public static double getGeocentrDist(double sma,double e,double v){
-        return sma * (1 - Exp(e,2) ) / (1 + e * Cos(v));
+    public static double getGeocentrDist(double sma, double e, double v) {
+        return sma * (1 - Exp(e, 2)) / (1 + e * Cos(v));
     }
-
 
 
 }

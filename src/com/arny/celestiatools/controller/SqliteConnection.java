@@ -39,7 +39,6 @@ public class SqliteConnection {
             Connection connection = DriverManager.getConnection("jdbc:sqlite:" + System.getProperty("user.dir") + "/celestia.sqlite");
             Statement statement = connection.createStatement();
             statement.execute(CREATE_TABLE);
-            System.out.println("url = " + connection.getMetaData().getURL());
             return connection;
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e);

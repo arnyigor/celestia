@@ -1,11 +1,20 @@
 package com.arny.celestiatools.utils;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.util.Random;
 
-/**
- * Created by i.sedoy on 22.03.17.
- */
 public class MathUtils {
+
+
+    public static String simpleDoubleFormat(double d) {
+        if (d == 0) {
+            return "0";
+        }
+        DecimalFormat df = new DecimalFormat("0");
+        df.setMaximumFractionDigits(340);
+        return df.format(d).replace(",",".");
+    }
 
     /**
      * дробная часть числа
@@ -40,6 +49,49 @@ public class MathUtils {
 
     public static double round(double val, int scale) {
         return new BigDecimal(val).setScale(scale, BigDecimal.ROUND_HALF_UP).doubleValue();
+    }
+
+	public static double summ(double num1, double num2, int scale) {
+		return new BigDecimal(num1).add(new BigDecimal(num2)).setScale(scale, BigDecimal.ROUND_HALF_UP).doubleValue();
+	}
+
+	public static double minus(double num1, double num2, int scale) {
+		return new BigDecimal(num1).subtract(new BigDecimal(num2)).setScale(scale, BigDecimal.ROUND_HALF_UP).doubleValue();
+	}
+
+	public static double multiply(double num1, double num2, int scale) {
+		return new BigDecimal(num1).multiply(new BigDecimal(num2)).setScale(scale, BigDecimal.ROUND_HALF_UP).doubleValue();
+	}
+
+	public static double divide(double num1, double num2, int scale) {
+		return new BigDecimal(num1).divide(new BigDecimal(num2),BigDecimal.ROUND_HALF_UP).setScale(scale, BigDecimal.ROUND_HALF_UP).doubleValue();
+	}
+
+    public static long randLong(long min, long max) {
+        Random rnd = new Random();
+        if (min > max) {
+            throw new IllegalArgumentException("min>max");
+        }
+        if (min == max) {
+            return min;
+        }
+        long n = rnd.nextLong();
+        n = n == Long.MIN_VALUE ? 0 : n < 0 ? -n : n;
+        n = n % (max - min);
+        return min + n;
+    }
+
+    public static double randDouble(double min, double max) {
+        Random rnd = new Random();
+        double range = max - min;
+        double scaled = rnd.nextDouble() * range;
+        return scaled + min; // == (rand.nextDouble() * (max-min)) + min;
+    }
+
+    public static int randInt(int min, int max) {
+        Random rnd = new Random();
+        int range = max - min + 1;
+        return rnd.nextInt(range) + min;
     }
 
     public static double Cos(double angle) {
@@ -89,7 +141,7 @@ public class MathUtils {
         return sign * (D + (M / 60) + (S / 3600));
     }
 
-    enum AngleFormat {
+	public enum AngleFormat {
         Dd,
         DMM,
         DMMm,

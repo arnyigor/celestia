@@ -111,14 +111,14 @@ public class ATime {
         fHms1 += (nIncOrDec == F_INCTIME) ? fHms2 : -fHms2;
         int nDay1;
         if (0.0 <= fHms1 && fHms1 < 86400.0) {
-            System.out.println("0.0 <= fHms1 && fHms1 < 86400.0");
+//            System.out.println("0.0 <= fHms1 && fHms1 < 86400.0");
             nDay1 = 0;
         } else if (fHms1 >= 86400) {
-            System.out.println("fHms1 >= 86400");
+//            System.out.println("fHms1 >= 86400");
             nDay1 = (int) Math.floor(fHms1 / 86400);
             fHms1 = UdMath.fmod(fHms1, 86400);
         } else {
-            System.out.println("else");
+//            System.out.println("else");
             nDay1 = (int) Math.ceil(fHms1 / 86400) - 1;
             fHms1 = UdMath.fmod(fHms1, 86400) + 86400;
         }
@@ -132,10 +132,10 @@ public class ATime {
         //
         ATime newDate = new ATime(this.getYear(), this.getMonth(), this.getDay(), 12, 0, 0.0, 0.0);
         double fJd = newDate.getJd();
-        System.out.println(BaseUtils.getDateTime(AstroUtils.DateFromJD(fJd)));
-        System.out.println(nDay1);
-        System.out.println(Span.getnDay());
-        System.out.println(nDay1 + Span.getnDay());
+//        System.out.println(BaseUtils.getDateTime(AstroUtils.DateFromJD(fJd)));
+//        System.out.println(nDay1);
+//        System.out.println(Span.getnDay());
+//        System.out.println(nDay1 + Span.getnDay());
 
         fJd += (nIncOrDec == F_INCTIME) ? nDay1 + Span.getnDay() : nDay1 - Span.getnDay();
 
