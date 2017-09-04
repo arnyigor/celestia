@@ -3,21 +3,12 @@ package com.arny.celestiatools.utils.astro;
 import java.applet.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.PathIterator;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.util.*;
-import java.math.*;
 
+import com.arny.celestiatools.controller.Controller;
 import com.arny.celestiatools.models.CelestiaAsteroid;
-import com.arny.celestiatools.utils.AstroConst;
 import com.arny.celestiatools.utils.AstroUtils;
 import com.arny.celestiatools.utils.BaseUtils;
-import com.arny.celestiatools.utils.MathUtils;
-import com.arny.celestiatools.utils.astro.*;
-import com.arny.celestiatools.views.ToolsForm;
-import javafx.scene.shape.Sphere;
 
 import javax.swing.*;
 
@@ -187,10 +178,10 @@ public class OrbitViewer extends Applet implements ActionListener {
 	 */
 	private static ATime ymdStringToAtime(String strYmd) {
 		double fYmd = Double.valueOf(strYmd);
-		int nYear = (int) Math.floor(fYmd / 10000.0);
-		fYmd -= (double) nYear * 10000.0;
-		int nMonth = (int) Math.floor(fYmd / 100.0);
-		double fDay = fYmd - (double) nMonth * 100.0;
+		int nYear = (int) Math.floor(fYmd / 1000.0);
+		fYmd -= (double) nYear * 1000.0;
+		int nMonth = (int) Math.floor(fYmd / 10.0);
+		double fDay = fYmd - (double) nMonth * 10.0;
 		return new ATime(nYear, nMonth, fDay, 0.0);
 	}
 
@@ -518,7 +509,7 @@ public class OrbitViewer extends Applet implements ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 dateDialog = new DateDialog(OrbitViewer.this, atime);
-                buttonDate.setEnabled(false);
+                buttonDate.setEnabled(true);
             }
         });
 		ctrlPanel.add(buttonDate);
@@ -981,7 +972,7 @@ public class OrbitViewer extends Applet implements ActionListener {
 
             }
         });
-		ToolsForm.setFrameForm(mainFrame,850,650);
+		Controller.setFrameForm(mainFrame,850,650);
 		mainFrame.pack();
 		mainFrame.setVisible(true);
 	}

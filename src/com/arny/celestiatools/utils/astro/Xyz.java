@@ -29,12 +29,9 @@ public class Xyz {
 	 * Rotation of Vector with Matrix
 	 */
 	public Xyz Rotate(Matrix mtx) {
-		double fX = mtx.fA11 * this.fX + mtx.fA12 * this.fY
-			+ mtx.fA13 * this.fZ;
-		double fY = mtx.fA21 * this.fX + mtx.fA22 * this.fY
-			+ mtx.fA23 * this.fZ;
-		double fZ = mtx.fA31 * this.fX + mtx.fA32 * this.fY
-			+ mtx.fA33 * this.fZ;
+		double fX = mtx.fA11 * this.fX + mtx.fA12 * this.fY + mtx.fA13 * this.fZ;
+		double fY = mtx.fA21 * this.fX + mtx.fA22 * this.fY + mtx.fA23 * this.fZ;
+		double fZ = mtx.fA31 * this.fX + mtx.fA32 * this.fY + mtx.fA33 * this.fZ;
 		return new Xyz(fX, fY, fZ);
 	}
 

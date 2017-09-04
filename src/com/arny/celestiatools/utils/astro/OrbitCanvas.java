@@ -135,8 +135,7 @@ class OrbitCanvas extends Canvas {
 	 */
 	private void updatePlanetOrbit(ATime atime) {
 		for (int i = Planet.MERCURY; i <= Planet.PLUTO; i++) {
-			this.planetOrbit[i - Planet.MERCURY]
-					= new PlanetOrbit(i, atime, 48);
+			this.planetOrbit[i - Planet.MERCURY] = new PlanetOrbit(i, atime, 48);
 		}
 		this.epochPlanetOrbit = atime.getJd();
 	}
@@ -336,7 +335,7 @@ class OrbitCanvas extends Canvas {
 
 		// If center object is comet/asteroid
 		if (CenterObjectSelected == 1) {
-//			xyz = this.objectOrbit.getAt(0).Rotate(this.mtxToEcl).Rotate(this.mtxRotate);
+//			xyz = this.orbitViewer.getAt(0).Rotate(this.mtxToEcl).Rotate(this.mtxRotate);
 			xyz = this.objectPos.Rotate(this.mtxToEcl).Rotate(this.mtxRotate);
 			point3 = getDrawPoint(xyz);
 

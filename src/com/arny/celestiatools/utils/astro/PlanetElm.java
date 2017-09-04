@@ -5,12 +5,30 @@ package com.arny.celestiatools.utils.astro;
 import com.arny.celestiatools.utils.astro.UdMath;
 
 class PlanetElm {
-	double L;		/* M+peri+node */
-	double node;	/* Ascending Node */
-	double peri;	/* Argument of Perihelion */
-	double axis;	/* Semimajor Axis */
-	double e;		/* Eccentricity */
-	double incl;	/* Inclination */
+	/**
+	 * M+peri+node
+	 */
+	double L;
+	/**
+	 * Ascending Node
+	 */
+	double node;
+	/**
+	 * Argument of Perihelion
+	 */
+	double peri;
+	/**
+	 * Semimajor Axis
+	 */
+	double axis;
+	/**
+	 * Eccentricity
+	 */
+	double e;
+	/**
+	 * Inclination
+	 */
+	double incl;
 	//
 	// Mercury
 	//

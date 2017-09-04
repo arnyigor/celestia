@@ -283,8 +283,9 @@ public class AstroUtils {
         double n = getCeloe(h + l - (7 * m) + 114, 31);
         double p = getOstatok(h + l - (7 * m) + 114, 31);
         double date = p + 1;
-        return String.valueOf((int)date) + " " + String.valueOf((int)n);
+        return String.valueOf((int) date) + " " + String.valueOf((int) n);
     }
+
     /**
      * Вычисление пасхи православной
      *
@@ -305,15 +306,15 @@ public class AstroUtils {
             String datetime = day + " " + month + " " + Y;
             long dt = DateTimeUtils.convertTimeStringToLong(datetime, "dd MM yyyy");
             long res = DateTimeUtils.addDays(dt, 13);
-            return DateTimeUtils.getDateTime(res,"dd MMM yyyy");
-        }else{
-            String day = String.valueOf(f-9);
+            return DateTimeUtils.getDateTime(res, "dd MMM yyyy");
+        } else {
+            String day = String.valueOf(f - 9);
             String month = "04";
             String Y = String.valueOf(year);
             String datetime = day + " " + month + " " + Y;
             long dt = DateTimeUtils.convertTimeStringToLong(datetime, "dd MM yyyy");
             long res = DateTimeUtils.addDays(dt, 13);
-            return DateTimeUtils.getDateTime(res,"dd MMM yyyy");
+            return DateTimeUtils.getDateTime(res, "dd MMM yyyy");
         }
     }
 
@@ -447,5 +448,48 @@ public class AstroUtils {
         return sma * (1 - Exp(e, 2)) / (1 + e * Cos(v));
     }
 
+    public static double getGrad(int grad, int min, double sec) {
+        return getGrad(new GradMinSec(grad, min, sec));
+    }
+
+    public static double getGrad(GradMinSec gradMinSec) {
+        double sign = 1.0;
+        if (gradMinSec.getGrad() < 0 || gradMinSec.getMin() < 0 || gradMinSec.getSec() < 0) {
+            sign = -1.0;
+        }
+        double D = Math.abs(gradMinSec.getGrad());
+        double M = Math.abs(gradMinSec.getMin());
+        double S = Math.abs(gradMinSec.getSec());
+        double res = sign * (D + (M / 60) + (S / 3600));
+        return res;
+    }
+
+    public enum AngleFormat {
+        Dd,
+        DMm,
+        DMSs,
+    }
+
+    public static String getGradMinSec(double grad, AngleFormat format) {
+        int sign = 1;
+        if (grad < 0) {
+            sign = -1;
+        }
+        double x = Math.abs(grad);
+        int D = (int) x;
+        double y = (x - D) * 60;
+        int M = (int) y;
+        double S = round((y - M) * 60, 2);
+        switch (format) {
+            case Dd:
+                return "" + sign * x + "\u00B0 " ;
+            case DMm:
+                return "" + sign * D + "\u00B0 " + round(y, 2) + "\u0027";
+            case DMSs:
+                return "" + sign * D + "\u00B0 " + M + "\u0027 " + S + "\"";
+            default:
+                return "" + sign * x + "\u00B0 ";
+        }
+    }
 
 }

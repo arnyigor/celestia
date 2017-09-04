@@ -16,10 +16,10 @@ class DateDialog extends Frame {
 	protected Button buttonCancel;
 	protected Button buttonToday;
 
-	protected OrbitViewer objectOrbit;
+	protected OrbitViewer orbitViewer;
 
-	public DateDialog(OrbitViewer objectOrbit, ATime atime) {
-		this.objectOrbit = objectOrbit;
+	public DateDialog(OrbitViewer orbitViewer, ATime atime) {
+		this.orbitViewer = orbitViewer;
 
 		// Layout
 		setLayout(new GridLayout(2, 3, 4, 4));
@@ -79,7 +79,7 @@ class DateDialog extends Frame {
 				return false;
 			}
 			dispose();
-			objectOrbit.endDateDialog(atime);
+			orbitViewer.endDateDialog(atime);
 			return true;
 		}
 		return false;    // super.handleEvent(evt);

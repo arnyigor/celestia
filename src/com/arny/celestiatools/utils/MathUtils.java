@@ -130,48 +130,4 @@ public class MathUtils {
         return Math.abs(num);
     }
 
-    public static double getDecGrad(int D, double M, double S) {
-        double sign = 1.0;
-        if (D < 0 || M < 0 || S < 0) {
-            sign = -1.0;
-        }
-        D = Math.abs(D);
-        M = Math.abs(M);
-        S = Math.abs(S);
-        return sign * (D + (M / 60) + (S / 3600));
-    }
-
-	public enum AngleFormat {
-        Dd,
-        DMM,
-        DMMm,
-        DMMSS,
-        DMMSSs
-    }
-
-    public static String getGradMinSec(double grad, AngleFormat format) {
-        //TODO
-        double sign = 1.0;
-        if (grad < 0) {
-            sign = -1.0;
-        }
-        double x = Math.abs(grad);
-        int D = (int) x;
-        double y = (x - D) * 60;
-        int M = (int) y;
-        double z = (y - M) * 60;
-        double S = round(z, 2);
-
-        System.out.println(D + " " + M + " " + S);
-        System.out.println(sign * D);
-        switch (format) {
-            case Dd:
-                return "" + sign * (int) grad;
-            case DMM:
-                return "" + (int) grad + " " + (int) grad * 60;
-            default:
-                return "" + (int) grad;
-        }
-    }
-
 }
