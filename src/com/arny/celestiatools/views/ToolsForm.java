@@ -4,15 +4,11 @@ import com.arny.celestiatools.controller.Controller;
 import com.arny.celestiatools.models.onProgressUpdate;
 import com.arny.celestiatools.models.onResultCelestiaAsteroids;
 import com.arny.celestiatools.models.onResultCallback;
-import com.arny.celestiatools.utils.BaseUtils;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
-import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
 import java.util.ArrayList;
 public class ToolsForm extends JFrame {
 	private JFrame mainFrame;
@@ -69,7 +65,7 @@ public class ToolsForm extends JFrame {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        setFrameForm(mainFrame,WIDTH,HEIGHT);
+        Controller.setFrameForm(mainFrame,WIDTH,HEIGHT);
 		initButtons();
 		checkBox1.setText("Apollo");
 		checkBox2.setText("Amor");
@@ -272,13 +268,5 @@ public class ToolsForm extends JFrame {
 	    tblAsteroidsData.setModel(tableModel);
 	    tblAsteroidsData.setRowSorter(rowSorter);
     }
-
-	public static void setFrameForm(JFrame frame,int w,int h) {
-		frame.setPreferredSize(new Dimension(w, h));
-		Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
-		int dx = (int) (dimension.getWidth() / 2);
-		int dy = (int) (dimension.getHeight() / 2);
-		frame.setLocation(dx - (w/2), dy - (h/2));
-	}
 
 }

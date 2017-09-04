@@ -1,5 +1,6 @@
 package com.arny.celestiatools.controller;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -13,15 +14,14 @@ import java.util.HashMap;
 import java.util.Locale;
 
 import com.arny.celestiatools.models.*;
-import com.arny.celestiatools.utils.AstroUtils;
-import com.arny.celestiatools.utils.BaseUtils;
-import com.arny.celestiatools.utils.DateTimeUtils;
-import com.arny.celestiatools.utils.FileUtils;
+import com.arny.celestiatools.utils.*;
 import com.arny.celestiatools.utils.astro.OrbitViewer;
 import javafx.concurrent.Worker;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+
+import javax.swing.*;
 
 import static com.arny.celestiatools.utils.AstroUtils.*;
 
@@ -53,7 +53,15 @@ public class Controller {
         connection = SqliteConnection.dbConnection();
     }
 
-    public void getAsterTableData(onResultCelestiaAsteroids celestiaAsteroidsCallbacks) {
+	public static void setFrameForm(JFrame frame, int w, int h) {
+		frame.setPreferredSize(new Dimension(w, h));
+		Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+		int dx = (int) (dimension.getWidth() / 2);
+		int dy = (int) (dimension.getHeight() / 2);
+		frame.setLocation(dx - (w/2), dy - (h/2));
+	}
+
+	public void getAsterTableData(onResultCelestiaAsteroids celestiaAsteroidsCallbacks) {
 			    new Thread(new Runnable() {
 					@Override
 					public void run() {
@@ -513,15 +521,15 @@ public class Controller {
 		OrbitViewer orbitViewer = new OrbitViewer();
         orbitViewer.setCelestiaAsteroid(asteroid);
         long curtime = System.currentTimeMillis();
-		orbitViewer.init(YMDd(JD(curtime)));
+		double jd = JD(curtime);
+		String ymDd = YMDd(jd);
+		orbitViewer.init(ymDd);
 	}
 
 	public void calculate(onResultCallback resultCallback, String input) {
 		operationResult = "";
-        long curtime = BaseUtils.convertTimeStringToLong("2017 02 16","yyyy ");
         try {
-            double jd = JD(curtime);
-            operationResult  = AstroUtils.getPashaPravoslavDate(Integer.parseInt(input));
+            operationResult  = String.valueOf(AstroUtils.getGradMinSec(Double.parseDouble(input),AngleFormat.DMSs));
             resultCallback.result("moid", true, operationResult);
         } catch (Exception e) {
             resultCallback.result("moid", false, e.getMessage());

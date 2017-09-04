@@ -18,18 +18,30 @@ import javax.swing.border.*;
  */
 public class CalcFrame extends JFrame {
     private Controller controller;
-
     public CalcFrame(String name) {
         super(name);
         initComponents();
         controller = new Controller();
     }
 
+    public void initUI() {
+        setResizable(true);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        Controller.setFrameForm(this,WIDTH,HEIGHT);
+        try {
+            ImageIcon img = new ImageIcon("icon.png");
+            setIconImage(img.getImage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        setVisible(true);
+    }
+
     private void button1ActionPerformed(ActionEvent e) {
         controller.calculate(new onResultCallback() {
             @Override
             public void result(String method, boolean success, String result) {
-                calcLabel.setText("result" + result);
+                calcLabel.setText("result = " + result);
             }
         }, textField1.getText());
     }
@@ -45,6 +57,8 @@ public class CalcFrame extends JFrame {
         okButton = new JButton();
 
         //======== this ========
+        setTitle("Calc");
+        setIconImage(new ImageIcon("C:\\Users\\Sedoy\\Desktop\\img1.jpg").getImage());
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 

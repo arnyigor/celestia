@@ -4,6 +4,7 @@ public class GradMinSec {
     private double grad;
     private double min;
     private double sec;
+    private int sign = 1;
 
     public GradMinSec(double grad, double min, double sec) {
         this.grad = grad;
@@ -40,5 +41,13 @@ public class GradMinSec {
 
     public void setSec(double sec) {
         this.sec = sec;
+    }
+
+    public int getSign() {
+        return sign;
+    }
+
+    public void setSign(int sign) {
+        this.sign = sign;
     }
 }
