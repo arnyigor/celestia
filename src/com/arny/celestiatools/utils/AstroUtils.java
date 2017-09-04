@@ -220,10 +220,6 @@ public class AstroUtils {
         return epochDay + 2440587.5d;
     }
 
-    public static double MJD(double JD) {
-        return JD - 2400000.5;
-    }
-
     /**
      * Вычисление даты от юлианской даты
      *
@@ -235,10 +231,29 @@ public class AstroUtils {
         return (long) (epochDay * 86400000d);
     }
 
+    /**
+     * Модифицированная Юлианская дата
+     * @param JD
+     * @return
+     */
+    public static double MJD(double JD) {
+        return JD - 2400000.5;
+    }
+
+    /**
+     * Высокосный год
+     * @param year
+     * @return
+     */
     public static boolean isVisokos(int year) {
         return year % 4 == 0 && year % 100 != 0 && year % 400 == 0;
     }
 
+    /**
+     * Порядковый день года
+     * @param epochMillis
+     * @return
+     */
     public static int dayOfYear(long epochMillis) {
         String strDay = BaseUtils.getDateTime(epochMillis, "D");
         if (strDay != null) {
@@ -475,6 +490,11 @@ public class AstroUtils {
         DMSs,
     }
 
+    /**
+     * Получаем градусы минуты секунды
+     * @param grad
+     * @return
+     */
     public static GradMinSec getGradMinSec(double grad) {
         int sign = 1;
         if (grad < 0) {
@@ -490,6 +510,12 @@ public class AstroUtils {
         return gradMinSec;
     }
 
+    /**
+     * Получаем градусы минуты секунды
+     * @param gradMinSec
+     * @param format
+     * @return
+     */
     public static String getGradMinSec(GradMinSec gradMinSec, AngleFormat format) {
         int sign = gradMinSec.getSign();
         double x =gradMinSec.getGrad();
@@ -510,6 +536,12 @@ public class AstroUtils {
         }
     }
 
+    /**
+     * Получаем градусы минуты секунды
+     * @param grad
+     * @param format
+     * @return
+     */
     public static String getGradMinSec(double grad, AngleFormat format) {
         int sign = 1;
         if (grad < 0) {
