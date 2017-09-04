@@ -1,6 +1,5 @@
 package com.arny.celestiatools.utils;
 
-import java.math.BigDecimal;
 import java.util.Calendar;
 
 import static com.arny.celestiatools.utils.MathUtils.*;
@@ -563,6 +562,34 @@ public class AstroUtils {
             default:
                 return "" + sign * x + "\u00B0 ";
         }
+    }
+
+
+
+
+    public static String getVoshodZahod(String date, double Lat, double Lon){
+        long ts = DateTimeUtils.convertTimeStringToLong(date,"dd MM yyyy");
+        double jd = JD(ts);
+        double mjd = MJD(jd);
+        double T0 = (mjd - 51544.5) / 36525; //мод.юл.дата на начало суток в юлианских столетиях
+        double a1 = 24110.54841;
+        double a2 = 8640184.812;
+        double a3 = 0.093104;
+        double a4 = 0.0000062;
+        double S0 = a1 + (a2 * T0) + (a3 * (MathUtils.Exp(T0,2))) - (a4 * MathUtils.Exp(T0,3));// ' звездное время в Гринвиче на начало суток в секундах
+        //UT - всемирное время в часах, момент расчета
+        int hous = Integer.parseInt(DateTimeUtils.getDateTime(ts, "HH"));
+        int min = Integer.parseInt(DateTimeUtils.getDateTime(ts, "mm"));
+        int sec = Integer.parseInt(DateTimeUtils.getDateTime(ts, "ss"));
+        int zona = Integer.parseInt(DateTimeUtils.getDateTime(ts, "X"));
+        double UT = hous-zona + min/60 + sec/3600;
+        if(UT>24)UT=UT-24;
+        if(UT<0)UT=UT+24;
+        double Nsec = UT * 3600;// ‘ количество секунд, прошедших  от начала суток до момента наблюдения
+        double NsecS = Nsec * 366.2422 / 365.2422;// количество звездных секунд
+        double SG = (S0 + NsecS) / 3600 * 15;// гринвическое среднее звездное время в градусах
+        double ST = SG + Lon;// местное звездное время
+        return "";
     }
 
 }

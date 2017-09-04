@@ -529,7 +529,9 @@ public class Controller {
 	public void calculate(onResultCallback resultCallback, String input) {
 		operationResult = "";
         try {
-            operationResult  = String.valueOf(DateTimeUtils.getDateTime(AstroUtils.DateFromJD(Double.parseDouble(input)),"dd MM yyyy HH:mm"));
+
+            String result = AstroUtils.getVoshodZahod(input, 0, 0);
+            operationResult  = String.valueOf(result);
             resultCallback.result("moid", true, operationResult);
         } catch (Exception e) {
             resultCallback.result("moid", false, e.getMessage());

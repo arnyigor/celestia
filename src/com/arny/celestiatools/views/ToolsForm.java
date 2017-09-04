@@ -150,12 +150,6 @@ public class ToolsForm extends JFrame {
 		btnCalc.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-                controller.calculate(new onResultCallback() {
-                    @Override
-                    public void result(String method, boolean success, String result) {
-                        lblCalcRes.setText("Результат:" + result);
-                    }
-                }, lblCalcRes.getText());
 			}
 		});
         btnOrbitViewer.addActionListener(new ActionListener() {

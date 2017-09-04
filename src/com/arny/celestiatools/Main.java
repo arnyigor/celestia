@@ -13,7 +13,6 @@ public class Main {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		CalcFrame controller = new CalcFrame("Tools");
-		controller.initUI();
+		new CalcFrame("Tools");
 	}
 }

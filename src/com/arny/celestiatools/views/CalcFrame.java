@@ -18,22 +18,24 @@ import javax.swing.border.*;
  */
 public class CalcFrame extends JFrame {
     private Controller controller;
+
     public CalcFrame(String name) {
         super(name);
         initComponents();
+        initUI();
         controller = new Controller();
     }
 
-    public void initUI() {
+    private void initUI() {
         setResizable(true);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        Controller.setFrameForm(this,WIDTH,HEIGHT);
         try {
             ImageIcon img = new ImageIcon("icon.png");
             setIconImage(img.getImage());
         } catch (Exception e) {
             e.printStackTrace();
         }
+        Controller.setFrameForm(this,600,500);
         setVisible(true);
     }
 
@@ -41,7 +43,7 @@ public class CalcFrame extends JFrame {
         controller.calculate(new onResultCallback() {
             @Override
             public void result(String method, boolean success, String result) {
-                calcLabel.setText("result = " + result);
+                calcLabel.setText("Результат = " + result);
             }
         }, textField1.getText());
     }
