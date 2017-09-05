@@ -185,6 +185,20 @@ public class DateTimeUtils {
         }
     }
 
+    /**
+     * получение времени формата HH:mm:ss из HH.hh
+     * @param time
+     * @return
+     */
+    public static String getTimeHHmmss(double time){
+        int hh = (int) time;
+        double Mm = (time - hh)*60;
+        int mm = (int) Mm;
+        int ss = (int)(Mm - mm) * 60;
+        return hh + ":" + hh + ":" + hh;
+    }
+
+
     public static String getStringDateTime(int year, int monthOfYear, int dayOfMonth) {
         String strDateFormat = "MMM";
         String strMonth = new DateFormatSymbols().getMonths()[monthOfYear];
@@ -197,7 +211,6 @@ public class DateTimeUtils {
         String formDate = new SimpleDateFormat("MMM", Locale.getDefault()).format(date);
         return dayOfMonth + " " + formDate + " " + year;
     }
-
 
     public static int getMonth(long time) {
         Calendar cal = Calendar.getInstance();

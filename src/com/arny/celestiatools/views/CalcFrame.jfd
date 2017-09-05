@@ -11,8 +11,8 @@ new FormModel {
 				name: "dialogPane"
 				"border": new javax.swing.border.EmptyBorder( 12, 12, 12, 12 )
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-					"$horizontalGroup": "par l {seq l {space :::p, comp calcBtn1:::p::p, space :::p, comp textField1:::p:90:p, space :::p, comp calcLabel::::312:x, space :::p}}"
-					"$verticalGroup": "par l {seq l {space :::p, par b {comp calcBtn1::b:p::p, comp textField1::b:p::p, comp calcLabel::b:p::p}, space ::230:x}}"
+					"$horizontalGroup": "par l {seq l {comp calcBtn1:::p:65:p, space :::p, comp textField1:::p:124:p, space :::p, comp textFieldLat:::p:146:p, space :::p, comp textFieldLon:::p:122:p, space :::p, comp calcLabel::::257:x, space :::p}}"
+					"$verticalGroup": "par l {seq l {space :::p, par b {comp textField1::b:p::p, comp calcLabel::b:p::p, comp textFieldLon::b:p::p, comp textFieldLat::b:p::p, comp calcBtn1::b:p::p}, space ::230:x}}"
 				} ) {
 					name: "contentPanel"
 					add( new FormComponent( "javax.swing.JButton" ) {
@@ -27,7 +27,20 @@ new FormModel {
 					} )
 					add( new FormComponent( "javax.swing.JTextField" ) {
 						name: "textField1"
-						"cursor": new java.awt.Cursor( 2 )
+						"cursor": &Cursor0 new java.awt.Cursor( 2 )
+						"toolTipText": "Date"
+					} )
+					add( new FormComponent( "javax.swing.JTextField" ) {
+						name: "textFieldLat"
+						"cursor": #Cursor0
+						"toolTipText": "Latitude"
+						"text": "0.00"
+					} )
+					add( new FormComponent( "javax.swing.JTextField" ) {
+						name: "textFieldLon"
+						"cursor": #Cursor0
+						"toolTipText": "Latitude"
+						"text": "0.00"
 					} )
 				}, new FormLayoutConstraints( class java.lang.String ) {
 					"value": "Center"
@@ -55,7 +68,7 @@ new FormModel {
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 505, 350 )
+			"size": new java.awt.Dimension( 770, 350 )
 		} )
 	}
 }

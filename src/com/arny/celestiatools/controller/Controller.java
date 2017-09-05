@@ -526,16 +526,4 @@ public class Controller {
 		orbitViewer.init(ymDd);
 	}
 
-	public void calculate(onResultCallback resultCallback, String input) {
-		operationResult = "";
-        try {
-
-            String result = AstroUtils.getVoshodZahod(input, 0, 0);
-            operationResult  = String.valueOf(result);
-            resultCallback.result("moid", true, operationResult);
-        } catch (Exception e) {
-            resultCallback.result("moid", false, e.getMessage());
-        }
-	}
-
 }

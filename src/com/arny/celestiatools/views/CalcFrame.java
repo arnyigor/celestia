@@ -5,7 +5,8 @@
 package com.arny.celestiatools.views;
 
 import com.arny.celestiatools.controller.Controller;
-import com.arny.celestiatools.models.onResultCallback;
+import com.arny.celestiatools.utils.AstroUtils;
+import com.arny.celestiatools.utils.DateTimeUtils;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -40,12 +41,8 @@ public class CalcFrame extends JFrame {
     }
 
     private void button1ActionPerformed(ActionEvent e) {
-        controller.calculate(new onResultCallback() {
-            @Override
-            public void result(String method, boolean success, String result) {
-                calcLabel.setText("Результат = " + result);
-            }
-        }, textField1.getText());
+        String result = AstroUtils.getSunsetRise(DateTimeUtils.convertTimeStringToLong("25 06 1990", "dd MM yyyy"), 40.9, -74.3, true, AstroUtils.TWILIGHT);
+        calcLabel.setText("Результат = " + result);
     }
 
     private void initComponents() {
@@ -55,6 +52,8 @@ public class CalcFrame extends JFrame {
         calcBtn1 = new JButton();
         calcLabel = new JLabel();
         textField1 = new JTextField();
+        textFieldLat = new JTextField();
+        textFieldLon = new JTextField();
         buttonBar = new JPanel();
         okButton = new JButton();
 
@@ -84,18 +83,32 @@ public class CalcFrame extends JFrame {
 
                 //---- textField1 ----
                 textField1.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
+                textField1.setToolTipText("Date");
+
+                //---- textFieldLat ----
+                textFieldLat.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
+                textFieldLat.setToolTipText("Latitude");
+                textFieldLat.setText("0.00");
+
+                //---- textFieldLon ----
+                textFieldLon.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
+                textFieldLon.setToolTipText("Latitude");
+                textFieldLon.setText("0.00");
 
                 GroupLayout contentPanelLayout = new GroupLayout(contentPanel);
                 contentPanel.setLayout(contentPanelLayout);
                 contentPanelLayout.setHorizontalGroup(
                     contentPanelLayout.createParallelGroup()
                         .addGroup(contentPanelLayout.createSequentialGroup()
-                            .addContainerGap()
-                            .addComponent(calcBtn1)
+                            .addComponent(calcBtn1, GroupLayout.PREFERRED_SIZE, 65, GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(textField1, GroupLayout.PREFERRED_SIZE, 90, GroupLayout.PREFERRED_SIZE)
+                            .addComponent(textField1, GroupLayout.PREFERRED_SIZE, 124, GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(calcLabel, GroupLayout.DEFAULT_SIZE, 312, Short.MAX_VALUE)
+                            .addComponent(textFieldLat, GroupLayout.PREFERRED_SIZE, 146, GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(textFieldLon, GroupLayout.PREFERRED_SIZE, 122, GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(calcLabel, GroupLayout.DEFAULT_SIZE, 257, Short.MAX_VALUE)
                             .addContainerGap())
                 );
                 contentPanelLayout.setVerticalGroup(
@@ -103,9 +116,11 @@ public class CalcFrame extends JFrame {
                         .addGroup(contentPanelLayout.createSequentialGroup()
                             .addContainerGap()
                             .addGroup(contentPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(calcBtn1)
                                 .addComponent(textField1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addComponent(calcLabel))
+                                .addComponent(calcLabel)
+                                .addComponent(textFieldLon, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(textFieldLat, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(calcBtn1))
                             .addContainerGap(230, Short.MAX_VALUE))
                 );
             }
@@ -138,6 +153,8 @@ public class CalcFrame extends JFrame {
     private JButton calcBtn1;
     private JLabel calcLabel;
     private JTextField textField1;
+    private JTextField textFieldLat;
+    private JTextField textFieldLon;
     private JPanel buttonBar;
     private JButton okButton;
     // JFormDesigner - End of variables declaration  //GEN-END:variables

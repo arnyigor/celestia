@@ -118,6 +118,10 @@ public class MathUtils {
         return Math.toDegrees(Math.atan(rad));
     }
 
+    public static double Atan2(double rad1,double rad2) {
+        return Math.toDegrees(Math.atan2(rad1,rad2));
+    }
+
     public static double Sqrt(double num) {
         return Math.sqrt(num);
     }
