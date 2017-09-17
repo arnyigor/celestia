@@ -1,9 +1,7 @@
 /**
  * PlanetOrbit Class
  */
-package com.arny.celestiatools.utils.astro;
-import com.arny.celestiatools.utils.astro.ATime;
-import com.arny.celestiatools.utils.astro.Xyz;
+package com.arny.celestiatools.utils.celestia;
 
 public class PlanetOrbit {
 	private int		planetNo;

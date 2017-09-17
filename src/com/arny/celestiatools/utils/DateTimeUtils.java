@@ -1,6 +1,8 @@
 package com.arny.celestiatools.utils;
 
 
+import com.arny.celestiatools.utils.BaseUtils;
+
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -210,6 +212,46 @@ public class DateTimeUtils {
         }
         String formDate = new SimpleDateFormat("MMM", Locale.getDefault()).format(date);
         return dayOfMonth + " " + formDate + " " + year;
+    }
+
+    public static int getYear(long time) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(time);
+        return cal.get(Calendar.YEAR);
+    }
+
+    public static int getHour(long time) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(time);
+        return cal.get(Calendar.HOUR_OF_DAY);
+    }
+
+    public static int getMin(long time) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(time);
+        return cal.get(Calendar.MINUTE);
+    }
+
+    public static int getSec(long time) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(time);
+        return cal.get(Calendar.SECOND);
+    }
+
+    public static int getMs(long time) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(time);
+        return cal.get(Calendar.MILLISECOND);
+    }
+
+    public static int getDayofMonth(long time) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(time);
+        return cal.get(Calendar.DAY_OF_MONTH);
+    }
+
+    public static int getDayofYear(long time) {
+        return Integer.parseInt(getDateTime(time,"dd"));
     }
 
     public static int getMonth(long time) {

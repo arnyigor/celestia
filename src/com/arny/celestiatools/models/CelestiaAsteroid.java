@@ -1,5 +1,5 @@
 package com.arny.celestiatools.models;
-import com.arny.celestiatools.utils.BaseUtils;
+
 public class CelestiaAsteroid {
 	private String Name,OrbitType,updateTime;
 	private double radius,period,sma,inc,node,ecc,peric,Ma,epoch;

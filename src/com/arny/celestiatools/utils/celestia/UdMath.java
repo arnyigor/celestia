@@ -1,7 +1,7 @@
 /**
  * Common Mathematic Functions
  */
-package com.arny.celestiatools.utils.astro;
+package com.arny.celestiatools.utils.celestia;
 
 public class UdMath {
 	/**

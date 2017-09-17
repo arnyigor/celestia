@@ -1,10 +1,9 @@
 /**
  * Astronomical Time Class
  */
-package com.arny.celestiatools.utils.astro;
-import com.arny.celestiatools.utils.AstroUtils;
+package com.arny.celestiatools.utils.celestia;
+import com.arny.celestiatools.utils.astronomy.AstroUtils;
 import com.arny.celestiatools.utils.BaseUtils;
-import com.arny.celestiatools.utils.astro.TimeSpan;
 
 public class ATime {
 	private int    nYear, nMonth, nDay;

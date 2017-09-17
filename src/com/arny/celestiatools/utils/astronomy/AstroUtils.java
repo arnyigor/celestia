@@ -1,4 +1,10 @@
-package com.arny.celestiatools.utils;
+package com.arny.celestiatools.utils.astronomy;
+
+import com.arny.celestiatools.models.CoordXYZ;
+import com.arny.celestiatools.utils.BaseUtils;
+import com.arny.celestiatools.utils.DateTimeUtils;
+import com.arny.celestiatools.utils.GradMinSec;
+import com.arny.celestiatools.utils.MathUtils;
 
 import java.util.Calendar;
 
@@ -11,9 +17,9 @@ import static com.arny.celestiatools.utils.BaseUtils.*;
 public class AstroUtils {
 
     public static final double TWILIGHT = 90.8333333333333;   // 90°50' (Сумерки)
-    public static final double CIVIL_TWILIGHT =96.0;         // 96°    (Гражданские сумерки)
-    public static final double NAUTICAL_TWILIGHT =102.0;     // 102°   (Навигационные сумерки)
-    public static final double ASTRONOMICAL_TWILIGHT =108.0; // 108°   (Астрономические сумерки)
+    public static final double CIVIL_TWILIGHT = 96.0;         // 96°    (Гражданские сумерки)
+    public static final double NAUTICAL_TWILIGHT = 102.0;     // 102°   (Навигационные сумерки)
+    public static final double ASTRONOMICAL_TWILIGHT = 108.0; // 108°   (Астрономические сумерки)
 
     public enum DistanceTypes {
         metre, km, AU, LY, PC
@@ -506,6 +512,7 @@ public class AstroUtils {
 
     /**
      * Получаем градусы минуты секунды
+     *
      * @param gradMinSec
      * @return
      */
@@ -552,19 +559,21 @@ public class AstroUtils {
 
     /**
      * Детсятичные часы в часы и минуты
+     *
      * @param Hh
      * @return
      */
-    public static String getHHmm(double Hh){
+    public static String getHHmm(double Hh) {
         int sign = Hh > 0 ? 1 : -1;
         int H = (int) Math.abs(Hh);
         double y = (Math.abs(Hh) - H) * 60;
         int M = (int) y;
-        return sign*H + ":" + pad(M);
+        return sign * H + ":" + pad(M);
     }
 
     /**
      * Часы минуты в десятичные часы
+     *
      * @param hh
      * @param min
      * @return
@@ -572,18 +581,19 @@ public class AstroUtils {
     public static double getHh(int hh, int min) {
         int sign = hh > 0 ? 1 : -1;
         double y = min / 60;
-        return sign*(Math.abs(hh) + y);
+        return sign * (Math.abs(hh) + y);
     }
 
     /**
      * Восход/заход солнца
+     *
      * @param Zenith
      * @param timestamp
      * @param Lat
      * @param Lon
      * @return
      */
-    public static String getSunsetRise(long timestamp, double Lat, double Lon, boolean rise, double Zenith){
+    public static String getSunsetRise(long timestamp, double Lat, double Lon, boolean rise, double Zenith) {
         // 1. first calculate the day of the year
         double N = dayOfYear(timestamp);
         //2. convert the longitude to hour value and calculate an approximate time
@@ -601,7 +611,7 @@ public class AstroUtils {
         // NOTE: L potentially needs to be adjusted into the range [0,360) by adding/subtracting 360
         L = correctAngle(L, 360);
         // 5a. calculate the Sun's right ascension
-        double RA = ( Atan( 0.91764 * Tan(L) ) );
+        double RA = (Atan(0.91764 * Tan(L)));
         // NOTE: RA potentially needs to be adjusted into the range [0,360) by adding/subtracting 360
         RA = correctAngle(RA, 360);
         // 5b. right ascension value needs to be in the same quadrant as L
@@ -612,7 +622,7 @@ public class AstroUtils {
         RA = RA / 15;
         // 6. calculate the Sun's declination
         double sinDec = 0.39782 * Sin(L);
-        double cosDec  = Cos( Asin( sinDec ) );
+        double cosDec = Cos(Asin(sinDec));
         // 7a. calculate the Sun's local hour angle
         double HCos = (Cos(Zenith) - (sinDec * Sin(Lat))) / (cosDec * Cos(Lat));
         if ((HCos > 1) || (HCos < -1)) {
@@ -627,7 +637,7 @@ public class AstroUtils {
         double H = rise ? 360 - Acos(HCos) : Acos(HCos);
         H = H / 15;
         // 8. calculate local mean time of rising/setting
-        double LocalT = H + RA - ( 0.06571 * t ) - 6.622;
+        double LocalT = H + RA - (0.06571 * t) - 6.622;
         String hHmm0 = getHHmm(LocalT);
         // 9. adjust back to UTC
         double UT = LocalT - LngHour;
@@ -639,6 +649,22 @@ public class AstroUtils {
         double Result = UT + Double.parseDouble(x);
         String hHmm = getHHmm(Result);
         return hHmm;
+    }
+
+    /**
+     * Преобразование полярных координат в прямоугольные
+     *
+     * @param radius
+     * @param theta [-90...+90]
+     * @param phi   [-360...+360]
+     * @return
+     */
+    public static CoordXYZ getCart(double radius, double theta, double phi) {
+        double rcst = radius * Cos(theta);
+        double x = rcst * Cos(phi);
+        double y = rcst * Sin(phi);
+        double z = radius * Sin(theta);
+        return new CoordXYZ(x, y, z);
     }
 
     /**

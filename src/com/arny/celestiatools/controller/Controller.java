@@ -14,8 +14,12 @@ import java.util.HashMap;
 import java.util.Locale;
 
 import com.arny.celestiatools.models.*;
-import com.arny.celestiatools.utils.*;
-import com.arny.celestiatools.utils.astro.OrbitViewer;
+import com.arny.celestiatools.utils.BaseUtils;
+import com.arny.celestiatools.utils.DateTimeUtils;
+import com.arny.celestiatools.utils.FileUtils;
+import com.arny.celestiatools.utils.GradMinSec;
+import com.arny.celestiatools.utils.astronomy.*;
+import com.arny.celestiatools.utils.celestia.OrbitViewer;
 import javafx.concurrent.Worker;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -23,7 +27,7 @@ import org.json.simple.parser.JSONParser;
 
 import javax.swing.*;
 
-import static com.arny.celestiatools.utils.AstroUtils.*;
+import static com.arny.celestiatools.utils.astronomy.AstroUtils.*;
 
 public class Controller {
 

@@ -1,4 +1,4 @@
-package com.arny.celestiatools.utils;
+package com.arny.celestiatools.utils.astronomy;
 
 /**
  * Created by i.sedoy on 22.03.17.

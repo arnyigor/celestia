@@ -1,8 +1,7 @@
 /**
  * Matrix (3x3)
  */
-package com.arny.celestiatools.utils.astro;
-import com.arny.celestiatools.utils.astro.ATime;
+package com.arny.celestiatools.utils.celestia;
 
 public class Matrix {
 	public double fA11, fA12, fA13;

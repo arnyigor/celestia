@@ -1,8 +1,7 @@
 /**
  * Planet Class
  */
-package com.arny.celestiatools.utils.astro;
-import com.arny.celestiatools.utils.astro.UdMath;
+package com.arny.celestiatools.utils.celestia;
 
 public class Planet {
 	public static final int SUN     = 0;

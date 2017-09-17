@@ -1,4 +1,4 @@
-package com.arny.celestiatools.utils.astro;
+package com.arny.celestiatools.utils.celestia;
 
 /**
  * Player Class

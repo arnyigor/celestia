@@ -3,12 +3,10 @@ package com.arny.celestiatools.controller;
 
 import com.arny.celestiatools.models.CelestiaAsteroid;
 import com.arny.celestiatools.utils.BaseUtils;
-import org.sqlite.util.StringUtils;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import javax.swing.*;
 

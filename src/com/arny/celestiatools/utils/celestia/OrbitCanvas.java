@@ -1,13 +1,13 @@
-package com.arny.celestiatools.utils.astro;
+package com.arny.celestiatools.utils.celestia;
 
-import com.arny.celestiatools.utils.AstroConst;
-import com.arny.celestiatools.utils.AstroUtils;
+import com.arny.celestiatools.utils.astronomy.AstroConst;
+import com.arny.celestiatools.utils.astronomy.AstroUtils;
 import com.arny.celestiatools.utils.BaseUtils;
 import com.arny.celestiatools.utils.MathUtils;
 
 import java.awt.*;
 
-import static com.arny.celestiatools.utils.AstroUtils.DistanceConvert;
+import static com.arny.celestiatools.utils.astronomy.AstroUtils.DistanceConvert;
 
 /**
  * Orbit Canvas

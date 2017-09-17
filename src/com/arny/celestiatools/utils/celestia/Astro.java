@@ -1,7 +1,7 @@
 /**
  * Astronomical Constants
  */
-package com.arny.celestiatools.utils.astro;
+package com.arny.celestiatools.utils.celestia;
 
 public class Astro {
 	public static final double GAUSS  = 0.01720209895;

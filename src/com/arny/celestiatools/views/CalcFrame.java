@@ -5,7 +5,7 @@
 package com.arny.celestiatools.views;
 
 import com.arny.celestiatools.controller.Controller;
-import com.arny.celestiatools.utils.AstroUtils;
+import com.arny.celestiatools.utils.astronomy.AstroUtils;
 import com.arny.celestiatools.utils.DateTimeUtils;
 
 import java.awt.*;

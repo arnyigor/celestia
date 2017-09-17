@@ -1,9 +1,7 @@
 /**
  * Planet Position by Expansion
  */
-package com.arny.celestiatools.utils.astro;
-
-import com.arny.celestiatools.utils.astro.UdMath;
+package com.arny.celestiatools.utils.celestia;
 
 /**
  * planet position by expansion

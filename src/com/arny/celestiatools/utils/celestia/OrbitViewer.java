@@ -1,4 +1,4 @@
-package com.arny.celestiatools.utils.astro;
+package com.arny.celestiatools.utils.celestia;
 
 import java.applet.*;
 import java.awt.*;
@@ -7,12 +7,12 @@ import java.util.*;
 
 import com.arny.celestiatools.controller.Controller;
 import com.arny.celestiatools.models.CelestiaAsteroid;
-import com.arny.celestiatools.utils.AstroUtils;
+import com.arny.celestiatools.utils.astronomy.AstroUtils;
 import com.arny.celestiatools.utils.BaseUtils;
 
 import javax.swing.*;
 
-import static com.arny.celestiatools.utils.AstroUtils.*;
+import static com.arny.celestiatools.utils.astronomy.AstroUtils.*;
 
 /**
  * Main Applet Class
