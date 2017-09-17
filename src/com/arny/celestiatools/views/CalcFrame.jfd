@@ -5,70 +5,62 @@ new FormModel {
 	root: new FormRoot {
 		add( new FormWindow( "javax.swing.JFrame", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 			name: "this"
-			"title": "Calc"
-			"iconImage": new com.jformdesigner.model.SwingIcon( 1, "C:\\Users\\Sedoy\\Desktop\\img1.jpg" )
+			"title": "Калькулятор"
+			"iconImage": sfield com.jformdesigner.model.FormObject NULL_VALUE
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 				name: "dialogPane"
 				"border": new javax.swing.border.EmptyBorder( 12, 12, 12, 12 )
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-					"$horizontalGroup": "par l {seq l {comp calcBtn1:::p:65:p, space :::p, comp textField1:::p:124:p, space :::p, comp textFieldLat:::p:146:p, space :::p, comp textFieldLon:::p:122:p, space :::p, comp calcLabel::::257:x, space :::p}}"
-					"$verticalGroup": "par l {seq l {space :::p, par b {comp textField1::b:p::p, comp calcLabel::b:p::p, comp textFieldLon::b:p::p, comp textFieldLat::b:p::p, comp calcBtn1::b:p::p}, space ::230:x}}"
+					"$horizontalGroup": "par l {seq l {space :::p, comp tabbedPane1:::::x, space :::p}}"
+					"$verticalGroup": "par l {comp tabbedPane1::l:::x}"
 				} ) {
 					name: "contentPanel"
-					add( new FormComponent( "javax.swing.JButton" ) {
-						name: "calcBtn1"
-						"text": "text"
-						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "button1ActionPerformed", true ) )
-						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "button1ActionPerformed", true ) )
-					} )
-					add( new FormComponent( "javax.swing.JLabel" ) {
-						name: "calcLabel"
-						"text": "text"
-					} )
-					add( new FormComponent( "javax.swing.JTextField" ) {
-						name: "textField1"
-						"cursor": &Cursor0 new java.awt.Cursor( 2 )
-						"toolTipText": "Date"
-					} )
-					add( new FormComponent( "javax.swing.JTextField" ) {
-						name: "textFieldLat"
-						"cursor": #Cursor0
-						"toolTipText": "Latitude"
-						"text": "0.00"
-					} )
-					add( new FormComponent( "javax.swing.JTextField" ) {
-						name: "textFieldLon"
-						"cursor": #Cursor0
-						"toolTipText": "Latitude"
-						"text": "0.00"
+					add( new FormContainer( "javax.swing.JTabbedPane", new FormLayoutManager( class javax.swing.JTabbedPane ) ) {
+						name: "tabbedPane1"
+						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+							"$horizontalGroup": "par l {seq l {space :::p, par l:::p {comp label1::::142:x, comp formattedGrads::::142:x}, space :::p, par l {comp label2:::::x, seq {comp textFieldGradFloat:::p:140:p, space :0:0:x}}, space ::331:x}}"
+							"$verticalGroup": "par l {seq {space :::p, par b {comp label1::b:p::p, comp label2::b:p::p}, space :p:5:p, par b {comp formattedGrads::b:p::p, comp textFieldGradFloat::b:p::p}, space ::214:x}}"
+						} ) {
+							name: "panel1"
+							add( new FormComponent( "javax.swing.JTextField" ) {
+								name: "textFieldGradFloat"
+								"cursor": new java.awt.Cursor( 2 )
+								"toolTipText": "Latitude"
+								addEvent( new FormEvent( "java.awt.event.KeyListener", "keyReleased", "textFieldGradFloatKeyReleased", true ) )
+							} )
+							add( new FormComponent( "javax.swing.JFormattedTextField" ) {
+								name: "formattedGrads"
+								addEvent( new FormEvent( "java.awt.event.KeyListener", "keyReleased", "formattedTextFieldKeyReleased", true ) )
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "label1"
+								"text": "Градусы минуты секунды"
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "label2"
+								"text": "Градусы"
+							} )
+						}, new FormLayoutConstraints( null ) {
+							"title": "Общее"
+						} )
+						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+							"$horizontalGroup": "par l {space :0:625:x}"
+							"$verticalGroup": "par l {space :0:265:x}"
+						} ) {
+							name: "panel2"
+						}, new FormLayoutConstraints( null ) {
+							"title": "Спец"
+						} )
 					} )
 				}, new FormLayoutConstraints( class java.lang.String ) {
 					"value": "Center"
-				} )
-				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
-					"$columnSpecs": "0:1.0, 80"
-					"$rowSpecs": "0"
-					"$hGap": 5
-					"$vGap": 5
-				} ) {
-					name: "buttonBar"
-					"border": new javax.swing.border.EmptyBorder( 12, 0, 0, 0 )
-					add( new FormComponent( "javax.swing.JButton" ) {
-						name: "okButton"
-						"text": "OK"
-					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-						"gridx": 1
-						"gridy": 0
-					} )
-				}, new FormLayoutConstraints( class java.lang.String ) {
-					"value": "South"
 				} )
 			}, new FormLayoutConstraints( class java.lang.String ) {
 				"value": "Center"
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 770, 350 )
+			"size": new java.awt.Dimension( 665, 345 )
 		} )
 	}
 }

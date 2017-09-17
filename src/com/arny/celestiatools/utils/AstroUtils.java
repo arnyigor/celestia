@@ -425,7 +425,10 @@ public class AstroUtils {
         return sma * (1 - Exp(e, 2)) / (1 + e * Cos(v));
     }
 
-    public static double getGrad(int grad, int min, double sec) {
+    public static double getGrad(int grad, int min, double sec, boolean correctTo360) {
+        if (correctTo360) {
+            grad = (int) correctAngle(grad, 360);
+        }
         GradMinSec gradMinSec = new GradMinSec(grad, min, sec);
         if (gradMinSec.getGrad() < 0 || gradMinSec.getMin() < 0 || gradMinSec.getSec() < 0) {
             gradMinSec.setSign(-1);
@@ -499,6 +502,24 @@ public class AstroUtils {
             default:
                 return "" + sign * x + "\u00B0 ";
         }
+    }
+
+    /**
+     * Получаем градусы минуты секунды
+     *
+     * @param gradMinSec
+     * @param format
+     * @return
+     */
+    public static String getGradMinSec(GradMinSec gradMinSec) {
+        int sign = gradMinSec.getSign();
+        double x = gradMinSec.getGrad();
+        int D = (int) x;
+        double y = gradMinSec.getMin();
+        int M = (int) y;
+        double z = gradMinSec.getSec();
+        double S = round(z, 3);
+        return sign * D + " " + M + " " + S;
     }
 
     /**
