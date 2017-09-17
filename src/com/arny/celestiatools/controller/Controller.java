@@ -569,13 +569,31 @@ public class Controller {
         if (floatedGrads.length() == 0) {
             return "000 00 00.000";
         }
-        GradMinSec gms = AstroUtils.getGradMinSec(Double.parseDouble(floatedGrads));
+        double grad1 = Double.parseDouble(floatedGrads);
+        grad1 = AstroUtils.correctAngle(grad1, 360);
+        GradMinSec gms = AstroUtils.getGradMinSec(grad1);
         int grad = (int) gms.getGrad();
         int min = (int) gms.getMin();
         double sec = gms.getSec();
         String secformat = sec > 9 ? "%02.3f" : "0%02.3f";
-        String res = String.format("%03d %02d " + secformat, grad, min, sec).replace(",", ".");
-        return res;
+        return String.format("%03d %02d " + secformat, grad, min, sec).replace(",", ".");
+    }
+
+    public String calcDatTimeToJD(String datetime) {
+        boolean matcher = BaseUtils.matcher("^\\d{2}\\s\\d{2}\\s\\d{4}\\s\\d{2}:\\d{2}:\\d{2}$", datetime);
+        if (matcher) {
+            long dt = DateTimeUtils.convertTimeStringToLong(datetime, "dd MM yyyy HH:mm:ss");
+            double jd = AstroUtils.JD(dt);
+            return String.valueOf(jd);
+        }
+        return "Неверная дата";
+    }
+
+    public String calcJDToDatTime(String jds) {
+        jds = jds.length() > 0 ? jds.trim() : "";
+        double jd = Double.parseDouble(jds);
+        long dt = AstroUtils.DateFromJD(jd);
+        return DateTimeUtils.getDateTime(dt,"dd MM yyyy HH:mm:ss");
     }
 
 }

@@ -506,9 +506,7 @@ public class AstroUtils {
 
     /**
      * Получаем градусы минуты секунды
-     *
      * @param gradMinSec
-     * @param format
      * @return
      */
     public static String getGradMinSec(GradMinSec gradMinSec) {
@@ -550,6 +548,31 @@ public class AstroUtils {
             default:
                 return "" + sign * x + "\u00B0 ";
         }
+    }
+
+    /**
+     * Детсятичные часы в часы и минуты
+     * @param Hh
+     * @return
+     */
+    public static String getHHmm(double Hh){
+        int sign = Hh > 0 ? 1 : -1;
+        int H = (int) Math.abs(Hh);
+        double y = (Math.abs(Hh) - H) * 60;
+        int M = (int) y;
+        return sign*H + ":" + pad(M);
+    }
+
+    /**
+     * Часы минуты в десятичные часы
+     * @param hh
+     * @param min
+     * @return
+     */
+    public static double getHh(int hh, int min) {
+        int sign = hh > 0 ? 1 : -1;
+        double y = min / 60;
+        return sign*(Math.abs(hh) + y);
     }
 
     /**
@@ -605,13 +628,17 @@ public class AstroUtils {
         H = H / 15;
         // 8. calculate local mean time of rising/setting
         double LocalT = H + RA - ( 0.06571 * t ) - 6.622;
+        String hHmm0 = getHHmm(LocalT);
         // 9. adjust back to UTC
         double UT = LocalT - LngHour;
         // NOTE: UT potentially needs to be adjusted into the range [0,24) by adding/subtracting 24
         UT = correctAngle(UT, 24);
+        String hHmm1 = getHHmm(UT);
         // 10. convert UT value to local time zone of latitude/longitude
-        double Result = UT + Double.parseDouble(DateTimeUtils.getDateTime(timestamp, "X"));
-        return String.valueOf(Result);
+        String x = DateTimeUtils.getDateTime(timestamp, "X");
+        double Result = UT + Double.parseDouble(x);
+        String hHmm = getHHmm(Result);
+        return hHmm;
     }
 
     /**
@@ -644,7 +671,7 @@ public class AstroUtils {
         return "Ra:" + Ra + " Dec:" + Dec + " Az:" + Az;
     }
 
-    private static double correctAngle(double angle, int num) {
+    public static double correctAngle(double angle, int num) {
         while (angle >= num) {
             angle -= num;
         }
