@@ -606,7 +606,7 @@ public class Controller {
 //        calendar.setTimeInMillis(DateTimeUtils.convertTimeStringToLong("18 09 2017 10:42:40","dd MM yyyy HH:mm:ss"));
         long timeInMillis = calendar.getTimeInMillis();
         String dateTime = DateTimeUtils.getDateTime(timeInMillis);
-        ATime aTime = new ATime(timeInMillis,0.0);
+        ATime aTime = new ATime(timeInMillis);
         double jd1 = JulianDate.JD(timeInMillis);
         double jd2 = aTime.getJd();
         double t = aTime.getT();

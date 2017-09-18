@@ -4,9 +4,13 @@
 package com.arny.celestiatools.utils.celestia;
 
 import com.arny.celestiatools.utils.astronomy.AstroConst;
+import org.joda.time.DateTime;
 
+import java.text.SimpleDateFormat;
 import java.time.ZoneOffset;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 public class ATime {
@@ -225,6 +229,27 @@ public class ATime {
         this.fT = atime.fT;
         this.fT2 = atime.fT2;
         makeDateTime();
+    }
+
+    public ATime(long time) {
+        this.datetime = time;
+        DateTime dateTime = new DateTime(time);
+        this.nYear = dateTime.getYear();
+        this.nMonth = dateTime.getMonthOfYear();
+        this.nDay = dateTime.getDayOfMonth();
+        this.nHour = dateTime.getHourOfDay();
+        this.nMin = dateTime.getMinuteOfDay();
+        this.fSec = dateTime.getSecondOfMinute();
+        this.fJd = makeJd();
+        this.fTimezone = Double.parseDouble((new SimpleDateFormat("X", Locale.getDefault())).format(new Date(time)));
+        this.fT = atime.fT;
+        this.fT2 = atime.fT2;
+        makeDateTime();
+    }
+
+    public double JD(){
+        double epochDay = this.datetime / 86400000d;
+        return epochDay + 2440587.5d;
     }
 
     /**
