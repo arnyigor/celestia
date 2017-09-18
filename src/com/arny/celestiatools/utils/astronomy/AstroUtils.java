@@ -16,11 +16,6 @@ import static com.arny.celestiatools.utils.BaseUtils.*;
  */
 public class AstroUtils {
 
-    public static final double TWILIGHT = 90.8333333333333;   // 90°50' (Сумерки)
-    public static final double CIVIL_TWILIGHT = 96.0;         // 96°    (Гражданские сумерки)
-    public static final double NAUTICAL_TWILIGHT = 102.0;     // 102°   (Навигационные сумерки)
-    public static final double ASTRONOMICAL_TWILIGHT = 108.0; // 108°   (Астрономические сумерки)
-
     public enum DistanceTypes {
         metre, km, AU, LY, PC
     }

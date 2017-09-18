@@ -28,7 +28,7 @@ class DateDialog extends Frame {
 		// Controls
 		choiceMonth = new Choice();
 		for (int i = 0; i < 12; i++) {
-			choiceMonth.addItem(ATime.getMonthAbbr(i + 1));
+			choiceMonth.addItem(OrbitViewer.getMonthAbbr(i + 1));
 		}
 		choiceMonth.select(atime.getMonth() - 1);
 		add(choiceMonth);

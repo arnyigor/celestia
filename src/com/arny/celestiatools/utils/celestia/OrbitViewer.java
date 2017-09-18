@@ -7,6 +7,7 @@ import java.util.*;
 
 import com.arny.celestiatools.controller.Controller;
 import com.arny.celestiatools.models.CelestiaAsteroid;
+import com.arny.celestiatools.utils.astronomy.AstroConst;
 import com.arny.celestiatools.utils.astronomy.AstroUtils;
 import com.arny.celestiatools.utils.BaseUtils;
 
@@ -18,6 +19,13 @@ import static com.arny.celestiatools.utils.astronomy.AstroUtils.*;
  * Main Applet Class
  */
 public class OrbitViewer extends Applet implements ActionListener {
+	public static final String[] timeStepLabel = {
+            "1 Sec", "1 Min", "1 Hour", "1 Day", "3 Days", "10 Days", "1 Month", "3 Months", "6 Months", "1 Year"
+    };
+	private static final String[] strMonthAbbr = {
+            "Jan.", "Feb.", "Mar.", "Apr.", "May ", "June",
+            "July", "Aug.", "Sep.", "Oct.", "Nov.", "Dec.",
+    };
 	/**
 	 * Components
 	 */
@@ -44,23 +52,18 @@ public class OrbitViewer extends Applet implements ActionListener {
 	 * Time step
 	 */
     private static final int timeStepCount = 8;
-    private static final String timeStepLabel[] = {
-			"1 Min", "1 Hour", "1 Day", "3 Days", "10 Days",
-			"1 Month", "3 Months", "6 Months",
-			"1 Year","20 Sec"
-	};
-    private static final TimeSpan timeStepSpan[] = {
+	public static final TimeSpan[] timeStepSpan = {
+            new TimeSpan(0, 0, 0, 0, 0, 1.0),
             new TimeSpan(0, 0, 0, 0, 1, 0.0),
-			new TimeSpan(0, 0, 0, 1, 0, 0.0),
-			new TimeSpan(0, 0, 1, 0, 0, 0.0),
-			new TimeSpan(0, 0, 3, 0, 0, 0.0),
-			new TimeSpan(0, 0, 10, 0, 0, 0.0),
-			new TimeSpan(0, 1, 0, 0, 0, 0.0),
-			new TimeSpan(0, 3, 0, 0, 0, 0.0),
-			new TimeSpan(0, 6, 0, 0, 0, 0.0),
-			new TimeSpan(1, 0, 0, 0, 0, 0.0),
-			new TimeSpan(0, 0, 0, 0, 0, 20.0),
-	};
+            new TimeSpan(0, 0, 0, 1, 0, 0.0),
+            new TimeSpan(0, 0, 1, 0, 0, 0.0),
+            new TimeSpan(0, 0, 3, 0, 0, 0.0),
+            new TimeSpan(0, 0, 10, 0, 0, 0.0),
+            new TimeSpan(0, 1, 0, 0, 0, 0.0),
+            new TimeSpan(0, 3, 0, 0, 0, 0.0),
+            new TimeSpan(0, 6, 0, 0, 0, 0.0),
+            new TimeSpan(1, 0, 0, 0, 0, 0.0),
+    };
 	public TimeSpan timeStep = timeStepSpan[3];
     public int playDirection = ATime.F_INCTIME;
 
@@ -108,8 +111,15 @@ public class OrbitViewer extends Applet implements ActionListener {
     private double minDist;
     private ArrayList<Double> averDist = new ArrayList<>();
 
+	/**
+     * Get Abbreviated Month Name
+     */
+    static public String getMonthAbbr(int nMonth) {
+        return strMonthAbbr[nMonth - 1];
+    }
 
-    public void DynamicTimeStep(double edistance) {
+
+	public void DynamicTimeStep(double edistance) {
         double stepLessSecDistKm = AstroUtils.DistanceConvert(0.05E6,DistanceTypes.km,DistanceTypes.AU) ;
         double stepSecDistKm = AstroUtils.DistanceConvert(0.1E6,DistanceTypes.km,DistanceTypes.AU) ;
         double stepMinDistKm = AstroUtils.DistanceConvert(0.5E6,DistanceTypes.km,DistanceTypes.AU) ;
@@ -275,7 +285,7 @@ public class OrbitViewer extends Applet implements ActionListener {
             if (q < 1.0e-15) {
                 throw new Error("Too small perihelion distance.");
             }
-            double n = Astro.GAUSS / (a * Math.sqrt(a));
+            double n = AstroConst.GAUSS / (a * Math.sqrt(a));
             if ((strParam = getParameter("M")) == null) {
                 throw new Error("Required parameter 'M' not found.");
             }
@@ -349,7 +359,7 @@ public class OrbitViewer extends Applet implements ActionListener {
 //			if (q < 1.0e-15) {
 //				throw new Error("Too small perihelion distance.");
 //			}
-//			double n = Astro.GAUSS / (a * Math.sqrt(a));
+//			double n = AstroConst.GAUSS / (a * Math.sqrt(a));
 //			if ((strParam = getParameter("M")) == null) {
 //				throw new Error("Required parameter 'M' not found.");
 //			}
@@ -369,7 +379,7 @@ public class OrbitViewer extends Applet implements ActionListener {
         ATime T;
         double M = getCelestiaAsteroid().getMa() * Math.PI / 180.0;
         double a = getCelestiaAsteroid().getSma();
-        double n = Astro.GAUSS / (a * Math.sqrt(a));
+        double n = AstroConst.GAUSS / (a * Math.sqrt(a));
         if (M < Math.PI) {
             T = new ATime(Epoch.getJd() - M / n, 0.0);
         } else {

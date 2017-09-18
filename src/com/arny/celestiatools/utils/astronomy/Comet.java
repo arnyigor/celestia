@@ -1,6 +1,6 @@
 package com.arny.celestiatools.utils.astronomy;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public class Comet extends BasisCelestialObject {
     private final int ID_HALLEY = 1;
@@ -10,7 +10,7 @@ public class Comet extends BasisCelestialObject {
     private double magSlope;
     private String name;
 
-    public Comet(String id, String designation, String name, List<EllipticMotionParameters> emp, double magAbs, double magSlope) {
+    public Comet(String id, String designation, String name, ArrayList<EllipticMotionParameters> emp, double magAbs, double magSlope) {
         super("ID_COMET" + id);
         this.em = new EllipticMotion(emp);
         this.designation = designation;
@@ -20,7 +20,7 @@ public class Comet extends BasisCelestialObject {
     }
 
     protected Comet(Comet original) {
-        super((BasisCelestialObject) original);
+        super( original);
         this.name = original.name;
         this.magAbs = original.magAbs;
         this.magSlope = original.magSlope;
@@ -28,6 +28,7 @@ public class Comet extends BasisCelestialObject {
         try {
             this.em = original.em.copy();
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

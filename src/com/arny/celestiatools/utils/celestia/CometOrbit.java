@@ -3,6 +3,8 @@
  */
 package com.arny.celestiatools.utils.celestia;
 
+import com.arny.celestiatools.utils.astronomy.AstroConst;
+
 public class CometOrbit {
 
 	private Xyz orbit[];			// actual orbit data
@@ -100,7 +102,7 @@ public class CometOrbit {
 		}
 		
 		Matrix vec = comet.getVectorConstant();
-		Matrix prec = Matrix.PrecMatrix(comet.getEquinoxJd(), Astro.JD2000);
+		Matrix prec = Matrix.PrecMatrix(comet.getEquinoxJd(), AstroConst.JD2000);
 		for (int i = 0; i <= nDivision; i++) {
 			orbit[i] = orbit[i].Rotate(vec).Rotate(prec);
 		}

@@ -184,7 +184,7 @@ public class CoordinatesFloat3D {
     }
 
     public CoordinatesFloat3D toRadians() {
-        return new CoordinatesFloat3D(((double) this.x) * Ephemeris.TORAD, ((double) this.y) * Ephemeris.TORAD, (double) this.r);
+        return new CoordinatesFloat3D((Math.toRadians(this.x)), (Math.toRadians(this.y)), (double) this.r);
     }
 
     public void setRADecDistance(float x, float y, float z) {

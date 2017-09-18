@@ -144,7 +144,7 @@ class OrbitCanvas extends Canvas {
 	 * Rotation Matrix Equatorial(2000)->Ecliptic(DATE)
 	 */
 	private void updateRotationMatrix(ATime atime) {
-		Matrix mtxPrec = Matrix.PrecMatrix(Astro.JD2000, atime.getJd());
+		Matrix mtxPrec = Matrix.PrecMatrix(AstroConst.JD2000, atime.getJd());
 		Matrix mtxEqt2Ecl = Matrix.RotateX(ATime.getEp(atime.getJd()));
 		this.mtxToEcl = mtxEqt2Ecl.Mul(mtxPrec);
 		this.epochToEcl = atime.getJd();

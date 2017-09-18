@@ -9,23 +9,10 @@ import java.util.TimeZone;
 
 public class Ephemeris {
     public static final double AU = 1.495978707E8d;
-    public static double DEPSI = 0.0d;
-    public static double DLON = 0.0d;
-    public static double DRA = 0.0d;
-    public static final double MAU = 149.5978707d;
-    public static final float NOT_DEFINED = -99.999f;
     public static final double PI = Math.PI;
     public static final double PI2 = Math.PI * 2;
-    public static final float PI2f = 6.2831855f;
     public static final double PID2 = 1.5707963267948966d;
-    public static final float PId2Inv = 0.63661975f;
-    public static final float PId2f = 1.5707964f;
-    public static final float PId4f = 0.7853982f;
     public static final float PIf = 3.1415927f;
-    public static final double TODEG = 57.29577951308232d;
-    public static final float TODEGf = 57.295776f;
-    public static final double TORAD = 0.017453292519943295d;
-    public static final float TORADf = 0.017453292f;
     public static final double notVisible = -9999999.0d;
 
     public static double getCenturiesSince1900(double jd) {
@@ -52,7 +39,8 @@ public class Ephemeris {
         double jdUT0 = JulianDate.getJD0UT(datePosition.getDateTime());
         double lon = datePosition.getLongitudeDeg();
         double T = (jdUT0 - 2451545.0d) / 36525.0d;
-        double sidTime = (TORAD * ((((280.46061837d + lon) + (360.98564736629d * (JulianDate.JD(datePosition.getTimeInMillis()) - 2451545.0d))) + ((3.87933E-4d * T) * T)) - (((T * T) * T) / 3.871E7d))) % PI2;
+        double v = (((280.46061837d + lon) + (360.98564736629d * (JulianDate.JD(datePosition.getTimeInMillis()) - 2451545.0d))) + ((3.87933E-4d * T) * T)) - (((T * T) * T) / 3.871E7d);
+        double sidTime = Math.toRadians(v) % PI2;
         if (sidTime >= PI2) {
             return sidTime - PI2;
         }
@@ -119,8 +107,8 @@ public class Ephemeris {
     }
 
     public static RiseSetEvent getTransit(DatePosition datePosition, double ra1, double dec1, double ra2, double dec2, double ra3, double dec3, double h0) {
-        double lon = (double) datePosition.getLongitudeDeg();
-        double lat = (double) datePosition.getLatitudeDeg();
+        double lon = datePosition.getLongitudeDeg();
+        double lat = datePosition.getLatitudeDeg();
         double low = Math.toRadians(100.0d);
         double high = Math.toRadians(200.0d);
         if (ra1 > high && ra2 < low && ra3 < low) {
@@ -540,17 +528,17 @@ public class Ephemeris {
     }
 
     public static CoordinatesFloat3D getRADecFromAzAlt(DatePosition datePosition, float siderialTime, CoordinatesFloat3D coordAzAlt) {
-        float az = coordAzAlt.getAzimuth() - PIf;
-        float alt = coordAzAlt.getAltitude();
+        double az = coordAzAlt.getAzimuth() - PI;
+        double alt = coordAzAlt.getAltitude();
         double sinLat = datePosition.getSinLat();
         double cosLat = datePosition.getCosLat();
         double cosAz = MathUtils.Cos(az);
-        float dec = (float) Math.asin((Math.sin((double) alt) * sinLat) - ((Math.cos((double) alt) * cosLat) * (cosAz)));
-        float ra = siderialTime - ((float) Math.atan2(Math.sin((double) az), ((cosAz) * sinLat) + (Math.tan((double) alt) * cosLat)));
+        double dec = (float) Math.asin((Math.sin(alt) * sinLat) - ((Math.cos(alt) * cosLat) * (cosAz)));
+        double ra = siderialTime - ((float) Math.atan2(Math.sin(az), ((cosAz) * sinLat) + (Math.tan(alt) * cosLat)));
         if (ra < 0.0f) {
-            ra += PI2f;
-        } else if (ra > PI2f) {
-            ra -= PI2f;
+            ra += PI2;
+        } else if (ra > PI2) {
+            ra -= PI2;
         }
         return new CoordinatesFloat3D(ra, dec);
     }

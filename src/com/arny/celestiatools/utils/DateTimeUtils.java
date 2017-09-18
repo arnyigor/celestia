@@ -173,6 +173,10 @@ public class DateTimeUtils {
         return mins + (hours * 60);
     }
 
+    public static double getTimeZoneOffset(long dt) {
+        return Double.parseDouble(DateTimeUtils.getDateTime(dt, "X"));
+    }
+
     /**
      * add '0' to number before 10
      *

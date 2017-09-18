@@ -9,9 +9,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Locale;
+import java.time.ZoneId;
+import java.util.*;
 
 import com.arny.celestiatools.models.*;
 import com.arny.celestiatools.utils.BaseUtils;
@@ -19,7 +18,9 @@ import com.arny.celestiatools.utils.DateTimeUtils;
 import com.arny.celestiatools.utils.FileUtils;
 import com.arny.celestiatools.utils.GradMinSec;
 import com.arny.celestiatools.utils.astronomy.*;
+import com.arny.celestiatools.utils.celestia.ATime;
 import com.arny.celestiatools.utils.celestia.OrbitViewer;
+import com.arny.celestiatools.utils.celestia.TimeSpan;
 import javafx.concurrent.Worker;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -598,6 +599,21 @@ public class Controller {
         double jd = Double.parseDouble(jds);
         long dt = AstroUtils.DateFromJD(jd);
         return DateTimeUtils.getDateTime(dt,"dd MM yyyy HH:mm:ss");
+    }
+
+    public void testTime(){
+        Calendar calendar = Calendar.getInstance();
+//        calendar.setTimeInMillis(DateTimeUtils.convertTimeStringToLong("18 09 2017 10:42:40","dd MM yyyy HH:mm:ss"));
+        long timeInMillis = calendar.getTimeInMillis();
+        String dateTime = DateTimeUtils.getDateTime(timeInMillis);
+        ATime aTime = new ATime(timeInMillis,0.0);
+        double jd1 = JulianDate.JD(timeInMillis);
+        double jd2 = aTime.getJd();
+        double t = aTime.getT();
+        double t2 = aTime.getT2();
+        long datetime = aTime.getDatetime();
+        double rawOffset = aTime.getTimezone();
+        System.out.println(dateTime);
     }
 
 }

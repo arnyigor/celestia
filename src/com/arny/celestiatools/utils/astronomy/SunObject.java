@@ -1,6 +1,8 @@
 package com.arny.celestiatools.utils.astronomy;
 
 
+import com.arny.celestiatools.utils.MathUtils;
+
 public class SunObject extends SolarSystemObject {
     double h0 = Math.toRadians(-0.8333d);
     private Sun sun = new Sun();
@@ -218,11 +220,13 @@ public class SunObject extends SolarSystemObject {
         double[] B = new double[]{324.96d, 337.23d, 342.08d, 27.85d, 73.14d, 171.52d, 222.54d, 296.72d, 243.58d, 119.81d, 297.17d, 21.02d, 247.54d, 325.15d, 60.93d, 155.12d, 288.79d, 198.04d, 199.76d, 95.39d, 287.11d, 320.81d, 227.73d, 15.45d};
         double[] C = new double[]{1934.136d, 32964.467d, 20.186d, 445267.112d, 45036.886d, 22518.443d, 65928.934d, 3034.906d, 9037.513d, 33718.147d, 150.678d, 2281.226d, 29929.562d, 31555.956d, 4443.417d, 67555.328d, 4562.452d, 62894.029d, 31436.921d, 14577.848d, 31931.756d, 34777.259d, 1222.114d, 16859.074d};
         double T = (jde0 - 2451545.0d) / 36525.0d;
-        double W = Ephemeris.TORAD * ((35999.373d * T) - 2.47d);
+        double v = (35999.373d * T) - 2.47d;
+        double W = Math.toRadians(v);
         double deltaLambda = (1.0d + (0.0334d * Math.cos(W))) + (7.0E-4d * Math.cos(2.0d * W));
         double S = 0.0d;
         for (int i = 0; i < A.length; i++) {
-            S += A[i] * Math.cos(Ephemeris.TORAD * (B[i] + (C[i] * T)));
+            double v1 = B[i] + (C[i] * T);
+            S += A[i] * MathUtils.Cos(v1);
         }
 //        return ((PlanetOpenGLView.DISTANCE_SCALE * S) / deltaLambda) + jde0;
         return 0.0;

@@ -1,5 +1,6 @@
 package com.arny.celestiatools.utils.astronomy;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MinorPlanet extends BasisCelestialObject {
@@ -14,7 +15,7 @@ public class MinorPlanet extends BasisCelestialObject {
     private float magH;
     private String name;
 
-    public MinorPlanet(String id, String name, List<EllipticMotionParameters> emp, float magH, float magG) {
+    public MinorPlanet(String id, String name, ArrayList<EllipticMotionParameters> emp, float magH, float magG) {
         super("ID_MINOR_PLANET" + id);
         this.em = new EllipticMotion(emp);
         this.name = name;

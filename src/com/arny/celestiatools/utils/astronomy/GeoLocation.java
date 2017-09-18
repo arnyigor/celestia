@@ -127,7 +127,7 @@ public class GeoLocation {
     }
 
     public boolean isClose(GeoLocation myGeoLocation, double maxDistance) {
-        return (40000.0d * SphericalMath.getAngularDistanceSphere((this.longitude) * Ephemeris.TORAD, (this.latitude) * Ephemeris.TORAD, (myGeoLocation.longitude) * Ephemeris.TORAD, (myGeoLocation.latitude) * Ephemeris.TORAD)) / Ephemeris.PI2 <= ( maxDistance);
+        return (40000.0d * SphericalMath.getAngularDistanceSphere(Math.toRadians(this.longitude), Math.toRadians(this.latitude), Math.toRadians((myGeoLocation.longitude)), Math.toRadians(myGeoLocation.latitude)) / Ephemeris.PI2 <= (maxDistance));
     }
 
     public String toString() {

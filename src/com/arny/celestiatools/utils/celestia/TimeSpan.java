@@ -4,21 +4,39 @@
 package com.arny.celestiatools.utils.celestia;
 
 public class TimeSpan {
+
+    public enum TimeStep {
+        Sec, Min,Hour,Day,Month,Year
+    }
+    public static class TimeSpanFactory {
+        public static TimeSpan getSpan(TimeStep timeStep, int amount) {
+            switch (timeStep) {
+                case Sec: return new TimeSpan(0, 0, 0, 0, 0, amount);
+                case Min: return new TimeSpan(0, 0, 0, 0, amount, 0);
+                case Hour: return new TimeSpan(0, 0, 0, amount, 0, 0);
+                case Day: return new TimeSpan(0, 0, amount, 0, 0, 0);
+                case Month: return new TimeSpan(0, amount, 0, 0, 0, 0);
+                case Year: return new TimeSpan(amount, 0, 0, 0, 0, 0);
+                default: return new TimeSpan(0, 0, amount, 0, 0, 0);
+            }
+        }
+    }
+
     private int nYear, nMonth, nDay, nHour, nMin;
     private double fSec;
 
-	/**
-	 * Constructor
-	 */
-	public TimeSpan(int nYear, int nMonth, int nDay,
-					int nHour, int nMin, double fSec) {
-		this.nYear  = nYear;
-		this.nMonth = nMonth;
-		this.nDay   = nDay;
-		this.nHour  = nHour;
-		this.nMin   = nMin;
-		this.fSec   = fSec;
-	}
+    /**
+     * Constructor
+     */
+    public TimeSpan(int nYear, int nMonth, int nDay,
+                    int nHour, int nMin, double fSec) {
+        this.nYear = nYear;
+        this.nMonth = nMonth;
+        this.nDay = nDay;
+        this.nHour = nHour;
+        this.nMin = nMin;
+        this.fSec = fSec;
+    }
 
     public int getnYear() {
         return nYear;
@@ -70,6 +88,6 @@ public class TimeSpan {
 
     @Override
     public String toString() {
-        return "nYear  = "+this.nYear+";nMonth = "+nMonth+";nDay   = "+nDay+";nHour  = "+nHour+";nMin   = "+nMin+";fSec   = "+fSec+";";
+        return "nYear  = " + this.nYear + ";nMonth = " + nMonth + ";nDay   = " + nDay + ";nHour  = " + nHour + ";nMin   = " + nMin + ";fSec   = " + fSec + ";";
     }
 }

@@ -16,4 +16,11 @@ public class AstroConst {
     public static final double R_Earth = 6378136.6;     // [m]
     public static final double R_Sun = 696000.0;       // [km]
     public static final double R_Moon = 1738.0;       // [km]
+    public static final double GAUSS  = 0.01720209895;
+    public static final double JD2000 = 2451545.0;	// 2000.1.1 12h ET
+    public static final double JD1900 = 2415021.0;	// 1900.1.1 12h ET
+    public static final double TWILIGHT = 90.8333333333333;   // 90°50' (Сумерки)
+    public static final double CIVIL_TWILIGHT = 96.0;         // 96°    (Гражданские сумерки)
+    public static final double NAUTICAL_TWILIGHT = 102.0;     // 102°   (Навигационные сумерки)
+    public static final double ASTRONOMICAL_TWILIGHT = 108.0; // 108°   (Астрономические сумерки)
 }

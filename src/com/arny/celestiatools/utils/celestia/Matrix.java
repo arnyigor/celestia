@@ -3,6 +3,8 @@
  */
 package com.arny.celestiatools.utils.celestia;
 
+import com.arny.celestiatools.utils.astronomy.AstroConst;
+
 public class Matrix {
 	public double fA11, fA12, fA13;
 	public double fA21, fA22, fA23;
@@ -192,13 +194,13 @@ public class Matrix {
 							  0.0, 1.0, 0.0,
 							  0.0, 0.0, 1.0);
 		}
-		double fT = (fOldEpoch - Astro.JD2000) / 36525.0;
+		double fT = (fOldEpoch - AstroConst.JD2000) / 36525.0;
 		if (fT < -fPrecLimit || fPrecLimit < fT) {
 			bSwapEpoch = true;
 			double fTmp = fNewEpoch;
 			fNewEpoch = fOldEpoch;
 			fOldEpoch = fTmp;
-			fT = (fOldEpoch - Astro.JD2000) / 36525.0;
+			fT = (fOldEpoch - AstroConst.JD2000) / 36525.0;
 		}
 		
 		double fT2 = fT * fT;
@@ -207,12 +209,12 @@ public class Matrix {
 		if (ftt < -fPrecLimit) {
 			bOuterNewcomb = true;
 			ft = -fPrecLimit;
-			fJd = -fPrecLimit * 36525.0 + Astro.JD2000;
+			fJd = -fPrecLimit * 36525.0 + AstroConst.JD2000;
 		}
 		if (fPrecLimit < ftt) {
 			bOuterNewcomb = true;
 			ft = fPrecLimit;
-			fJd =  fPrecLimit * 36525.0 + Astro.JD2000;
+			fJd =  fPrecLimit * 36525.0 + AstroConst.JD2000;
 		}
 		
 		double ft2 = ft * ft;

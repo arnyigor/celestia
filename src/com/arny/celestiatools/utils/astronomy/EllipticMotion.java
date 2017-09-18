@@ -12,7 +12,7 @@ public class EllipticMotion {
     private double distanceAU;
     private double distanceSunAU;
     private EllipticMotionParameters emp;
-    private List<EllipticMotionParameters> empArray = new ArrayList<>();
+    private ArrayList<EllipticMotionParameters> empArray = new ArrayList<>();
     private int epochPrecision = EPOCH_PRECISION_OUTSIDE;
     private Coordinates3D geoEquCoord = new Coordinates3D();
     private Coordinates3D heliEquCoord;
@@ -26,14 +26,14 @@ public class EllipticMotion {
     private double qz;
     private double ra;
 
-    public EllipticMotion(List<EllipticMotionParameters> empArray) {
+    public EllipticMotion(ArrayList<EllipticMotionParameters> empArray) {
         this.empArray = empArray;
     }
 
     protected EllipticMotion(EllipticMotion original) {
         this.jd = original.jd;
         this.emp = original.emp.copy();
-        this.empArray = new ArrayList(original.empArray);
+        this.empArray = new ArrayList<>(original.empArray);
         this.distanceAU = original.distanceAU;
         this.decl = original.decl;
         this.ra = original.ra;

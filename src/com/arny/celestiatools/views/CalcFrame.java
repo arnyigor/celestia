@@ -5,6 +5,7 @@
 package com.arny.celestiatools.views;
 
 import com.arny.celestiatools.controller.Controller;
+import com.arny.celestiatools.utils.astronomy.AstroConst;
 import com.arny.celestiatools.utils.astronomy.AstroUtils;
 import com.arny.celestiatools.utils.DateTimeUtils;
 
@@ -88,8 +89,12 @@ public class CalcFrame extends JFrame {
     }
 
     private void menuItem1ActionPerformed(ActionEvent e) {
-        String sr = AstroUtils.getSunsetRise(DateTimeUtils.convertTimeStringToLong("17 09 2017", "dd MM yyyy"), 55.61666666666667, 38.61666666666667, false, AstroUtils.TWILIGHT);
+        String sr = AstroUtils.getSunsetRise(DateTimeUtils.convertTimeStringToLong("17 09 2017", "dd MM yyyy"), 55.61666666666667, 38.61666666666667, false, AstroConst.TWILIGHT);
         System.out.println(sr);
+    }
+
+    private void menuItem2ActionPerformed(ActionEvent e) {
+        controller.testTime();
     }
 
     private void initComponents() {
@@ -134,6 +139,7 @@ public class CalcFrame extends JFrame {
 
                 //---- menuItem2 ----
                 menuItem2.setText("text");
+                menuItem2.addActionListener(e -> menuItem2ActionPerformed(e));
                 menu1.add(menuItem2);
             }
             menuBar1.add(menu1);
@@ -279,7 +285,7 @@ public class CalcFrame extends JFrame {
                                     .addGroup(panel1Layout.createParallelGroup()
                                         .addComponent(panel3, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                                         .addComponent(panel4, GroupLayout.PREFERRED_SIZE, 298, GroupLayout.PREFERRED_SIZE))
-                                    .addContainerGap(321, Short.MAX_VALUE))
+                                    .addContainerGap(446, Short.MAX_VALUE))
                         );
                         panel1Layout.setVerticalGroup(
                             panel1Layout.createParallelGroup()
@@ -300,7 +306,7 @@ public class CalcFrame extends JFrame {
                         panel2.setLayout(panel2Layout);
                         panel2Layout.setHorizontalGroup(
                             panel2Layout.createParallelGroup()
-                                .addGap(0, 625, Short.MAX_VALUE)
+                                .addGap(0, 750, Short.MAX_VALUE)
                         );
                         panel2Layout.setVerticalGroup(
                             panel2Layout.createParallelGroup()
