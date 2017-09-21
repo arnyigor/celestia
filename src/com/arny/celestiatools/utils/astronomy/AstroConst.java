@@ -4,6 +4,10 @@ package com.arny.celestiatools.utils.astronomy;
  * Created by i.sedoy on 22.03.17.
  */
 public class AstroConst {
+    public static final double  Gconst = 6.67259e-11;
+    public static final double  Smass = 1.9891e30;
+    public static final double  Emass = 5.9737e24;
+    public static final double  ly = 9.460530E15;
     public static final double AU = 149597870691.0;// [m]
     public static final double PC = 3.08567758128E16;// [m]
     public static final double LY = 9.4607304725808E15;// [m]
