@@ -86,7 +86,7 @@ public class FileUtils {
         return false;
     }
 
-    public static void downloadUsingStream(String urlStr, String file) throws IOException {
+    public static void downloadUsingStream(String urlStr, String file) {
         BufferedInputStream bis = null;
         FileOutputStream fis = null;
         try {

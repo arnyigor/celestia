@@ -34,7 +34,7 @@ public class SqliteConnection {
     public static Connection dbConnection() {
         try {
             Class.forName("org.sqlite.JDBC");
-            Connection connection = DriverManager.getConnection("jdbc:sqlite:" + System.getProperty("user.dir") + "/celestia.sqlite");
+            Connection connection = DriverManager.getConnection("jdbc:sqlite:" + System.getProperty("user.dir") + "files/celestia.sqlite");
             Statement statement = connection.createStatement();
             statement.execute(CREATE_TABLE);
             return connection;

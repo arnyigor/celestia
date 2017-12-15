@@ -13,6 +13,6 @@ public class Main {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		new CalcFrame("Tools");
+		new ToolsForm();
 	}
 }
