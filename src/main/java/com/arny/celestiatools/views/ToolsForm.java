@@ -2,8 +2,6 @@ package com.arny.celestiatools.views;
 
 import com.arny.celestiatools.models.CelestiaAsteroid;
 import com.arny.celestiatools.controller.Controller;
-import com.arny.celestiatools.models.onProgressUpdate;
-import com.arny.celestiatools.models.onResultCelestiaAsteroids;
 import com.arny.celestiatools.models.onResultCallback;
 
 import javax.swing.*;
@@ -81,7 +79,7 @@ public class ToolsForm extends JFrame {
         btnDownload.setText("Загрузить");
         btnDownload.addActionListener(e -> {
             labelInfo.setText("Загрузка файла...");
-            controller.downloadFile(jComboBoxSource.getSelectedIndex(), this::MessageResultCallback);
+            controller.downloadFile(jComboBoxSource.getSelectedIndex(), this::MessageResultCallback,(method, total, progress, estimate) -> labelInfo.setText("estimate"));
         });
         btnWriteOrbits.setText("Обновить БД");
         progressBar.setMinimum(0);
@@ -99,7 +97,7 @@ public class ToolsForm extends JFrame {
             if (checkBox3.isSelected()) {
                 orbitalTypes.add(checkBox3.getText());
             }
-            controller.writeOrbitalParamFile(orbitalTypes, (method, success, result) -> MessageResultCallback(method, success, result), asteroids -> {
+            controller.writeOrbitalParamFile(orbitalTypes, this::MessageResultCallback, asteroids -> {
                 celestiaAsteroids = asteroids;
                 setModelToTable();
                 if (celestiaAsteroids.size() > 0) {
@@ -130,25 +128,10 @@ public class ToolsForm extends JFrame {
         btnCelestiaFiles.setText("Записать орбиты Celestia");
         btnCelestiaFiles.addActionListener(e -> {
             ArrayList<CelestiaAsteroid> asteroids = tableModel.getSelected(tblAsteroidsData.getSelectedRows());
-            controller.writeOrbitsFiles(asteroids, new onResultCallback() {
-                @Override
-                public void result(String method, boolean success, String result) {
-                    MessageResultCallback(method, success, result);
-                }
-            });
+            controller.writeOrbitsFiles(asteroids, this::MessageResultCallback);
         });
         btnThreadCancel.setText("Отмена");
-        btnThreadCancel.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                controller.InterruptThread(new onResultCallback() {
-                    @Override
-                    public void result(String method, boolean success, String result) {
-                        MessageResultCallback(method, success, result);
-                    }
-                });
-            }
-        });
+        btnThreadCancel.addActionListener(e -> controller.InterruptThread(this::MessageResultCallback));
     }
 
     private void MessageResultCallback(String method, boolean success, String result) {

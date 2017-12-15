@@ -34,7 +34,8 @@ public class SqliteConnection {
     public static Connection dbConnection() {
         try {
             Class.forName("org.sqlite.JDBC");
-            Connection connection = DriverManager.getConnection("jdbc:sqlite:" + System.getProperty("user.dir") + "files/celestia.sqlite");
+            String url = System.getProperty("user.dir") + "/files/celestia.db";
+            Connection connection = DriverManager.getConnection("jdbc:sqlite:" + url);
             Statement statement = connection.createStatement();
             statement.execute(CREATE_TABLE);
             return connection;
@@ -57,7 +58,6 @@ public class SqliteConnection {
                 index++;
             }
             String formattedSql = String.format("UPDATE %s SET %s WHERE %s",table,values.toString(),cond);
-//            System.out.println("sql = " + formattedSql);
             return statement.executeUpdate(formattedSql)==1;
         } catch (SQLException e) {
             e.printStackTrace();

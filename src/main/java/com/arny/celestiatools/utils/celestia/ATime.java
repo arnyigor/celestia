@@ -97,7 +97,7 @@ public class ATime {
         //
         // First, calculate new Hour,Minute,Second
         //
-        System.out.println(Span.toString());
+//        System.out.println(Span.toString());
         double fHms1 = this.nHour * 3600 + this.nMin * 60.0 + this.fSec;
         double fHms2 = Span.getnHour() * 3600 + Span.getnMin() * 60.0 + Span.getfSec();
         System.out.println(fHms1);
@@ -242,8 +242,8 @@ public class ATime {
         this.fSec = dateTime.getSecondOfMinute();
         this.fJd = makeJd();
         this.fTimezone = Double.parseDouble((new SimpleDateFormat("X", Locale.getDefault())).format(new Date(time)));
-//        this.fT = atime.fT;
-//        this.fT2 = atime.fT2;
+        this.fT = makeT();
+        this.fT2 = makeT2();
         makeDateTime();
     }
 

@@ -9,8 +9,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.sql.*;
-import java.time.ZoneId;
 import java.util.*;
+import java.util.zip.DataFormatException;
 
 import com.arny.celestiatools.models.*;
 import com.arny.celestiatools.utils.BaseUtils;
@@ -20,7 +20,8 @@ import com.arny.celestiatools.utils.GradMinSec;
 import com.arny.celestiatools.utils.astronomy.*;
 import com.arny.celestiatools.utils.celestia.ATime;
 import com.arny.celestiatools.utils.celestia.OrbitViewer;
-import com.arny.celestiatools.utils.celestia.TimeSpan;
+import io.reactivex.Observable;
+import io.reactivex.ObservableOnSubscribe;
 import javafx.concurrent.Worker;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -33,10 +34,10 @@ import static com.arny.celestiatools.utils.astronomy.AstroUtils.*;
 public class Controller {
 
     private String operationResult, parseMpcNeamCEL, parseMpcNeamSE;
-    public static final String MPC_NEAs_DOWNLOAD_PATH = "http://minorplanetcenter.net/Extended_Files/nea_extended.json.gz";
-    public static final String MPC_PHAs_DOWNLOAD_PATH = "http://minorplanetcenter.net/Extended_Files/pha_extended.json.gz";
-    public static final String MPC_DAYLY_DOWNLOAD_PATH = "http://minorplanetcenter.net/Extended_Files/daily_extended.json.gz";
-    public static final String MPC_MCORB_DOWNLOAD_PATH = "http://minorplanetcenter.net/Extended_Files/mpcorb_extended.json.gz";
+    public static final String MPC_NEAs_DOWNLOAD_PATH = "https://minorplanetcenter.net/Extended_Files/nea_extended.json.gz";
+    public static final String MPC_PHAs_DOWNLOAD_PATH = "https://minorplanetcenter.net/Extended_Files/pha_extended.json.gz";
+    public static final String MPC_DAYLY_DOWNLOAD_PATH = "https://minorplanetcenter.net/Extended_Files/daily_extended.json.gz";
+    public static final String MPC_MCORB_DOWNLOAD_PATH = "https://minorplanetcenter.net/Extended_Files/mpcorb_extended.json.gz";
     public static final String MPC_ASTER_DOWNLOADED_FILE = "mpc_downloaded.json.gz";
     public static final String MPC_ASTER_JSON_FILE = "mpc_unpacked.json";
     public static final String MPC_NEAM_LAST_SCC = "asteroids.ssc";
@@ -67,7 +68,9 @@ public class Controller {
     }
 
     public void getAsterTableData(onResultCelestiaAsteroids celestiaAsteroidsCallbacks) {
-        new Thread(() -> celestiaAsteroidsCallbacks.dataCallback(SqliteConnection.getAllCelestiaAsteroids(connection))).start();
+        if (connection != null) {
+            new Thread(() -> celestiaAsteroidsCallbacks.dataCallback(SqliteConnection.getAllCelestiaAsteroids(connection))).start();
+        }
     }
 
     public void workJsonFile(File file, onResultCallback resultParse) {
@@ -206,27 +209,54 @@ public class Controller {
         return message;
     }
 
-    public void downloadFile(int source, onResultCallback resultParse) {
+    public void downloadFile(int source, onResultCallback resultParse,onProgressUpdate onProgressUpdate) {
         String downloadPath = getDownloadPath(source);
 
-        new Thread(() -> {
-            try {
-                File folder = new File(MPC_FILES_DIR);
-                boolean folderFilesExist = folder.exists() || folder.mkdir();
-                if (!folderFilesExist) return;
-                FileUtils.downloadUsingStream(downloadPath, MPC_FILES_DIR + MPC_ASTER_JSON_FILE);
-                File file = new File(MPC_FILES_DIR + MPC_ASTER_JSON_FILE);
-                operationResult = "файл загружен,размер " + BaseUtils.convertExtendFileLength(file.length());
-//                    long start = System.currentTimeMillis();
-//                    FileUtils.unzipGZ(file.getAbsolutePath(), MPC_FILES_DIR + MPC_ASTER_JSON_FILE);
-//                    FileUtils.deleteFile(file.getAbsolutePath());
-//                    operationResult += "\nРаспаковка заняла:" + BaseUtils.convertExtendTime((System.currentTimeMillis() - start));
-                resultParse.result("download", true, operationResult);
-            } catch (Exception e) {
-                e.printStackTrace();
-                resultParse.result("download", false, e.getMessage());
-            }
-        }).start();
+        Observable.create((ObservableOnSubscribe<String>) e -> {
+            e.onNext(downloadFile(downloadPath));
+            e.onComplete();
+        }).doOnSubscribe(disposable -> {
+
+        }).subscribe(s -> resultParse.result("download", true, s)
+                , throwable -> {
+                    throwable.printStackTrace();
+                    resultParse.result("download", false, throwable.getMessage());
+                });
+
+//        new Thread(() -> {
+//            try {
+//                File folder = new File(MPC_FILES_DIR);
+//                boolean folderFilesExist = folder.exists() || folder.mkdir();
+//                if (!folderFilesExist) return;
+//                FileUtils.downloadUsingStream(downloadPath, MPC_FILES_DIR + MPC_ASTER_JSON_FILE);
+//                File file = new File(MPC_FILES_DIR + MPC_ASTER_JSON_FILE);
+//                operationResult = "файл загружен,размер " + BaseUtils.convertExtendFileLength(file.length());
+//                long start = System.currentTimeMillis();
+//                FileUtils.unzipGZ(file.getAbsolutePath(), MPC_FILES_DIR + MPC_ASTER_JSON_FILE);
+//                FileUtils.deleteFile(file.getAbsolutePath());
+//                operationResult += "\nРаспаковка заняла:" + BaseUtils.convertExtendTime((System.currentTimeMillis() - start));
+//                resultParse.result("download", true, operationResult);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                resultParse.result("download", false, e.getMessage());
+//            }
+//        }).start();
+    }
+
+    private String downloadFile(String downloadPath) throws Exception {
+        File folder = new File(MPC_FILES_DIR);
+        boolean folderFilesExist = folder.exists() || folder.mkdir();
+        if (!folderFilesExist) {
+            throw new Exception("папки для загрузки не существует");
+        }
+        FileUtils.downloadUsingStream(downloadPath, MPC_FILES_DIR + MPC_ASTER_DOWNLOADED_FILE);
+        File file = new File(MPC_FILES_DIR + MPC_ASTER_DOWNLOADED_FILE);
+        operationResult = "файл загружен,размер " + BaseUtils.convertExtendFileLength(file.length());
+        long start = System.currentTimeMillis();
+        FileUtils.unzipGZ(file.getAbsolutePath(), MPC_FILES_DIR + MPC_ASTER_JSON_FILE);
+        FileUtils.deleteFile(file.getAbsolutePath());
+        operationResult += "\nРаспаковка заняла:" + BaseUtils.convertExtendTime((System.currentTimeMillis() - start));
+        return operationResult;
     }
 
     private String getDownloadPath(int source) {
@@ -566,10 +596,10 @@ public class Controller {
         jds = jds.length() > 0 ? jds.trim() : "";
         double jd = Double.parseDouble(jds);
         long dt = AstroUtils.DateFromJD(jd);
-        return DateTimeUtils.getDateTime(dt,"dd MM yyyy HH:mm:ss");
+        return DateTimeUtils.getDateTime(dt, "dd MM yyyy HH:mm:ss");
     }
 
-    public void testTime(){
+    public void testTime() {
         Calendar calendar = Calendar.getInstance();
 //        calendar.setTimeInMillis(DateTimeUtils.convertTimeStringToLong("18 09 2017 10:42:40","dd MM yyyy HH:mm:ss"));
         long timeInMillis = calendar.getTimeInMillis();

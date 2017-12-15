@@ -104,7 +104,7 @@ public class FileUtils {
 
     }
 
-    public static void unzipGZ(String sourcePath, String destinationPath) throws IOException, DataFormatException {
+    public static void unzipGZ(String sourcePath, String destinationPath) throws Exception{
         //Allocate resources.
         FileInputStream fis = new FileInputStream(sourcePath);
         FileOutputStream fos = new FileOutputStream(destinationPath);
