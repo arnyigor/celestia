@@ -3,13 +3,17 @@ package com.arny.celestiatools.utils.celestia;
 import java.applet.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.math.BigDecimal;
 import java.util.*;
 
 import com.arny.celestiatools.controller.Controller;
 import com.arny.celestiatools.models.CelestiaAsteroid;
+import com.arny.celestiatools.utils.DateTimeUtils;
 import com.arny.celestiatools.utils.astronomy.AstroConst;
 import com.arny.celestiatools.utils.astronomy.AstroUtils;
 import com.arny.celestiatools.utils.BaseUtils;
+import jdk.nashorn.internal.scripts.JD;
+import org.joda.time.DateTime;
 
 import javax.swing.*;
 
@@ -187,11 +191,12 @@ public class OrbitViewer extends Applet implements ActionListener {
 	 * Convert time in format "YYYYMMDD.D" to ATime
 	 */
 	private static ATime ymdStringToAtime(String strYmd) {
-		double fYmd = Double.valueOf(strYmd);
-		int nYear = (int) Math.floor(fYmd / 1000.0);
-		fYmd -= (double) nYear * 1000.0;
-		int nMonth = (int) Math.floor(fYmd / 10.0);
-		double fDay = fYmd - (double) nMonth * 10.0;
+        String Ymd  = strYmd.substring(0,strYmd.indexOf('.'));
+        double fDays = new BigDecimal(strYmd).remainder(BigDecimal.ONE).doubleValue();
+        DateTime time = DateTimeUtils.getDateTime(Ymd, "yyyyMMdd");
+		int nYear = time.getYear();
+		int nMonth = time.getMonthOfYear();
+		double fDay = fDays + (double) time.getDayOfMonth();
 		return new ATime(nYear, nMonth, fDay, 0.0);
 	}
 
@@ -267,10 +272,11 @@ public class OrbitViewer extends Applet implements ActionListener {
                 throw new Error("Required parameter 'q' or 'a' not found.");
             }
         } else if ((strParam = getParameter("Epoch")) != null) {
-            ATime Epoch = ymdStringToAtime(strParam);
+            double jdt = Double.parseDouble(strParam);
+            String ymDd = YMDd(jdt);
+            ATime Epoch = ymdStringToAtime(ymDd);
             if (e > 0.95) {
-                throw new
-                        Error("Orbit is nearly parabolic, but 'T' not found.");
+                throw new Error("Orbit is nearly parabolic, but 'T' not found.");
             }
             double a;
             if ((strParam = getParameter("a")) != null) {

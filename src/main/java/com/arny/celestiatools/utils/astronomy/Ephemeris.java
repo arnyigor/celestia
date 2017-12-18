@@ -2,6 +2,9 @@ package com.arny.celestiatools.utils.astronomy;
 
 import com.arny.celestiatools.utils.DateTimeUtils;
 import com.arny.celestiatools.utils.MathUtils;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeFieldType;
+import org.joda.time.DateTimeZone;
 
 import java.time.ZoneId;
 import java.util.Calendar;
@@ -51,9 +54,8 @@ public class Ephemeris {
     }
 
     public static double getSiderialTimeGreenwich0UT(long dateTime) {
-        Calendar dateTime1 = Calendar.getInstance(TimeZone.getTimeZone(ZoneId.of("UTC")));
-        dateTime1.set(DateTimeUtils.getYear(dateTime), DateTimeUtils.getMonth(dateTime), DateTimeUtils.getDayofMonth(dateTime), 0, 0, 0);
-        return getSiderealTime(new DatePosition(new DatePosition(dateTime1.getTimeInMillis()), new GeoLocation( "geo", 0.0f, 0.0f)));
+        DateTime time = DateTimeUtils.getDateTime(dateTime).withZone(DateTimeZone.UTC);
+        return getSiderealTime(new DatePosition(new DatePosition(time.getMillis()), new GeoLocation( "geo", 0.0f, 0.0f)));
     }
 
     public static void convertUTToDynamical(DatePosition datePosition) {

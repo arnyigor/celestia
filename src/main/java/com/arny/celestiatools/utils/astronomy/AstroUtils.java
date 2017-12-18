@@ -5,6 +5,7 @@ import com.arny.celestiatools.utils.BaseUtils;
 import com.arny.celestiatools.utils.DateTimeUtils;
 import com.arny.celestiatools.utils.GradMinSec;
 import com.arny.celestiatools.utils.MathUtils;
+import org.joda.time.DateTime;
 
 import java.util.Calendar;
 
@@ -282,16 +283,14 @@ public class AstroUtils {
             String month = "03";
             String Y = String.valueOf(year);
             String datetime = day + " " + month + " " + Y;
-            long dt = DateTimeUtils.convertTimeStringToLong(datetime, "dd MM yyyy");
-            long res = DateTimeUtils.addDays(dt, 13);
+            DateTime res = DateTimeUtils.getDateTime(datetime, "dd MM yyyy").plusDays(13);
             return DateTimeUtils.getDateTime(res, "dd MMM yyyy");
         } else {
             String day = String.valueOf(f - 9);
             String month = "04";
             String Y = String.valueOf(year);
             String datetime = day + " " + month + " " + Y;
-            long dt = DateTimeUtils.convertTimeStringToLong(datetime, "dd MM yyyy");
-            long res = DateTimeUtils.addDays(dt, 13);
+            DateTime res = DateTimeUtils.getDateTime(datetime, "dd MM yyyy").plusDays(13);
             return DateTimeUtils.getDateTime(res, "dd MMM yyyy");
         }
     }

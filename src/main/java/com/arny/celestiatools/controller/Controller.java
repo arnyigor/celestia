@@ -10,19 +10,18 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.sql.*;
 import java.util.*;
-import java.util.zip.DataFormatException;
 
 import com.arny.celestiatools.models.*;
-import com.arny.celestiatools.utils.BaseUtils;
-import com.arny.celestiatools.utils.DateTimeUtils;
-import com.arny.celestiatools.utils.FileUtils;
-import com.arny.celestiatools.utils.GradMinSec;
+import com.arny.celestiatools.utils.*;
 import com.arny.celestiatools.utils.astronomy.*;
 import com.arny.celestiatools.utils.celestia.ATime;
 import com.arny.celestiatools.utils.celestia.OrbitViewer;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
-import javafx.concurrent.Worker;
+import io.reactivex.Scheduler;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
+import org.joda.time.DateTime;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -33,6 +32,7 @@ import static com.arny.celestiatools.utils.astronomy.AstroUtils.*;
 
 public class Controller {
 
+    public static final String METHOD_DOWNLOAD = "download";
     private String operationResult, parseMpcNeamCEL, parseMpcNeamSE;
     public static final String MPC_NEAs_DOWNLOAD_PATH = "https://minorplanetcenter.net/Extended_Files/nea_extended.json.gz";
     public static final String MPC_PHAs_DOWNLOAD_PATH = "https://minorplanetcenter.net/Extended_Files/pha_extended.json.gz";
@@ -47,13 +47,11 @@ public class Controller {
             unpackedJsonfile = new File(MPC_FILES_DIR + MPC_ASTER_JSON_FILE),
             asteroidsFileCEL = new File(MPC_FILES_DIR + MPC_NEAM_LAST_SCC),
             asteroidsFileSE = new File(MPC_FILES_DIR + MPC_NEAM_LAST_SC_SE);
-    private ArrayList<String> orbitalTypes;
     private StringBuilder neamParseBuilderCEL, neamParseBuilderSE;
     private Connection connection = null;
     private int asteroidCnt, totalProgress, iterateProgress;
     private int changed, added;
-    private Worker worker;
-    private Thread write;
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     public Controller() {
         connection = SqliteConnection.dbConnection();
@@ -67,91 +65,77 @@ public class Controller {
         frame.setLocation(dx - (w / 2), dy - (h / 2));
     }
 
-    public void getAsterTableData(onResultCelestiaAsteroids celestiaAsteroidsCallbacks) {
-        if (connection != null) {
-            new Thread(() -> celestiaAsteroidsCallbacks.dataCallback(SqliteConnection.getAllCelestiaAsteroids(connection))).start();
-        }
-    }
-
-    public void workJsonFile(File file, onResultCallback resultParse) {
-        operationResult = "";
-        if (file.length() > 0) {
-            new Thread(() -> {
-                try {
-                    long start = System.currentTimeMillis();
-                    FileUtils.unzipGZ(file.getAbsolutePath(), MPC_FILES_DIR + MPC_ASTER_JSON_FILE);
-                    operationResult += "\nРаспаковка заняла:" + BaseUtils.convertExtendTime((System.currentTimeMillis() - start));
-                    resultParse.result("unzip", true, operationResult);
-                } catch (Exception e) {
-                    resultParse.result("unzip", false, e.getMessage());
-                }
-
-            }).start();
-        }
-    }
-
-    public void writeOrbitalParamFile(ArrayList<String> orbitalTypes, onResultCallback resultParse, onResultCelestiaAsteroids celestiaData, onProgressUpdate onProgressUpdate) {
-        this.orbitalTypes = orbitalTypes;
-
-        write = new Thread(() -> {
-            try {
-                long start = System.currentTimeMillis();
-                File folder = new File(MPC_FILES_DIR);
-                boolean folderFilesExist = folder.exists() || folder.mkdir();
-                if (!folderFilesExist) return;
-                if (unpackedJsonfile == null) {
-                    operationResult = "Нет распакованного файла";
-                    resultParse.result("writessc", false, operationResult);
-                    return;
-                }
-//				parseJson(unpackedJsonfile, onProgressUpdate);
-
-                JSONParser parser = new JSONParser();
-                try {
-                    Object obj = parser.parse(new FileReader(unpackedJsonfile));
-                    JSONArray array = new JSONArray();
-                    array.add(obj);
-                    JSONArray asteroids = (JSONArray) array.get(0);
-                    totalProgress = asteroids.size();
-                    long st = System.currentTimeMillis();
-                    changed = added = asteroidCnt = iterateProgress = 0;
-                    for (Object asteroid : asteroids) {
-                        asteroidCnt++;
-                        JSONObject astroObject = (JSONObject) asteroid;
-                        CelestiaAsteroid celestiaAsteroid = new CelestiaAsteroid();
-                        convertJsonAsteroid(astroObject, celestiaAsteroid);
-                        updateOrInsertDb(celestiaAsteroid);
-                        long esTime = BaseUtils.getEsTime(st, System.currentTimeMillis(), iterateProgress, totalProgress);
-                        onProgressUpdate.update("dbupdate", totalProgress, iterateProgress, BaseUtils.convertExtendTime(esTime));
-                        iterateProgress++;
-                    }
-                    operationResult = "Найдено: " + asteroidCnt + " астероидов,добавлено:" + added + " обновлено:" + changed;
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                celestiaData.dataCallback(SqliteConnection.getAllCelestiaAsteroids(connection));
-                long esTime = System.currentTimeMillis() - start;
-                operationResult += " Операция заняла:" + BaseUtils.convertExtendTime(esTime);
-                resultParse.result("dbwrite", true, operationResult);
-
-            } catch (Exception e) {
-                resultParse.result("dbwrite", false, e.getMessage());
-            }
+    public Observable<ArrayList<CelestiaAsteroid>> getAsterTableData() {
+        Observable<ArrayList<CelestiaAsteroid>> observable = Observable.create(e -> {
+            e.onNext(SqliteConnection.getAllCelestiaAsteroids(connection));
+            e.onComplete();
         });
-        write.start();
+        compositeDisposable.add(observable.subscribe());
+        return observable;
     }
 
-    public void InterruptThread(onResultCallback callback) {
-        try {
-            write.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+    public void updateDb(ArrayList<String> orbitalTypes, onResultCallback resultParse, onResultCelestiaAsteroids celestiaData, onProgressUpdate onProgressUpdate) {
+        Stopwatch stopwatch = new Stopwatch();
+        stopwatch.start();
+        compositeDisposable.add(Observable.create((ObservableOnSubscribe<String>) e -> {
+            e.onNext(updateDb(celestiaData, onProgressUpdate, orbitalTypes));
+            e.onComplete();
+        }).subscribeOn(Schedulers.io())
+                .subscribe(s -> {
+                    System.out.println("res with thread:" + Thread.currentThread() + " :" + stopwatch.getElapsedTimeSecs(3) + " sec");
+                    resultParse.result("dbwrite", true, s + " обновление базы заняло:" + stopwatch.getElapsedTimeSecs(3) + " секунд");
+                }, throwable -> {
+                    throwable.printStackTrace();
+                    resultParse.result("dbwrite", false, throwable.getMessage());
+                }));
+    }
+
+    private String updateDb(onResultCelestiaAsteroids celestiaData, onProgressUpdate onProgressUpdate, ArrayList<String> orbitalTypes) throws Exception {
+        long start = System.currentTimeMillis();
+        File folder = new File(MPC_FILES_DIR);
+        boolean folderFilesExist = folder.exists() || folder.mkdir();
+        if (!folderFilesExist) {
+            return "Папка для сохранения не найдена";
         }
+        if (unpackedJsonfile == null) {
+            operationResult = "Нет распакованного файла";
+            return operationResult;
+        }
+        JSONParser parser = new JSONParser();
+        Object obj = parser.parse(new FileReader(unpackedJsonfile));
+        JSONArray array = new JSONArray();
+        array.add(obj);
+        JSONArray asteroids = (JSONArray) array.get(0);
+        totalProgress = asteroids.size();
+        long st = System.currentTimeMillis();
+        changed = added = asteroidCnt = iterateProgress = 0;
+        for (Object asteroid : asteroids) {
+            if (compositeDisposable.isDisposed()) {
+                long esTime = BaseUtils.getEsTime(st, System.currentTimeMillis(), iterateProgress, totalProgress);
+                operationResult = "Найдено: " + asteroidCnt + " астероидов,добавлено:" + added + " обновлено:" + changed;
+                operationResult += " Операция заняла:" + BaseUtils.convertExtendTime(esTime);
+                return operationResult;
+            }
+            asteroidCnt++;
+            JSONObject astroObject = (JSONObject) asteroid;
+            CelestiaAsteroid celestiaAsteroid = new CelestiaAsteroid();
+            convertJsonAsteroid(astroObject, celestiaAsteroid);
+            updateOrInsertDb(celestiaAsteroid, orbitalTypes);
+            long esTime = BaseUtils.getEsTime(st, System.currentTimeMillis(), iterateProgress, totalProgress);
+            onProgressUpdate.update("dbwrite", totalProgress, iterateProgress, BaseUtils.convertExtendTime(esTime));
+            iterateProgress++;
+        }
+        celestiaData.dataCallback(SqliteConnection.getAllCelestiaAsteroids(connection));
+        long esTime = System.currentTimeMillis() - start;
+        operationResult = "Найдено: " + asteroidCnt + " астероидов,добавлено:" + added + " обновлено:" + changed;
+        operationResult += " Операция заняла:" + BaseUtils.convertExtendTime(esTime);
+        return operationResult;
+    }
+
+    public void cancel(onResultCallback callback) {
+        compositeDisposable.clear();
         callback.result("dbwrite", true, "Операция прервана");
     }
-
-    ;
 
     public static File getSettingsDirectory() {
         String userHome = System.getProperty("user.home");
@@ -168,88 +152,39 @@ public class Controller {
         return settingsDirectory;
     }
 
-    public static String getMessage(boolean success, String method) {
-        String message = "Операция завершена";
-        if (success) {
-            switch (method) {
-                case "json":
-                    message = "Парсинг закончен успешно";
-                    break;
-                case "download":
-                    message = "Файл загружен";
-                    break;
-                case "unzip":
-                    message = "Файл распакован";
-                    break;
-                case "writessc":
-                    message = "Орбиты записаны";
-                    break;
-                case "dbwrite":
-                    message = "База обновлена";
-                    break;
-
-            }
-        } else {
-            switch (method) {
-                case "json":
-                    message = "Ошибка парсинга";
-                    break;
-                case "download":
-                    message = "Ошибка загрузки файла";
-                    break;
-                case "unzip":
-                    message = "Файл не распакован";
-                    break;
-                case "dbwrite":
-                    message = "База не обновлена";
-                    break;
-            }
-        }
-
-        return message;
-    }
-
-    public void downloadFile(int source, onResultCallback resultParse,onProgressUpdate onProgressUpdate) {
+    public void downloadFile(int source, onResultCallback resultParse, onProgressUpdate onProgressUpdate) {
+        Stopwatch stopwatch = new Stopwatch();
+        stopwatch.start();
         String downloadPath = getDownloadPath(source);
-
-        Observable.create((ObservableOnSubscribe<String>) e -> {
-            e.onNext(downloadFile(downloadPath));
+        compositeDisposable.add(Observable.create((ObservableOnSubscribe<String>) e -> {
+            e.onNext(downloadFile(downloadPath, onProgressUpdate));
             e.onComplete();
-        }).doOnSubscribe(disposable -> {
-
-        }).subscribe(s -> resultParse.result("download", true, s)
-                , throwable -> {
+        }).subscribeOn(Schedulers.io())
+                .doOnSubscribe(disposable -> {
+                    System.out.println("do on subscribe with thread:" + Thread.currentThread() + ":" + stopwatch.getElapsedTimeSecs(3) + " sec");
+                    onProgressUpdate.update("", 0, 0, "Загрузка файла...");
+                }).subscribe(s -> {
+                    System.out.println("res with thread:" + Thread.currentThread() + " :" + stopwatch.getElapsedTimeSecs(3) + " sec");
+                    resultParse.result(METHOD_DOWNLOAD, true, s + " загрузка файла заняла:" + stopwatch.getElapsedTimeSecs(3) + " секунд");
+                }, throwable -> {
+                    System.out.println("throwable :" + stopwatch.getElapsedTimeSecs(3) + " sec");
+                    stopwatch.stop();
                     throwable.printStackTrace();
-                    resultParse.result("download", false, throwable.getMessage());
-                });
-
-//        new Thread(() -> {
-//            try {
-//                File folder = new File(MPC_FILES_DIR);
-//                boolean folderFilesExist = folder.exists() || folder.mkdir();
-//                if (!folderFilesExist) return;
-//                FileUtils.downloadUsingStream(downloadPath, MPC_FILES_DIR + MPC_ASTER_JSON_FILE);
-//                File file = new File(MPC_FILES_DIR + MPC_ASTER_JSON_FILE);
-//                operationResult = "файл загружен,размер " + BaseUtils.convertExtendFileLength(file.length());
-//                long start = System.currentTimeMillis();
-//                FileUtils.unzipGZ(file.getAbsolutePath(), MPC_FILES_DIR + MPC_ASTER_JSON_FILE);
-//                FileUtils.deleteFile(file.getAbsolutePath());
-//                operationResult += "\nРаспаковка заняла:" + BaseUtils.convertExtendTime((System.currentTimeMillis() - start));
-//                resultParse.result("download", true, operationResult);
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//                resultParse.result("download", false, e.getMessage());
-//            }
-//        }).start();
+                    resultParse.result(METHOD_DOWNLOAD, false, throwable.toString());
+                }));
     }
 
-    private String downloadFile(String downloadPath) throws Exception {
+    private String downloadFile(String downloadPath, onProgressUpdate onProgressUpdate) throws Exception {
         File folder = new File(MPC_FILES_DIR);
         boolean folderFilesExist = folder.exists() || folder.mkdir();
         if (!folderFilesExist) {
             throw new Exception("папки для загрузки не существует");
         }
+        long fileSize = FileUtils.getFileSize(downloadPath);
+        System.out.println("fileSize:" + fileSize);
+        onProgressUpdate.update(METHOD_DOWNLOAD, 0, 0, "Загрузка файла..." + FileUtils.formatFileSize(fileSize, 3));
         FileUtils.downloadUsingStream(downloadPath, MPC_FILES_DIR + MPC_ASTER_DOWNLOADED_FILE);
+        onProgressUpdate.update(METHOD_DOWNLOAD, 0, 0, "Загрузка файла..." + FileUtils.formatFileSize(fileSize, 3) + " OK");
         File file = new File(MPC_FILES_DIR + MPC_ASTER_DOWNLOADED_FILE);
         operationResult = "файл загружен,размер " + BaseUtils.convertExtendFileLength(file.length());
         long start = System.currentTimeMillis();
@@ -327,9 +262,10 @@ public class Controller {
     /**
      * update|insert db
      *
-     * @param asteroid inset
+     * @param asteroid     inset
+     * @param orbitalTypes
      */
-    private void updateOrInsertDb(CelestiaAsteroid asteroid) {
+    private void updateOrInsertDb(CelestiaAsteroid asteroid, ArrayList<String> orbitalTypes) {
         if (orbitalTypes.size() > 0) {
             if (!hasItemInList(asteroid.getOrbitType(), orbitalTypes)) return;
         }
@@ -600,10 +536,8 @@ public class Controller {
     }
 
     public void testTime() {
-        Calendar calendar = Calendar.getInstance();
-//        calendar.setTimeInMillis(DateTimeUtils.convertTimeStringToLong("18 09 2017 10:42:40","dd MM yyyy HH:mm:ss"));
-        long timeInMillis = calendar.getTimeInMillis();
-        String dateTime = DateTimeUtils.getDateTime(timeInMillis);
+        DateTime dateTime = DateTimeUtils.getDateTime();
+        long timeInMillis = dateTime.getMillis();
         ATime aTime = new ATime(timeInMillis);
         double jd1 = JulianDate.JD(timeInMillis);
         double jd2 = aTime.getJd();
@@ -611,7 +545,6 @@ public class Controller {
         double t2 = aTime.getT2();
         long datetime = aTime.getDatetime();
         double rawOffset = aTime.getTimezone();
-        System.out.println(dateTime);
     }
 
 }

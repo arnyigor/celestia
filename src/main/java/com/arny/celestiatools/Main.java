@@ -1,6 +1,5 @@
 package com.arny.celestiatools;
-import com.arny.celestiatools.views.CalcFrame;
-import com.arny.celestiatools.views.ToolsForm;
+import com.arny.celestiatools.views.MainForm;
 
 import javax.swing.*;
 
@@ -13,6 +12,6 @@ public class Main {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		new ToolsForm();
+		new MainForm();
 	}
 }

@@ -1,7 +1,8 @@
 package com.arny.celestiatools.utils;
 
-
-import com.arny.celestiatools.utils.BaseUtils;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
@@ -10,12 +11,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public class DateTimeUtils {
 
     public static final String[] RU_MONTHES_FULL = new String[]{"января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"};
-    public static final String[] RU_MONTHES_LO = new String[]{"дек","янв","фев","мар","апр","май","июн","июл","авг","сен","окт","ноя"};
+    public static final String[] RU_MONTHES_LO = new String[]{"дек", "янв", "фев", "мар", "апр", "май", "июн", "июл", "авг", "сен", "окт", "ноя"};
     public static final String[] RU_MONTHES_UP = new String[]{"Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"};
     private static final String TIME_SEPARATOR_TWICE_DOT = ":";
     private static final String TIME_SEPARATOR_DOT = ".";
@@ -23,7 +25,7 @@ public class DateTimeUtils {
 
     private static Locale getLocale(String myTimestamp) {
         boolean isUS = Pattern.matches("(?i).*[A-z]+.*", myTimestamp);
-        return isUS? Locale.US: Locale.getDefault();
+        return isUS ? Locale.US : Locale.getDefault();
     }
 
     public static String dateFormatChooser(String myTimestamp) {
@@ -34,7 +36,8 @@ public class DateTimeUtils {
         pregs.put("^\\d{1,2}\\-\\D+\\-\\d{4}$", "dd-MMM-yyyy");
         pregs.put("^\\d{1,2}\\s+\\D+\\s\\d{2}$", "dd MMM yy");
         pregs.put("^\\d{1,2}\\s+\\D+\\s+\\d{4}$", "dd MMM yyyy");
-        pregs.put("^\\d{1,2}\\s+\\d{2}+\\s\\d{2}$", "dd MM yy");
+        pregs.put("^\\d{1,2}\\s+\\d{2}\\s\\d{2}$", "dd MM yy");
+        pregs.put("^\\d{1,2}\\d{2}\\d{4}$", "ddMMyyyy");
         String format = "dd MMM yyyy";
         for (HashMap.Entry<String, String> entry : pregs.entrySet()) {
             boolean matches = Pattern.matches(entry.getKey(), myTimestamp);
@@ -45,40 +48,90 @@ public class DateTimeUtils {
         return format;
     }
 
-    public static String getDateTime(long milliseconds, String format) {
-        milliseconds = (milliseconds == 0) ? Calendar.getInstance().getTimeInMillis() : milliseconds;
-        format = (format == null) ? "dd MMM yyyy HH:mm:ss.sss" : format;
-        return (new SimpleDateFormat(format, Locale.getDefault())).format(new Date(milliseconds));
+    private static long getEsTime(long startTime, long curTime, int iter, int tot) {
+        if (iter == 0) {
+            return 0;
+        }
+        long a = (curTime - startTime) / iter;
+        return (a * tot) - (a * iter);
     }
 
-    public static String getDateTime(long milliseconds) {
-        milliseconds = (milliseconds == 0) ? Calendar.getInstance().getTimeInMillis() : milliseconds;
-        return (new SimpleDateFormat("dd MMM yyyy HH:mm:ss.sss", Locale.getDefault())).format(new Date(milliseconds));
+    /**
+     * Примерное время выполнения
+     *
+     * @param startTime время старта выполнения итераций  milliseconds
+     * @param curTime   текущее время итерации milliseconds
+     * @param iter      текущая итерация
+     * @param tot       всего итераций
+     * @return "min:sec"
+     */
+    public static String getEstimateTime(long startTime, long curTime, int iter, int tot) {
+        long esTime = getEsTime(startTime, curTime, iter, tot);
+        int min = (int) (((esTime / 1000) / 60) % 60);
+        int sec = (int) ((esTime / 1000) % 60);
+        return pad(min) + ":" + pad(sec);
     }
 
-    public static String getDateTime() {
-        return (new SimpleDateFormat("dd MMM yyyy HH:mm:ss.sss", Locale.getDefault())).format(new Date(System.currentTimeMillis()));
+    /**
+     * Истекает время
+     *
+     * @param endTime конечное время milliseconds
+     * @param curTime текущее время milliseconds
+     * @return "min:sec"
+     */
+    public static String getEstimateTime(long endTime, long curTime) {
+        long dTime = endTime - curTime;
+        dTime = dTime <= 0 ? 0 : dTime;
+        int min = (int) (((dTime / 1000) / 60) % 60);
+        int sec = (int) ((dTime / 1000) % 60);
+        return pad(min) + ":" + pad(sec);
     }
 
-    public static String getDateTime(String format) {
-        return (new SimpleDateFormat(format, Locale.getDefault())).format(new Date(System.currentTimeMillis()));
+    /**
+     * Конвертируем секунды в часы:минуты:секунды // TODO: 04.12.2017 нужно расширить
+     *
+     * @param secs
+     * @return
+     */
+    public static String convertTime(long secs) {
+        secs = secs * 1000;
+//        long days = TimeUnit.MILLISECONDS.toDays(secs);
+//        secs -= TimeUnit.DAYS.toMillis(days);
+        long hours = TimeUnit.MILLISECONDS.toHours(secs);
+        secs -= TimeUnit.HOURS.toMillis(hours);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(secs);
+        secs -= TimeUnit.MINUTES.toMillis(minutes);
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(secs);
+        return String.format("%s:%s:%s", pad((int) hours), pad((int) minutes), pad((int) seconds));
     }
 
-    private static DateFormatSymbols myDateFormatSymbolsFull = new DateFormatSymbols(){
+    /**
+     * Конвертируем часы,минуты, секунды в секунды
+     *
+     * @param hours
+     * @param mins
+     * @param secs
+     * @return
+     */
+    public static long convertTime(int hours, int mins, int secs) {
+        return hours * 3600 + mins * 60 + secs;
+    }
+
+    private static DateFormatSymbols myDateFormatSymbolsFull = new DateFormatSymbols() {
         @Override
         public String[] getMonths() {
             return RU_MONTHES_FULL;
         }
     };
 
-    private static DateFormatSymbols myDateFormatSymbols = new DateFormatSymbols(){
+    private static DateFormatSymbols myDateFormatSymbols = new DateFormatSymbols() {
         @Override
         public String[] getMonths() {
             return RU_MONTHES_LO;
         }
     };
 
-    private static DateFormatSymbols myDateFormatSymbolsUp = new DateFormatSymbols(){
+    private static DateFormatSymbols myDateFormatSymbolsUp = new DateFormatSymbols() {
         @Override
         public String[] getMonths() {
             return RU_MONTHES_UP;
@@ -89,7 +142,7 @@ public class DateTimeUtils {
     public static long convertTimeStringToLong(String myTimestamp, String format) {
         DateFormatSymbols formatSimbols = getFormatString(myTimestamp);
         Locale locale = getLocale(myTimestamp);
-        SimpleDateFormat formatter = new SimpleDateFormat(format,locale);
+        SimpleDateFormat formatter = new SimpleDateFormat(format, locale);
         if (locale.getISO3Language().equalsIgnoreCase("rus")) {
             formatter.setDateFormatSymbols(formatSimbols);
         }
@@ -106,7 +159,7 @@ public class DateTimeUtils {
     public static long convertTimeStringToLong(String myTimestamp) {
         DateFormatSymbols formatSimbols = getFormatString(myTimestamp);
         Locale locale = getLocale(myTimestamp);
-        SimpleDateFormat formatter = new SimpleDateFormat(dateFormatChooser(myTimestamp),locale);
+        SimpleDateFormat formatter = new SimpleDateFormat(dateFormatChooser(myTimestamp), locale);
         if (locale.getCountry().equals("RU")) {
             formatter.setDateFormatSymbols(formatSimbols);
         }
@@ -173,8 +226,16 @@ public class DateTimeUtils {
         return mins + (hours * 60);
     }
 
-    public static double getTimeZoneOffset(long dt) {
-        return Double.parseDouble(DateTimeUtils.getDateTime(dt, "X"));
+    public static String getHHmmFromMins(int minutes) {
+        int hours = 0;
+        int mins = 0;
+        try {
+            hours = minutes / 60;
+            mins = minutes % 60;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return hours + ":" + pad(mins);
     }
 
     /**
@@ -191,20 +252,6 @@ public class DateTimeUtils {
         }
     }
 
-    /**
-     * получение времени формата HH:mm:ss из HH.hh
-     * @param time
-     * @return
-     */
-    public static String getTimeHHmmss(double time){
-        int hh = (int) time;
-        double Mm = (time - hh)*60;
-        int mm = (int) Mm;
-        int ss = (int)(Mm - mm) * 60;
-        return hh + ":" + hh + ":" + hh;
-    }
-
-
     public static String getStringDateTime(int year, int monthOfYear, int dayOfMonth) {
         String strDateFormat = "MMM";
         String strMonth = new DateFormatSymbols().getMonths()[monthOfYear];
@@ -218,45 +265,6 @@ public class DateTimeUtils {
         return dayOfMonth + " " + formDate + " " + year;
     }
 
-    public static int getYear(long time) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(time);
-        return cal.get(Calendar.YEAR);
-    }
-
-    public static int getHour(long time) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(time);
-        return cal.get(Calendar.HOUR_OF_DAY);
-    }
-
-    public static int getMin(long time) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(time);
-        return cal.get(Calendar.MINUTE);
-    }
-
-    public static int getSec(long time) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(time);
-        return cal.get(Calendar.SECOND);
-    }
-
-    public static int getMs(long time) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(time);
-        return cal.get(Calendar.MILLISECOND);
-    }
-
-    public static int getDayofMonth(long time) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(time);
-        return cal.get(Calendar.DAY_OF_MONTH);
-    }
-
-    public static int getDayofYear(long time) {
-        return Integer.parseInt(getDateTime(time,"dd"));
-    }
 
     public static int getMonth(long time) {
         Calendar cal = Calendar.getInstance();
@@ -300,13 +308,6 @@ public class DateTimeUtils {
         return d + " " + fDate + " " + y;
     }
 
-    public static long addDays(long date,int dayCnt) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(date);
-        calendar.add(Calendar.DATE, dayCnt);
-        return calendar.getTimeInMillis();
-    }
-
     public static String getStrTime(long timestamp) {
         Date d = new Date(timestamp);
         SimpleDateFormat format = new SimpleDateFormat("hh:mm", Locale.getDefault());
@@ -328,5 +329,61 @@ public class DateTimeUtils {
         }
         String fDate = new SimpleDateFormat("MMM", Locale.getDefault()).format(dat);
         return d + " " + fDate + " " + y;
+    }
+
+    public static int getDayofYear(long time) {
+        return Integer.parseInt(getDateTime(time,"dd"));
+    }
+
+    /**
+     * получение даты DateTime
+     *
+     * @param date
+     * @param format
+     * @return DateTime
+     */
+    public static DateTime getDateTime(String date, String format) {
+        return DateTimeFormat.forPattern(format).parseDateTime(date);
+    }
+
+    /**
+     * получение даты String
+     *
+     * @param dateTime
+     * @param format
+     * @return String
+     */
+    public static String getDateTime(DateTime dateTime, String format) {
+        DateTimeFormatter fmt = DateTimeFormat.forPattern(format);
+        return fmt.print(dateTime);
+    }
+
+    public static String getDateTime(long milliseconds, String format) {
+        DateTime dateTime = new DateTime().withMillis(milliseconds);
+        return getDateTime(dateTime, format);
+    }
+
+    public static DateTime getDateTime(long milliseconds) {
+        return new DateTime().withMillis(milliseconds);
+    }
+
+    public static DateTime getDateTime() {
+        return DateTime.now();
+    }
+
+    /**
+     * Конвертирование из одного формата в другой
+     *
+     * @param dateTimeFrom
+     * @param formatfrom
+     * @param formatTo
+     * @return
+     */
+    public static String getDateTime(String dateTimeFrom, String formatfrom, String formatTo) {
+        return getDateTime(getDateTime(dateTimeFrom, formatfrom), formatTo);
+    }
+
+    public static double getTimeDiff(long starttime) {
+        return (double) (System.currentTimeMillis() - starttime) / 1000;
     }
 }

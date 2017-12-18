@@ -1,0 +1,175 @@
+JFDML JFormDesigner: "6.0.2.0.116" Java: "1.8.0_152-release" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormWindow( "javax.swing.JFrame", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+			"$horizontalGroup": "par l {comp tabbedPane1::l:::x}"
+			"$verticalGroup": "par l {comp tabbedPane1::t::588:x}"
+		} ) {
+			name: "this"
+			add( new FormContainer( "javax.swing.JTabbedPane", new FormLayoutManager( class javax.swing.JTabbedPane ) ) {
+				name: "tabbedPane1"
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+					"$horizontalGroup": "par l {seq l {par l:::p {seq {space :::p, comp panel3:::p::p}, comp panel8::::533:x}, space :::p, par l {comp panel6::::407:x, seq l {comp progressBar:::p:306:p, space :p:29:p, comp btnCancel:::p::p, space :0:17:x}, seq {comp btnOrbitViewer:::p:170:p, space ::237:x}, comp panel5::l:::x}}}"
+					"$verticalGroup": "par l {seq {space :::p, comp panel5:::p::p, space :p:19:p, comp btnOrbitViewer:::p::p, space :::p, comp panel6:::p:339:p, space :::x, par l {comp progressBar:::p:12:p, comp btnCancel:::p::p}, space :p:12:p}, seq {comp panel3:::::x, space :::p, comp panel8:::p::p}}"
+				} ) {
+					name: "panel1"
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+						"$horizontalGroup": "par l {comp scrollPane1::l::517:x}"
+						"$verticalGroup": "par l {comp scrollPane1::l:::x}"
+					} ) {
+						name: "panel3"
+						"border": new javax.swing.border.TitledBorder( "Данные" )
+						add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+							name: "scrollPane1"
+							"enabled": false
+							add( new FormComponent( "javax.swing.JTable" ) {
+								name: "tblAsteroidsData"
+								"autoResizeMode": 1
+								"fillsViewportHeight": true
+								"model": new com.jformdesigner.model.SwingTableModel( new java.util.Vector {
+									add( new java.util.Vector {
+										add( null )
+										add( null )
+										add( null )
+										add( null )
+									} )
+									add( new java.util.Vector {
+										add( null )
+										add( null )
+										add( null )
+										add( null )
+									} )
+								}, new java.util.Vector {
+									add( "No" )
+									add( null )
+									add( null )
+									add( null )
+								}, new java.util.Vector {
+									add( null )
+									add( null )
+									add( null )
+									add( null )
+								}, new java.util.Vector {
+									add( null )
+									add( null )
+									add( null )
+									add( null )
+								}, new java.util.Vector {
+									add( null )
+									add( null )
+									add( null )
+									add( null )
+								} )
+							} )
+						} )
+					} )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+						"$horizontalGroup": "par l {seq l {par t:::p {comp btnDownload::l:::x, comp jComboBoxSource::l:::x, comp btnUpdate::t:p:174:p, comp btnCelestiaFiles::t:::x}, space :::p, par l {comp checkBox1:::::x, seq {par l {comp checkBox2:::p:205:p, comp checkBox3:::p:205:p}, space :0:6:x}}, space :::p}}"
+						"$verticalGroup": "par l {seq l {par t {comp jComboBoxSource:::p::p, comp checkBox1:::p::p}, space :::p, par b {comp btnDownload::b:p::p, comp checkBox2::b:p::p}, space :::p, par b {comp checkBox3::b:p::p, comp btnUpdate::b:p::p}, space :::p, comp btnCelestiaFiles:::p::p}}"
+					} ) {
+						name: "panel5"
+						"border": new javax.swing.border.TitledBorder( "Настройки" )
+						add( new FormComponent( "javax.swing.JComboBox" ) {
+							name: "jComboBoxSource"
+							"model": new javax.swing.DefaultComboBoxModel {
+								selectedItem: "Dayly"
+								addElement( "Dayly" )
+								addElement( "PHAs" )
+								addElement( "NEAs" )
+								addElement( "MCORB" )
+							}
+						} )
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "btnCelestiaFiles"
+							"text": "Создать орбиты"
+						} )
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "btnDownload"
+							"text": "Загрузить"
+						} )
+						add( new FormComponent( "javax.swing.JCheckBox" ) {
+							name: "checkBox1"
+							"text": "Apollo"
+						} )
+						add( new FormComponent( "javax.swing.JCheckBox" ) {
+							name: "checkBox2"
+							"text": "Amor"
+						} )
+						add( new FormComponent( "javax.swing.JCheckBox" ) {
+							name: "checkBox3"
+							"text": "Aten"
+						} )
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "btnUpdate"
+							"text": "Обновить"
+						} )
+					} )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "btnOrbitViewer"
+						"text": "Орбита"
+					} )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+						"$horizontalGroup": "par l {seq {space :::p, par l {comp textFieldSearch::::391:x, seq {par l {comp label1::::385:x, comp panel7::t:::x}, space :::p}}}}"
+						"$verticalGroup": "par l {seq {comp label1:::p:18:p, space :::p, comp textFieldSearch:::p::p, space ::13:x, comp panel7:::p::p, space :::p}}"
+					} ) {
+						name: "panel6"
+						"border": new javax.swing.border.TitledBorder( "Инфо" )
+						"minimumSize": new java.awt.Dimension( 94, 50 )
+						"preferredSize": new java.awt.Dimension( 391, 200 )
+						add( new FormComponent( "javax.swing.JTextField" ) {
+							name: "textFieldSearch"
+							"toolTipText": "Поиск"
+						} )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "label1"
+							"text": "Поиск"
+						} )
+						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+							"$horizontalGroup": "par l {seq l {space :::p, comp pnlAsteroidData::::363:x, space :::p}}"
+							"$verticalGroup": "par l {seq l {space :::p, comp pnlAsteroidData::::214:x, space :::p}}"
+						} ) {
+							name: "panel7"
+							"border": new javax.swing.border.TitledBorder( "Данные астероида" )
+							add( new FormComponent( "javax.swing.JTextPane" ) {
+								name: "pnlAsteroidData"
+							} )
+						} )
+					} )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+						"$horizontalGroup": "par l {seq l {space :::p, comp labelInfo:::::x, space :::p}}"
+						"$verticalGroup": "par l {seq l {space :p:15:p, comp labelInfo:::p::p, space ::19:x}}"
+					} ) {
+						name: "panel8"
+						"preferredSize": new java.awt.Dimension( 250, 50 )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "labelInfo"
+							"text": "Статус:"
+						} )
+					} )
+					add( new FormComponent( "javax.swing.JProgressBar" ) {
+						name: "progressBar"
+					} )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "btnCancel"
+						"text": "text"
+					} )
+				}, new FormLayoutConstraints( null ) {
+					"title": "Астероиды"
+				} )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+					"$horizontalGroup": "par l {space :0:946:x}"
+					"$verticalGroup": "par l {space :0:564:x}"
+				} ) {
+					name: "panel2"
+				}, new FormLayoutConstraints( null ) {
+					"title": "text"
+				} )
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 950, 620 )
+		} )
+	}
+}
