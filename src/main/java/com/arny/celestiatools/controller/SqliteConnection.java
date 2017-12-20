@@ -4,6 +4,7 @@ package com.arny.celestiatools.controller;
 import com.arny.celestiatools.models.CelestiaAsteroid;
 import com.arny.celestiatools.utils.BaseUtils;
 
+import java.io.File;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,13 +35,20 @@ public class SqliteConnection {
     public static Connection dbConnection() {
         try {
             Class.forName("org.sqlite.JDBC");
-            String url = System.getProperty("user.dir") + "/files/celestia.db";
+            String appDir = System.getProperty("user.dir");
+            String workDir = "files";
+            File file = new File(appDir + "/" + workDir);
+            boolean exists = file.exists();
+            if (!exists) {
+                file.mkdirs();
+            }
+            String url = appDir +"/"+ workDir + "/celestia.db";
             Connection connection = DriverManager.getConnection("jdbc:sqlite:" + url);
             Statement statement = connection.createStatement();
             statement.execute(CREATE_TABLE);
             return connection;
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e);
+            e.printStackTrace();
             return null;
         }
     }

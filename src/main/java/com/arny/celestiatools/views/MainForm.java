@@ -23,7 +23,7 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class MainForm extends JFrame {
     private Controller controller;
-    private ArrayList<CelestiaAsteroid> celestiaAsteroids;
+    private ArrayList<CelestiaAsteroid> celestiaAsteroids,selectedAsteroids;
     private CelestiaAsteroid celestiaAsteroid;
     private TableAsteroidModel tableModel;
     private TableRowSorter<TableAsteroidModel> rowSorter;
@@ -37,6 +37,7 @@ public class MainForm extends JFrame {
 
     private void initTableAsteroids() {
         celestiaAsteroids = new ArrayList<>();
+        selectedAsteroids = new ArrayList<>();
         Observable<ArrayList<CelestiaAsteroid>> asterTableData = controller.getAsterTableData();
         asterTableData.subscribeOn(Schedulers.io()).subscribe(asteroids -> {
             celestiaAsteroids = asteroids;
@@ -45,6 +46,7 @@ public class MainForm extends JFrame {
                 celestiaAsteroid = celestiaAsteroids.get(0);
                 pnlAsteroidData.setText(controller.formatAsteroidData(celestiaAsteroid));
             }
+            panel3.setBorder(new TitledBorder("Данные.Всего:" + celestiaAsteroids.size()));
             progressBar.setValue(0);
         }, throwable -> {
             MessageResultCallback("dbwrite", false, throwable.getMessage());
@@ -94,6 +96,7 @@ public class MainForm extends JFrame {
                 btnCancel.setEnabled(true);
                 celestiaAsteroids = asteroids;
                 setModelToTable();
+                panel3.setBorder(new TitledBorder("Данные.Всего:" + celestiaAsteroids.size()));
                 if (celestiaAsteroids.size() > 0) {
                     celestiaAsteroid = celestiaAsteroids.get(0);
                     pnlAsteroidData.setText(controller.formatAsteroidData(celestiaAsteroid));
@@ -198,6 +201,7 @@ public class MainForm extends JFrame {
                     rowSorter.setRowFilter(null);
                 } else {
                     rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + srch));
+                    tblAsteroidsData.updateUI();
                 }
             }
         });
@@ -233,6 +237,7 @@ public class MainForm extends JFrame {
         panel2 = new JPanel();
 
         //======== this ========
+        setTitle("Celestia Tools");
         Container contentPane = getContentPane();
 
         //======== tabbedPane1 ========
@@ -253,13 +258,13 @@ public class MainForm extends JFrame {
                         tblAsteroidsData.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
                         tblAsteroidsData.setFillsViewportHeight(true);
                         tblAsteroidsData.setModel(new DefaultTableModel(
-                                new Object[][]{
-                                        {null, null, null, null},
-                                        {null, null, null, null},
-                                },
-                                new String[]{
-                                        "No", null, null, null
-                                }
+                            new Object[][] {
+                                {null, null, null, null},
+                                {null, null, null, null},
+                            },
+                            new String[] {
+                                "No", null, null, null
+                            }
                         ));
                         scrollPane1.setViewportView(tblAsteroidsData);
                     }
@@ -267,12 +272,12 @@ public class MainForm extends JFrame {
                     GroupLayout panel3Layout = new GroupLayout(panel3);
                     panel3.setLayout(panel3Layout);
                     panel3Layout.setHorizontalGroup(
-                            panel3Layout.createParallelGroup()
-                                    .addComponent(scrollPane1, GroupLayout.DEFAULT_SIZE, 517, Short.MAX_VALUE)
+                        panel3Layout.createParallelGroup()
+                            .addComponent(scrollPane1, GroupLayout.DEFAULT_SIZE, 517, Short.MAX_VALUE)
                     );
                     panel3Layout.setVerticalGroup(
-                            panel3Layout.createParallelGroup()
-                                    .addComponent(scrollPane1)
+                        panel3Layout.createParallelGroup()
+                            .addComponent(scrollPane1)
                     );
                 }
 
@@ -281,11 +286,11 @@ public class MainForm extends JFrame {
                     panel5.setBorder(new TitledBorder("\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438"));
 
                     //---- jComboBoxSource ----
-                    jComboBoxSource.setModel(new DefaultComboBoxModel<>(new String[]{
-                            "Dayly",
-                            "PHAs",
-                            "NEAs",
-                            "MCORB"
+                    jComboBoxSource.setModel(new DefaultComboBoxModel<>(new String[] {
+                        "Dayly",
+                        "PHAs",
+                        "NEAs",
+                        "MCORB"
                     }));
 
                     //---- btnCelestiaFiles ----
@@ -309,39 +314,39 @@ public class MainForm extends JFrame {
                     GroupLayout panel5Layout = new GroupLayout(panel5);
                     panel5.setLayout(panel5Layout);
                     panel5Layout.setHorizontalGroup(
-                            panel5Layout.createParallelGroup()
+                        panel5Layout.createParallelGroup()
+                            .addGroup(panel5Layout.createSequentialGroup()
+                                .addGroup(panel5Layout.createParallelGroup(GroupLayout.Alignment.TRAILING, false)
+                                    .addComponent(btnDownload, GroupLayout.Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jComboBoxSource, GroupLayout.Alignment.LEADING)
+                                    .addComponent(btnUpdate, GroupLayout.PREFERRED_SIZE, 174, GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(btnCelestiaFiles, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(panel5Layout.createParallelGroup()
+                                    .addComponent(checkBox1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addGroup(panel5Layout.createSequentialGroup()
-                                            .addGroup(panel5Layout.createParallelGroup(GroupLayout.Alignment.TRAILING, false)
-                                                    .addComponent(btnDownload, GroupLayout.Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                    .addComponent(jComboBoxSource, GroupLayout.Alignment.LEADING)
-                                                    .addComponent(btnUpdate, GroupLayout.PREFERRED_SIZE, 174, GroupLayout.PREFERRED_SIZE)
-                                                    .addComponent(btnCelestiaFiles, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                            .addGroup(panel5Layout.createParallelGroup()
-                                                    .addComponent(checkBox1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                    .addGroup(panel5Layout.createSequentialGroup()
-                                                            .addGroup(panel5Layout.createParallelGroup()
-                                                                    .addComponent(checkBox2, GroupLayout.PREFERRED_SIZE, 205, GroupLayout.PREFERRED_SIZE)
-                                                                    .addComponent(checkBox3, GroupLayout.PREFERRED_SIZE, 205, GroupLayout.PREFERRED_SIZE))
-                                                            .addGap(0, 6, Short.MAX_VALUE)))
-                                            .addContainerGap())
+                                        .addGroup(panel5Layout.createParallelGroup()
+                                            .addComponent(checkBox2, GroupLayout.PREFERRED_SIZE, 205, GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(checkBox3, GroupLayout.PREFERRED_SIZE, 205, GroupLayout.PREFERRED_SIZE))
+                                        .addGap(0, 6, Short.MAX_VALUE)))
+                                .addContainerGap())
                     );
                     panel5Layout.setVerticalGroup(
-                            panel5Layout.createParallelGroup()
-                                    .addGroup(panel5Layout.createSequentialGroup()
-                                            .addGroup(panel5Layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
-                                                    .addComponent(jComboBoxSource, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                                    .addComponent(checkBox1))
-                                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                            .addGroup(panel5Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                                    .addComponent(btnDownload)
-                                                    .addComponent(checkBox2))
-                                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                            .addGroup(panel5Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                                    .addComponent(checkBox3)
-                                                    .addComponent(btnUpdate))
-                                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(btnCelestiaFiles))
+                        panel5Layout.createParallelGroup()
+                            .addGroup(panel5Layout.createSequentialGroup()
+                                .addGroup(panel5Layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jComboBoxSource, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(checkBox1))
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(panel5Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                    .addComponent(btnDownload)
+                                    .addComponent(checkBox2))
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(panel5Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                    .addComponent(checkBox3)
+                                    .addComponent(btnUpdate))
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnCelestiaFiles))
                     );
                 }
 
@@ -367,44 +372,44 @@ public class MainForm extends JFrame {
                         GroupLayout panel7Layout = new GroupLayout(panel7);
                         panel7.setLayout(panel7Layout);
                         panel7Layout.setHorizontalGroup(
-                                panel7Layout.createParallelGroup()
-                                        .addGroup(panel7Layout.createSequentialGroup()
-                                                .addContainerGap()
-                                                .addComponent(pnlAsteroidData, GroupLayout.DEFAULT_SIZE, 363, Short.MAX_VALUE)
-                                                .addContainerGap())
+                            panel7Layout.createParallelGroup()
+                                .addGroup(panel7Layout.createSequentialGroup()
+                                    .addContainerGap()
+                                    .addComponent(pnlAsteroidData, GroupLayout.DEFAULT_SIZE, 363, Short.MAX_VALUE)
+                                    .addContainerGap())
                         );
                         panel7Layout.setVerticalGroup(
-                                panel7Layout.createParallelGroup()
-                                        .addGroup(panel7Layout.createSequentialGroup()
-                                                .addContainerGap()
-                                                .addComponent(pnlAsteroidData, GroupLayout.DEFAULT_SIZE, 214, Short.MAX_VALUE)
-                                                .addContainerGap())
+                            panel7Layout.createParallelGroup()
+                                .addGroup(panel7Layout.createSequentialGroup()
+                                    .addContainerGap()
+                                    .addComponent(pnlAsteroidData, GroupLayout.DEFAULT_SIZE, 214, Short.MAX_VALUE)
+                                    .addContainerGap())
                         );
                     }
 
                     GroupLayout panel6Layout = new GroupLayout(panel6);
                     panel6.setLayout(panel6Layout);
                     panel6Layout.setHorizontalGroup(
-                            panel6Layout.createParallelGroup()
+                        panel6Layout.createParallelGroup()
+                            .addGroup(panel6Layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addGroup(panel6Layout.createParallelGroup()
+                                    .addComponent(textFieldSearch, GroupLayout.DEFAULT_SIZE, 391, Short.MAX_VALUE)
                                     .addGroup(panel6Layout.createSequentialGroup()
-                                            .addContainerGap()
-                                            .addGroup(panel6Layout.createParallelGroup()
-                                                    .addComponent(textFieldSearch, GroupLayout.DEFAULT_SIZE, 391, Short.MAX_VALUE)
-                                                    .addGroup(panel6Layout.createSequentialGroup()
-                                                            .addGroup(panel6Layout.createParallelGroup()
-                                                                    .addComponent(label1, GroupLayout.DEFAULT_SIZE, 385, Short.MAX_VALUE)
-                                                                    .addComponent(panel7, GroupLayout.Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                                            .addContainerGap())))
+                                        .addGroup(panel6Layout.createParallelGroup()
+                                            .addComponent(label1, GroupLayout.DEFAULT_SIZE, 385, Short.MAX_VALUE)
+                                            .addComponent(panel7, GroupLayout.Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                        .addContainerGap())))
                     );
                     panel6Layout.setVerticalGroup(
-                            panel6Layout.createParallelGroup()
-                                    .addGroup(panel6Layout.createSequentialGroup()
-                                            .addComponent(label1, GroupLayout.PREFERRED_SIZE, 18, GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(textFieldSearch, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
-                                            .addComponent(panel7, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                            .addContainerGap())
+                        panel6Layout.createParallelGroup()
+                            .addGroup(panel6Layout.createSequentialGroup()
+                                .addComponent(label1, GroupLayout.PREFERRED_SIZE, 18, GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(textFieldSearch, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
+                                .addComponent(panel7, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap())
                     );
                 }
 
@@ -418,18 +423,18 @@ public class MainForm extends JFrame {
                     GroupLayout panel8Layout = new GroupLayout(panel8);
                     panel8.setLayout(panel8Layout);
                     panel8Layout.setHorizontalGroup(
-                            panel8Layout.createParallelGroup()
-                                    .addGroup(panel8Layout.createSequentialGroup()
-                                            .addContainerGap()
-                                            .addComponent(labelInfo, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                            .addContainerGap())
+                        panel8Layout.createParallelGroup()
+                            .addGroup(panel8Layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(labelInfo, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addContainerGap())
                     );
                     panel8Layout.setVerticalGroup(
-                            panel8Layout.createParallelGroup()
-                                    .addGroup(panel8Layout.createSequentialGroup()
-                                            .addGap(15, 15, 15)
-                                            .addComponent(labelInfo)
-                                            .addContainerGap(19, Short.MAX_VALUE))
+                        panel8Layout.createParallelGroup()
+                            .addGroup(panel8Layout.createSequentialGroup()
+                                .addGap(15, 15, 15)
+                                .addComponent(labelInfo)
+                                .addContainerGap(19, Short.MAX_VALUE))
                     );
                 }
 
@@ -439,44 +444,44 @@ public class MainForm extends JFrame {
                 GroupLayout panel1Layout = new GroupLayout(panel1);
                 panel1.setLayout(panel1Layout);
                 panel1Layout.setHorizontalGroup(
-                        panel1Layout.createParallelGroup()
+                    panel1Layout.createParallelGroup()
+                        .addGroup(panel1Layout.createSequentialGroup()
+                            .addGroup(panel1Layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
                                 .addGroup(panel1Layout.createSequentialGroup()
-                                        .addGroup(panel1Layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-                                                .addGroup(panel1Layout.createSequentialGroup()
-                                                        .addContainerGap()
-                                                        .addComponent(panel3, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                                                .addComponent(panel8, GroupLayout.DEFAULT_SIZE, 533, Short.MAX_VALUE))
-                                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                        .addGroup(panel1Layout.createParallelGroup()
-                                                .addComponent(panel6, GroupLayout.DEFAULT_SIZE, 407, Short.MAX_VALUE)
-                                                .addGroup(panel1Layout.createSequentialGroup()
-                                                        .addComponent(progressBar, GroupLayout.PREFERRED_SIZE, 306, GroupLayout.PREFERRED_SIZE)
-                                                        .addGap(29, 29, 29)
-                                                        .addComponent(btnCancel)
-                                                        .addGap(0, 17, Short.MAX_VALUE))
-                                                .addGroup(panel1Layout.createSequentialGroup()
-                                                        .addComponent(btnOrbitViewer, GroupLayout.PREFERRED_SIZE, 170, GroupLayout.PREFERRED_SIZE)
-                                                        .addContainerGap(237, Short.MAX_VALUE))
-                                                .addComponent(panel5, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                    .addContainerGap()
+                                    .addComponent(panel3, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                                .addComponent(panel8, GroupLayout.DEFAULT_SIZE, 533, Short.MAX_VALUE))
+                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                            .addGroup(panel1Layout.createParallelGroup()
+                                .addComponent(panel6, GroupLayout.DEFAULT_SIZE, 407, Short.MAX_VALUE)
+                                .addGroup(panel1Layout.createSequentialGroup()
+                                    .addComponent(progressBar, GroupLayout.PREFERRED_SIZE, 306, GroupLayout.PREFERRED_SIZE)
+                                    .addGap(29, 29, 29)
+                                    .addComponent(btnCancel)
+                                    .addGap(0, 17, Short.MAX_VALUE))
+                                .addGroup(panel1Layout.createSequentialGroup()
+                                    .addComponent(btnOrbitViewer, GroupLayout.PREFERRED_SIZE, 170, GroupLayout.PREFERRED_SIZE)
+                                    .addContainerGap(237, Short.MAX_VALUE))
+                                .addComponent(panel5, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 );
                 panel1Layout.setVerticalGroup(
-                        panel1Layout.createParallelGroup()
-                                .addGroup(panel1Layout.createSequentialGroup()
-                                        .addContainerGap()
-                                        .addComponent(panel5, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                        .addGap(19, 19, 19)
-                                        .addComponent(btnOrbitViewer)
-                                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(panel6, GroupLayout.PREFERRED_SIZE, 339, GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addGroup(panel1Layout.createParallelGroup()
-                                                .addComponent(progressBar, GroupLayout.PREFERRED_SIZE, 12, GroupLayout.PREFERRED_SIZE)
-                                                .addComponent(btnCancel))
-                                        .addGap(12, 12, 12))
-                                .addGroup(panel1Layout.createSequentialGroup()
-                                        .addComponent(panel3, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(panel8, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                    panel1Layout.createParallelGroup()
+                        .addGroup(panel1Layout.createSequentialGroup()
+                            .addContainerGap()
+                            .addComponent(panel5, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                            .addGap(19, 19, 19)
+                            .addComponent(btnOrbitViewer)
+                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(panel6, GroupLayout.PREFERRED_SIZE, 339, GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(panel1Layout.createParallelGroup()
+                                .addComponent(progressBar, GroupLayout.PREFERRED_SIZE, 12, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(btnCancel))
+                            .addGap(12, 12, 12))
+                        .addGroup(panel1Layout.createSequentialGroup()
+                            .addComponent(panel3, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(panel8, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                 );
             }
             tabbedPane1.addTab("\u0410\u0441\u0442\u0435\u0440\u043e\u0438\u0434\u044b", panel1);
@@ -487,12 +492,12 @@ public class MainForm extends JFrame {
                 GroupLayout panel2Layout = new GroupLayout(panel2);
                 panel2.setLayout(panel2Layout);
                 panel2Layout.setHorizontalGroup(
-                        panel2Layout.createParallelGroup()
-                                .addGap(0, 946, Short.MAX_VALUE)
+                    panel2Layout.createParallelGroup()
+                        .addGap(0, 946, Short.MAX_VALUE)
                 );
                 panel2Layout.setVerticalGroup(
-                        panel2Layout.createParallelGroup()
-                                .addGap(0, 564, Short.MAX_VALUE)
+                    panel2Layout.createParallelGroup()
+                        .addGap(0, 564, Short.MAX_VALUE)
                 );
             }
             tabbedPane1.addTab("text", panel2);
@@ -501,12 +506,12 @@ public class MainForm extends JFrame {
         GroupLayout contentPaneLayout = new GroupLayout(contentPane);
         contentPane.setLayout(contentPaneLayout);
         contentPaneLayout.setHorizontalGroup(
-                contentPaneLayout.createParallelGroup()
-                        .addComponent(tabbedPane1)
+            contentPaneLayout.createParallelGroup()
+                .addComponent(tabbedPane1)
         );
         contentPaneLayout.setVerticalGroup(
-                contentPaneLayout.createParallelGroup()
-                        .addComponent(tabbedPane1, GroupLayout.Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 588, Short.MAX_VALUE)
+            contentPaneLayout.createParallelGroup()
+                .addComponent(tabbedPane1, GroupLayout.Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 588, Short.MAX_VALUE)
         );
         pack();
         setLocationRelativeTo(getOwner());
