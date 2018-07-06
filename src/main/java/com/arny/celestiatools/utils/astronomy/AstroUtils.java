@@ -6,6 +6,7 @@ import com.arny.celestiatools.utils.DateTimeUtils;
 import com.arny.celestiatools.utils.GradMinSec;
 import com.arny.celestiatools.utils.MathUtils;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import java.util.Calendar;
 
@@ -146,6 +147,10 @@ public class AstroUtils {
      */
     public static String YMDd(double JD) {
         long timestimp = DateFromJD(JD);
+        Calendar dateTime = Calendar.getInstance();
+        dateTime.setTimeInMillis(timestimp);
+        dateTime.get(Calendar.SECOND);
+        System.out.println(dateTime);
         String sec = getDateTime(timestimp, "ss");
         String min = getDateTime(timestimp, "mm");
         String hrs = getDateTime(timestimp, "HH");
@@ -158,7 +163,8 @@ public class AstroUtils {
             double mMin = (dSec + Double.parseDouble(min)) / 60;
             double timeZ = Double.parseDouble(Z) / 100;
             double mHrs = Double.parseDouble(hrs);
-            double dHr = (mMin + (mHrs - timeZ)) / 24;
+            mHrs = mHrs - timeZ;
+            double dHr = (mMin + mHrs) / 24;
             int mY = Integer.parseInt(yrs);
             int mM = Integer.parseInt(mth);
             int mD = Integer.parseInt(days);

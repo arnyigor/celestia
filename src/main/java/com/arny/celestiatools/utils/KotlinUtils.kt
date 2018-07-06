@@ -35,3 +35,13 @@ fun getMessage(success: Boolean, method: String): String {
 
     return message
 }
+
+fun String?.ifNull(string: String): String {
+    val blank = this?.isBlank() ?: true
+    return if (blank) string else this!!
+}
+
+fun <T> Any?.ifNull(default: T): T {
+    if (this == null) return default
+    return this as T
+}

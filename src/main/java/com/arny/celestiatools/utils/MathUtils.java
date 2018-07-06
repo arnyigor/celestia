@@ -51,6 +51,10 @@ public class MathUtils {
         return new BigDecimal(val).setScale(scale, BigDecimal.ROUND_HALF_UP).doubleValue();
     }
 
+    public static double round(double val) {
+        return new BigDecimal(val).setScale(0, BigDecimal.ROUND_HALF_UP).doubleValue();
+    }
+
 	public static double summ(double num1, double num2, int scale) {
 		return new BigDecimal(num1).add(new BigDecimal(num2)).setScale(scale, BigDecimal.ROUND_HALF_UP).doubleValue();
 	}

@@ -494,10 +494,8 @@ class OrbitCanvas extends Canvas {
 			xyz1 = planetPos[2].Rotate(this.mtxRotate);
             sdistance = Math.sqrt((xyz.fX * xyz.fX) + (xyz.fY * xyz.fY) + (xyz.fZ * xyz.fZ));
 			sdistance = (int) (sdistance * 1000.0) / 1000.0;
-			xdiff = xyz.fX - xyz1.fX;
-			ydiff = xyz.fY - xyz1.fY;
-			zdiff = xyz.fZ - xyz1.fZ;
-			edistance = Math.sqrt((xdiff * xdiff) + (ydiff * ydiff) + (zdiff * zdiff)) - DistanceConvert(AstroConst.R_Earth, AstroUtils.DistanceTypes.metre, AstroUtils.DistanceTypes.AU);
+			double v = getDist(xyz, xyz1);
+			edistance = v - DistanceConvert(AstroConst.R_Earth, AstroUtils.DistanceTypes.metre, AstroUtils.DistanceTypes.AU);
             strDist = "Earth Distance: " + MathUtils.round(DistanceConvert(edistance, AstroUtils.DistanceTypes.AU, AstroUtils.DistanceTypes.km),3) + " km, min:" + MathUtils.round(DistanceConvert(minEdist, AstroUtils.DistanceTypes.AU, AstroUtils.DistanceTypes.km),3) + " date:" + strATime;
 			point1.x = fm.charWidth('A');
 			point1.y = this.sizeCanvas.height - fm.getDescent() - fm.getHeight() - 10;
@@ -521,12 +519,19 @@ class OrbitCanvas extends Canvas {
 		}
 
 		// Border
-		og.clearRect(0, sizeCanvas.height - 1,
-				sizeCanvas.width, sizeCanvas.height);
-		og.clearRect(sizeCanvas.width - 1, 0,
-				sizeCanvas.width, sizeCanvas.height);
-
+		og.clearRect(0, sizeCanvas.height - 1, sizeCanvas.width, sizeCanvas.height);
+		og.clearRect(sizeCanvas.width - 1, 0, sizeCanvas.width, sizeCanvas.height);
 		g.drawImage(offscreen, 0, 0, null);
+	}
+
+	private static double getDist(Xyz bodyPos, Xyz planetPos) {
+		double xdiff;
+		double ydiff;
+		double zdiff;
+		xdiff = bodyPos.fX - planetPos.fX;
+		ydiff = bodyPos.fY - planetPos.fY;
+		zdiff = bodyPos.fZ - planetPos.fZ;
+		return Math.sqrt((xdiff * xdiff) + (ydiff * ydiff) + (zdiff * zdiff));
 	}
 
 	/**

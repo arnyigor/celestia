@@ -18,7 +18,6 @@ import com.arny.celestiatools.utils.celestia.ATime;
 import com.arny.celestiatools.utils.celestia.OrbitViewer;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.Scheduler;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 import org.joda.time.DateTime;
@@ -28,7 +27,7 @@ import org.json.simple.parser.JSONParser;
 
 import javax.swing.*;
 
-import static com.arny.celestiatools.utils.astronomy.AstroUtils.*;
+import static com.arny.celestiatools.controller.SqliteConnection.getConnection;
 
 public class Controller {
 
@@ -48,13 +47,12 @@ public class Controller {
             asteroidsFileCEL = new File(MPC_FILES_DIR + MPC_NEAM_LAST_SCC),
             asteroidsFileSE = new File(MPC_FILES_DIR + MPC_NEAM_LAST_SC_SE);
     private StringBuilder neamParseBuilderCEL, neamParseBuilderSE;
-    private Connection connection = null;
     private int asteroidCnt, totalProgress, iterateProgress;
     private int changed, added;
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     public Controller() {
-        connection = SqliteConnection.dbConnection();
+        SqliteConnection.dbInit();
     }
 
     public static void setFrameForm(JFrame frame, int w, int h) {
@@ -67,7 +65,7 @@ public class Controller {
 
     public Observable<ArrayList<CelestiaAsteroid>> getAsterTableData() {
         Observable<ArrayList<CelestiaAsteroid>> observable = Observable.create(e -> {
-            e.onNext(SqliteConnection.getAllCelestiaAsteroids(connection));
+            e.onNext(SqliteConnection.getAllCelestiaAsteroids());
             e.onComplete();
         });
         compositeDisposable.add(observable.subscribe());
@@ -77,10 +75,8 @@ public class Controller {
     public void updateDb(ArrayList<String> orbitalTypes, onResultCallback resultParse, onResultCelestiaAsteroids celestiaData, onProgressUpdate onProgressUpdate) {
         Stopwatch stopwatch = new Stopwatch();
         stopwatch.start();
-        compositeDisposable.add(Observable.create((ObservableOnSubscribe<String>) e -> {
-            e.onNext(updateDb(celestiaData, onProgressUpdate, orbitalTypes));
-            e.onComplete();
-        }).subscribeOn(Schedulers.io())
+        compositeDisposable.add(RxUtils.IOThreadObservable(Observable.fromCallable(() ->
+                updateDb(celestiaData, onProgressUpdate, orbitalTypes)))
                 .subscribe(s -> {
                     System.out.println("res with thread:" + Thread.currentThread() + " :" + stopwatch.getElapsedTimeSecs(3) + " sec");
                     resultParse.result("dbwrite", true, s + " обновление базы заняло:" + stopwatch.getElapsedTimeSecs(3) + " секунд");
@@ -119,13 +115,13 @@ public class Controller {
             asteroidCnt++;
             JSONObject astroObject = (JSONObject) asteroid;
             CelestiaAsteroid celestiaAsteroid = new CelestiaAsteroid();
-            convertJsonAsteroid(astroObject, celestiaAsteroid);
+            celestiaAsteroid = ControllerUtilsKt.convertJsonAsteroid(astroObject, celestiaAsteroid);
             updateOrInsertDb(celestiaAsteroid, orbitalTypes);
             long esTime = BaseUtils.getEsTime(st, System.currentTimeMillis(), iterateProgress, totalProgress);
             onProgressUpdate.update("dbwrite", totalProgress, iterateProgress, BaseUtils.convertExtendTime(esTime));
             iterateProgress++;
         }
-        celestiaData.dataCallback(SqliteConnection.getAllCelestiaAsteroids(connection));
+        celestiaData.dataCallback(SqliteConnection.getAllCelestiaAsteroids());
         long esTime = System.currentTimeMillis() - start;
         operationResult = "Найдено: " + asteroidCnt + " астероидов,добавлено:" + added + " обновлено:" + changed;
         operationResult += " Операция заняла:" + BaseUtils.convertExtendTime(esTime);
@@ -272,13 +268,13 @@ public class Controller {
         HashMap<String, String> dbValues = new HashMap<>();
         SqliteConnection.setAsterDbValues(dbValues, asteroid);
         String cond = SqliteConnection.DB_ASTER_KEY_NAME + "='" + asteroid.getName() + "'";
-        CelestiaAsteroid asterDb = SqliteConnection.getAsteroid(connection, cond);
+        CelestiaAsteroid asterDb = SqliteConnection.getAsteroid(getConnection(), cond);
         if (asterDb == null) {
-            SqliteConnection.insertSqliteData(connection, SqliteConnection.DB_TABLE_ASTEROIDS, dbValues);
+            SqliteConnection.insertSqliteData(SqliteConnection.DB_TABLE_ASTEROIDS, dbValues);
             added++;
         } else {
             if (isAsteroidChanged(asteroid, asterDb)) {
-                SqliteConnection.updateSqliteData(connection, SqliteConnection.DB_TABLE_ASTEROIDS, dbValues, cond);
+                SqliteConnection.updateSqliteData(getConnection(), SqliteConnection.DB_TABLE_ASTEROIDS, dbValues, cond);
                 changed++;
             }
         }
@@ -334,6 +330,7 @@ public class Controller {
     }
 
     private void convertJsonAsteroid(JSONObject astroObject, CelestiaAsteroid asteroid) {
+        System.out.println(astroObject);
         String name;
         if (astroObject.get("Name") == null) {
             name = astroObject.get("Principal_desig").toString();
@@ -356,8 +353,9 @@ public class Controller {
         }
         double magn;
         try {
-            magn = Double.parseDouble(astroObject.get("H").toString());
-        } catch (NumberFormatException e) {
+            Object h = astroObject.get("H");
+            magn = Double.parseDouble(h.toString());
+        } catch (Exception e) {
             e.printStackTrace();
             magn = 25.0;
         }
@@ -462,10 +460,7 @@ public class Controller {
     public void orbitViewerStart(CelestiaAsteroid asteroid) {
         OrbitViewer orbitViewer = new OrbitViewer();
         orbitViewer.setCelestiaAsteroid(asteroid);
-        long curtime = System.currentTimeMillis();
-        double jd = JD(curtime);
-        String ymDd = YMDd(jd);
-        orbitViewer.init(ymDd);
+        orbitViewer.init();
     }
 
     public double calcGradToFloat(String foramttedgrads) {

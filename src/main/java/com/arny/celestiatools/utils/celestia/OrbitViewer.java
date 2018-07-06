@@ -12,7 +12,6 @@ import com.arny.celestiatools.utils.DateTimeUtils;
 import com.arny.celestiatools.utils.astronomy.AstroConst;
 import com.arny.celestiatools.utils.astronomy.AstroUtils;
 import com.arny.celestiatools.utils.BaseUtils;
-import jdk.nashorn.internal.scripts.JD;
 import org.joda.time.DateTime;
 
 import javax.swing.*;
@@ -76,7 +75,7 @@ public class OrbitViewer extends Applet implements ActionListener {
      */
     private static final int CenterObjectCount = 11;
     private static final String CenterObjectLabel[] = {
-            "Sun", "Asteroid/Comet", "Mercury", "Venus", "Earth",
+            "Sun", "Asteroid/Minorplanet", "Mercury", "Venus", "Earth",
             "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"
     };
     private int CenterObjectSelected = 1;
@@ -87,7 +86,7 @@ public class OrbitViewer extends Applet implements ActionListener {
     private static final int OrbitDisplayCount = 14;
     private static final String OrbitDisplayLabel[] = {
             "Default Orbits", "All Orbits", "No Orbits", "------",
-            "Asteroid/Comet", "Mercury", "Venus", "Earth",
+            "Asteroid/Minorplanet", "Mercury", "Venus", "Earth",
             "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"
     };
     private int OrbitCount = 11;
@@ -437,11 +436,9 @@ public class OrbitViewer extends Applet implements ActionListener {
     /**
      * Initialization of applet
      */
-    public void init(String YMDd) {
+    public void init() {
+        this.atime = initTime();
         this.setBackground(Color.white);
-        //
-        // Main Panel
-        //
         Panel mainPanel = new Panel();
         GridBagLayout gblMainPanel = new GridBagLayout();
         GridBagConstraints gbcMainPanel = new GridBagConstraints();
@@ -450,7 +447,6 @@ public class OrbitViewer extends Applet implements ActionListener {
 
         // Orbit Canvas
         Comet object = getObject();
-        this.atime = ymdStringToAtime(YMDd);
         orbitCanvas = new OrbitCanvas(object, this.atime);
         gbcMainPanel.weightx = 1.0;
         gbcMainPanel.weighty = 1.0;
@@ -955,6 +951,13 @@ public class OrbitViewer extends Applet implements ActionListener {
         Controller.setFrameForm(mainFrame, 850, 650);
         mainFrame.pack();
         mainFrame.setVisible(true);
+    }
+
+    private ATime initTime() {
+        long curtime = System.currentTimeMillis();
+        double jd = JD(curtime);
+        String YMDd = YMDd(jd);
+        return  ymdStringToAtime(YMDd);
     }
 
     /**

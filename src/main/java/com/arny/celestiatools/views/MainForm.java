@@ -13,8 +13,7 @@ import javax.swing.table.*;
 
 import com.arny.celestiatools.controller.Controller;
 import com.arny.celestiatools.models.CelestiaAsteroid;
-import com.arny.celestiatools.models.onResultCallback;
-import com.arny.celestiatools.utils.UtilsKt;
+import com.arny.celestiatools.utils.KotlinUtilsKt;
 import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
 
@@ -23,7 +22,8 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class MainForm extends JFrame {
     private Controller controller;
-    private ArrayList<CelestiaAsteroid> celestiaAsteroids,selectedAsteroids;
+    private ArrayList<CelestiaAsteroid> celestiaAsteroids = new ArrayList<>();
+    private ArrayList<CelestiaAsteroid> selectedAsteroids = new ArrayList<>();
     private CelestiaAsteroid celestiaAsteroid;
     private TableAsteroidModel tableModel;
     private TableRowSorter<TableAsteroidModel> rowSorter;
@@ -130,10 +130,10 @@ public class MainForm extends JFrame {
 
     private void MessageResultCallback(String method, boolean success, String result) {
         System.out.println("MessageResultCallback: in thread:" + Thread.currentThread().getName());
-        String message = UtilsKt.getMessage(success, method);
+        String message = KotlinUtilsKt.getMessage(success, method);
         labelInfo.setText(message);
         int messType = success ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE;
-        JOptionPane.showMessageDialog(null, result, UtilsKt.getTitle(method), messType);
+        JOptionPane.showMessageDialog(null, result, KotlinUtilsKt.getTitle(method), messType);
     }
 
     private class TableAsteroidModel extends AbstractTableModel {

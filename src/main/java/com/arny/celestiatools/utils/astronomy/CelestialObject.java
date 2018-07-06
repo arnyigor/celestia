@@ -4,7 +4,7 @@ package com.arny.celestiatools.utils.astronomy;
 import java.util.Calendar;
 
 public abstract class CelestialObject {
-    public static final String COMET = "Comet";
+    public static final String COMET = "Minorplanet";
     public static final String CONSTELLATION = "Constellation";
     public static final String DEEP_SKY = "DeepSky";
     public static final String METEOR_SHOWER = "MeteorShower";
