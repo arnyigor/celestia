@@ -9,6 +9,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
 import java.util.Calendar;
+import java.util.Date;
 
 import static com.arny.celestiatools.utils.MathUtils.*;
 import static com.arny.celestiatools.utils.BaseUtils.*;
@@ -300,7 +301,6 @@ public class AstroUtils {
             return DateTimeUtils.getDateTime(res, "dd MMM yyyy");
         }
     }
-
 
     private static int getCeloe(double first, double second) {
         return MathUtils.intact(first / second);
@@ -598,7 +598,7 @@ public class AstroUtils {
         double N = dayOfYear(timestamp);
         //2. convert the longitude to hour value and calculate an approximate time
         double LngHour = Lon / 15;
-        double t = 0;
+        double t;
         t = rise ? N + ((6 - LngHour) / 24) : N + ((18 - LngHour) / 24);
         // 3. calculate the Sun's mean anomaly
         double M = (0.9856 * t) - 3.289;
@@ -625,8 +625,11 @@ public class AstroUtils {
         double cosDec = Cos(Asin(sinDec));
         // 7a. calculate the Sun's local hour angle
         double HCos = (Cos(Zenith) - (sinDec * Sin(Lat))) / (cosDec * Cos(Lat));
-        if ((HCos > 1) || (HCos < -1)) {
-            return "";
+        if (HCos > 1) {
+            return "+";
+        }
+        if ((HCos < -1)) {
+            return "-";
         }
 
         // 7b. finish calculating H and convert into hours
@@ -643,20 +646,20 @@ public class AstroUtils {
         double UT = LocalT - LngHour;
         // NOTE: UT potentially needs to be adjusted into the range [0,24) by adding/subtracting 24
         UT = correctAngle(UT, 24);
-        String hHmm1 = getHHmm(UT);
+        String UTC = getHHmm(UT);
         // 10. convert UT value to local time zone of latitude/longitude
-        String x = DateTimeUtils.getDateTime(timestamp, "X");
-        double Result = UT + Double.parseDouble(x);
-        String hHmm = getHHmm(Result);
-        return hHmm;
+//        String x = BaseUtils.getDateTime(new Date(timestamp), "X");
+//        double Result = UT + Double.parseDouble(x);
+//        String hHmm = getHHmm(Result);
+        return UTC;
     }
 
     /**
      * Преобразование полярных координат в прямоугольные
      *
      * @param radius
-     * @param theta [-90...+90]
-     * @param phi   [-360...+360]
+     * @param theta  [-90...+90]
+     * @param phi    [-360...+360]
      * @return
      */
     public static CoordXYZ getCart(double radius, double theta, double phi) {

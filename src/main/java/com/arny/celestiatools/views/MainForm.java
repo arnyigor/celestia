@@ -7,12 +7,14 @@ package com.arny.celestiatools.views;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.*;
 
 import com.arny.celestiatools.controller.Controller;
 import com.arny.celestiatools.models.CelestiaAsteroid;
+import com.arny.celestiatools.utils.DateTimeUtils;
 import com.arny.celestiatools.utils.KotlinUtilsKt;
 import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
@@ -180,9 +182,15 @@ public class MainForm extends JFrame {
         }
     }
 
+
     private void setModelToTable() {
         tableModel = new TableAsteroidModel();
         rowSorter = new TableRowSorter<>(tableModel);
+        rowSorter.setComparator(4, (o1, o2) -> {
+            long millis1 = DateTimeUtils.getDateTime(o1.toString(), "dd MM yyyy HH:mm").getMillis();
+            long millis2 = DateTimeUtils.getDateTime(o2.toString(), "dd MM yyyy HH:mm").getMillis();
+            return Long.compare(millis1, millis2);
+        });
         textFieldSearch.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -209,8 +217,15 @@ public class MainForm extends JFrame {
         tblAsteroidsData.setRowSorter(rowSorter);
     }
 
+    private void menuItem1ActionPerformed(ActionEvent e) {
+        new CalcFrame("");
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
+        menuBar1 = new JMenuBar();
+        menu1 = new JMenu();
+        menuItem1 = new JMenuItem();
         tabbedPane1 = new JTabbedPane();
         panel1 = new JPanel();
         panel3 = new JPanel();
@@ -239,6 +254,22 @@ public class MainForm extends JFrame {
         //======== this ========
         setTitle("Celestia Tools");
         Container contentPane = getContentPane();
+
+        //======== menuBar1 ========
+        {
+
+            //======== menu1 ========
+            {
+                menu1.setText("text");
+
+                //---- menuItem1 ----
+                menuItem1.setText("text");
+                menuItem1.addActionListener(e -> menuItem1ActionPerformed(e));
+                menu1.add(menuItem1);
+            }
+            menuBar1.add(menu1);
+        }
+        setJMenuBar(menuBar1);
 
         //======== tabbedPane1 ========
         {
@@ -519,6 +550,9 @@ public class MainForm extends JFrame {
     }
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
+    private JMenuBar menuBar1;
+    private JMenu menu1;
+    private JMenuItem menuItem1;
     private JTabbedPane tabbedPane1;
     private JPanel panel1;
     private JPanel panel3;

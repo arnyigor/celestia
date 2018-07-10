@@ -193,7 +193,7 @@ public class DateTimeUtils {
      * @param format
      * @return String datetime
      */
-    public static String getDateTime(Date date, String format) {
+    public static String getDateTimeCalendar(Date date, String format) {
         try {
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(date);

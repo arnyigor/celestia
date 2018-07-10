@@ -6,7 +6,6 @@ import javax.swing.*;
 
 public class Main {
 	public static void main(String[] args) {
-
         JFrame.setDefaultLookAndFeelDecorated(true);
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -14,15 +13,5 @@ public class Main {
 			e.printStackTrace();
 		}
 		new MainForm();
-//		test();
-	}
-
-	static void test() {
-		try {
-			int floor = (int) MathUtils.round(86400.0000001 / 86400,0);
-			System.out.println(floor);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 }

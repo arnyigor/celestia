@@ -89,8 +89,9 @@ public class CalcFrame extends JFrame {
     }
 
     private void menuItem1ActionPerformed(ActionEvent e) {
-        String sr = AstroUtils.getSunsetRise(DateTimeUtils.convertTimeStringToLong("17 09 2017", "dd MM yyyy"), 55.61666666666667, 38.61666666666667, false, AstroConst.TWILIGHT);
-//        System.out.println(sr);
+        String sr = AstroUtils.getSunsetRise(DateTimeUtils.convertTimeStringToLong("10 07 2018", "dd MM yyyy"),
+                55.46666666666667, -28.75, true, AstroConst.TWILIGHT);
+        System.out.println(sr);
     }
 
     private void menuItem2ActionPerformed(ActionEvent e) {
