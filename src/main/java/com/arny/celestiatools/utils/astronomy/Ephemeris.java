@@ -65,7 +65,6 @@ public class Ephemeris {
         datePosition.add(Calendar.SECOND, -((int) getEphemerisTime(JulianDate.JD(datePosition.getTimeInMillis()))));
     }
 
-
     public static double convertDynamicalToUT(double jd) {
         return jd - (getEphemerisTime(jd) / 86400.0d);
     }
@@ -104,7 +103,8 @@ public class Ephemeris {
     }
 
     private static float getTimeZoneOffset(long dt) {
-        return Float.parseFloat(DateTimeUtils.getDateTime(dt, "X"));
+        String x = DateTimeUtils.getDateTime(dt, "Z");
+        return Float.parseFloat(x);
     }
 
     public static RiseSetEvent getTransit(DatePosition datePosition, double ra1, double dec1, double ra2, double dec2, double ra3, double dec3, double h0) {

@@ -535,13 +535,12 @@ public class Controller {
     public void epf() {
         Earth earth = new Earth();
         CelestialObject celestialObject = earth.getCelestialObject();
-        DateTime time = DateTimeUtils.getDateTime().withZone(DateTimeZone.UTC);
-        GeoLocation geo = new GeoLocation("geo", 0.0, 0.0);
+        DateTime time = DateTimeUtils.getDateTime();
+        GeoLocation geo = new GeoLocation("geo", 55.706952, 37.922160);
         DatePosition datePosition = new DatePosition(time.getMillis(), geo);
         celestialObject.computeElements(datePosition);
-        double solarDistanceAU = celestialObject.getSolarDistanceAU();
-        double distanceConvert = DistanceConvert(solarDistanceAU, AstroUtils.DistanceTypes.AU, AstroUtils.DistanceTypes.metre);
-        System.out.println("solarDistance metre:" + distanceConvert);
+        double lengthOfDay = Ephemeris.getLengthOfDay(datePosition);
+        System.out.println("solarDistance velocity:" + lengthOfDay);
     }
 
     public void testTime() {
