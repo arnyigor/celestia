@@ -146,7 +146,7 @@ public class MoonObject extends SolarSystemObject {
     }
 
     public double getGeocentricDiameterArcsec(double altitude) {
-        return (1.0d + (Math.sin(altitude) * Math.sin(this.parallax))) * (7.169468E8d / (getDistanceAU() * Ephemeris.AU));
+        return (1.0d + (Math.sin(altitude) * Math.sin(this.parallax))) * (7.169468E8d / (getDistanceAU() * AstroConst.AU));
     }
 
     public double getPhaseAngle() {
@@ -224,7 +224,7 @@ public class MoonObject extends SolarSystemObject {
         B += 1.0E-6d * ((((((-39.0081087820732d * Math.sin(this.Ld)) + (6.66715774261833d * Math.sin(A3))) + (3.05432619099007d * Math.sin(A1 - this.F))) + (3.05432619099007d * Math.sin(this.F + A1))) + (2.2165681500328d * Math.sin(this.Ld - this.Md))) - (2.00712863979348d * Math.sin(this.Ld + this.Md)));
         R += 385000.56d;
         this.parallax = Math.asin(6378.14d / R);
-        R /= Ephemeris.AU;
+        R /= AstroConst.AU;
         L %= Ephemeris.PI2;
         if (L < 0.0d) {
             L += Ephemeris.PI2;

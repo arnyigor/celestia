@@ -486,8 +486,6 @@ class OrbitCanvas extends Canvas {
 		point1.y = 2 * fm.charWidth('A');
 		og.drawString(object.getName(), point1.x, point1.y);
 
-//		if (bDistanceLabel) {
-			// Earth & Sun Distance
 			double xdiff, ydiff, zdiff;
 			String strDist;
 			xyz = this.objectPos.Rotate(this.mtxToEcl).Rotate(this.mtxRotate);
@@ -504,7 +502,6 @@ class OrbitCanvas extends Canvas {
 			point1.x = fm.charWidth('A');
 			point1.y = this.sizeCanvas.height - fm.getDescent() - fm.getHeight() / 3;
 			og.drawString(strDist, point1.x, point1.y);
-//		}
 
 		if (bDateLabel) {
 			// Date String

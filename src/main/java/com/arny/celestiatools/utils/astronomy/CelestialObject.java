@@ -263,7 +263,7 @@ public abstract class CelestialObject {
         getTopocentricEquatorialCoordinates(datePositiont2);
         Coordinates3D coordt2 = new Coordinates3D();
         Ephemeris.getRectangularCoordinates(getHeliocentricEclipticalCoordinates(), coordt2);
-        return (float) ((Ephemeris.AU * ((double) SphericalMath.getDistance(coordt1, coordt2))) / dS);
+        return (float) ((AstroConst.AU * ((double) SphericalMath.getDistance(coordt1, coordt2))) / dS);
     }
 
     public float getOrbitOrientation(DatePosition datePosition) {

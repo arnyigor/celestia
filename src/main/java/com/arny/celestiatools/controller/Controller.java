@@ -21,6 +21,7 @@ import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -28,6 +29,7 @@ import org.json.simple.parser.JSONParser;
 import javax.swing.*;
 
 import static com.arny.celestiatools.controller.SqliteConnection.getConnection;
+import static com.arny.celestiatools.utils.astronomy.AstroUtils.DistanceConvert;
 
 public class Controller {
 
@@ -528,6 +530,18 @@ public class Controller {
         double jd = Double.parseDouble(jds);
         long dt = AstroUtils.DateFromJD(jd);
         return DateTimeUtils.getDateTime(dt, "dd MM yyyy HH:mm:ss");
+    }
+
+    public void epf() {
+        Earth earth = new Earth();
+        CelestialObject celestialObject = earth.getCelestialObject();
+        DateTime time = DateTimeUtils.getDateTime().withZone(DateTimeZone.UTC);
+        GeoLocation geo = new GeoLocation("geo", 0.0, 0.0);
+        DatePosition datePosition = new DatePosition(time.getMillis(), geo);
+        celestialObject.computeElements(datePosition);
+        double solarDistanceAU = celestialObject.getSolarDistanceAU();
+        double distanceConvert = DistanceConvert(solarDistanceAU, AstroUtils.DistanceTypes.AU, AstroUtils.DistanceTypes.metre);
+        System.out.println("solarDistance metre:" + distanceConvert);
     }
 
     public void testTime() {

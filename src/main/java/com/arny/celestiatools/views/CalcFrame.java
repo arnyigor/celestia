@@ -5,6 +5,7 @@
 package com.arny.celestiatools.views;
 
 import com.arny.celestiatools.controller.Controller;
+import com.arny.celestiatools.utils.Stopwatch;
 import com.arny.celestiatools.utils.astronomy.AstroConst;
 import com.arny.celestiatools.utils.astronomy.AstroUtils;
 import com.arny.celestiatools.utils.DateTimeUtils;
@@ -46,14 +47,14 @@ public class CalcFrame extends JFrame {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Controller.setFrameForm(this,600,500);
+        Controller.setFrameForm(this, 600, 500);
         setVisible(true);
     }
 
     private void textFieldGradFloatKeyReleased(KeyEvent e) {
         String filterStr = "0123456789.";
         char c = e.getKeyChar();
-        if(filterStr.indexOf(c)<0){
+        if (filterStr.indexOf(c) < 0) {
             e.consume();
         }
         String s = controller.calcGradToMasked(textFieldGradFloat.getText());
@@ -63,7 +64,7 @@ public class CalcFrame extends JFrame {
     private void formattedTextFieldKeyReleased(KeyEvent ke) {
         String filterStr = "0123456789.";
         char c = ke.getKeyChar();
-        if(filterStr.indexOf(c)<0){
+        if (filterStr.indexOf(c) < 0) {
             ke.consume();
         }
         textFieldGradFloat.setText(String.valueOf(controller.calcGradToFloat(formattedGrads.getText())));
@@ -72,30 +73,48 @@ public class CalcFrame extends JFrame {
     private void formattedTextFieldDateKeyReleased(KeyEvent e) {
         String filterStr = "0123456789";
         char c = e.getKeyChar();
-        if(filterStr.indexOf(c)<0){
+        if (filterStr.indexOf(c) < 0) {
             e.consume();
         }
-       textFieldJD.setText(controller.calcDatTimeToJD(formattedTextFieldDate.getText()));
+        textFieldJD.setText(controller.calcDatTimeToJD(formattedTextFieldDate.getText()));
 
     }
 
     private void textFieldJDKeyReleased(KeyEvent e) {
         String filterStr = "0123456789.";
         char c = e.getKeyChar();
-        if(filterStr.indexOf(c)<0){
+        if (filterStr.indexOf(c) < 0) {
             e.consume();
         }
         formattedTextFieldDate.setText(controller.calcJDToDatTime(textFieldJD.getText()));
     }
 
     private void menuItem1ActionPerformed(ActionEvent e) {
-        String sr = AstroUtils.getSunsetRise(DateTimeUtils.convertTimeStringToLong("10 07 2018", "dd MM yyyy"),
-                55.46666666666667, -28.75, true, AstroConst.TWILIGHT);
-        System.out.println(sr);
+        long timestamp = DateTimeUtils.convertTimeStringToLong("11 06 2014", "dd MM yyyy");
+        double lat = 55.753655;
+        double lon = 37.619872;
+        StringBuilder res = new StringBuilder();
+        String twRise = AstroUtils.getSunsetRise(timestamp, lat, lon, true, AstroConst.TWILIGHT,4);
+        String ctwRise = AstroUtils.getSunsetRise(timestamp, lat, lon, true, AstroConst.CIVIL_TWILIGHT,4);
+        String ntwRise = AstroUtils.getSunsetRise(timestamp, lat, lon, true, AstroConst.NAUTICAL_TWILIGHT,4);
+        String atwRise = AstroUtils.getSunsetRise(timestamp, lat, lon, true, AstroConst.ASTRONOMICAL_TWILIGHT,4);
+        String twSet = AstroUtils.getSunsetRise(timestamp, lat, lon, false, AstroConst.TWILIGHT,4);
+        String ctwSet = AstroUtils.getSunsetRise(timestamp, lat, lon, false, AstroConst.CIVIL_TWILIGHT,4);
+        String ntwSet = AstroUtils.getSunsetRise(timestamp, lat, lon, false, AstroConst.NAUTICAL_TWILIGHT,4);
+        String atwSet = AstroUtils.getSunsetRise(timestamp, lat, lon, false, AstroConst.ASTRONOMICAL_TWILIGHT,4);
+        res.append("twRise:").append(twRise).append("\n");
+        res.append("ctwRise:").append(ctwRise).append("\n");
+        res.append("ntwRise:").append(ntwRise).append("\n");
+        res.append("atwRise:").append(atwRise).append("\n");
+        res.append("twSet:").append(twSet).append("\n");
+        res.append("ctwSet:").append(ctwSet).append("\n");
+        res.append("ntwSet:").append(ntwSet).append("\n");
+        res.append("atwSet:").append(atwSet).append("\n");
+        System.out.println(res);
     }
 
     private void menuItem2ActionPerformed(ActionEvent e) {
-        controller.testTime();
+        controller.epf();
     }
 
     private void initComponents() {
@@ -134,12 +153,12 @@ public class CalcFrame extends JFrame {
                 menu1.setText("\u041c\u0435\u043d\u044e");
 
                 //---- menuItem1 ----
-                menuItem1.setText("text");
+                menuItem1.setText("Menu1");
                 menuItem1.addActionListener(e -> menuItem1ActionPerformed(e));
                 menu1.add(menuItem1);
 
                 //---- menuItem2 ----
-                menuItem2.setText("text");
+                menuItem2.setText("Menu 2");
                 menuItem2.addActionListener(e -> menuItem2ActionPerformed(e));
                 menu1.add(menuItem2);
             }
@@ -286,7 +305,7 @@ public class CalcFrame extends JFrame {
                                     .addGroup(panel1Layout.createParallelGroup()
                                         .addComponent(panel3, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                                         .addComponent(panel4, GroupLayout.PREFERRED_SIZE, 298, GroupLayout.PREFERRED_SIZE))
-                                    .addContainerGap(446, Short.MAX_VALUE))
+                                    .addContainerGap(448, Short.MAX_VALUE))
                         );
                         panel1Layout.setVerticalGroup(
                             panel1Layout.createParallelGroup()
@@ -307,7 +326,7 @@ public class CalcFrame extends JFrame {
                         panel2.setLayout(panel2Layout);
                         panel2Layout.setHorizontalGroup(
                             panel2Layout.createParallelGroup()
-                                .addGap(0, 750, Short.MAX_VALUE)
+                                .addGap(0, 752, Short.MAX_VALUE)
                         );
                         panel2Layout.setVerticalGroup(
                             panel2Layout.createParallelGroup()

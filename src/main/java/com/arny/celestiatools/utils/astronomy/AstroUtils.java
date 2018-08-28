@@ -6,7 +6,6 @@ import com.arny.celestiatools.utils.DateTimeUtils;
 import com.arny.celestiatools.utils.GradMinSec;
 import com.arny.celestiatools.utils.MathUtils;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -594,6 +593,20 @@ public class AstroUtils {
      * @return
      */
     public static String getSunsetRise(long timestamp, double Lat, double Lon, boolean rise, double Zenith) {
+        return getSunsetRise(timestamp, Lat, Lon, rise, Zenith, 0);
+    }
+
+    /**
+     * Восход/заход солнца
+     *
+     * @param timestamp
+     * @param Lat
+     * @param Lon
+     * @param Zenith
+     * @param localZone
+     * @return
+     */
+    public static String getSunsetRise(long timestamp, double Lat, double Lon, boolean rise, double Zenith, double localZone) {
         // 1. first calculate the day of the year
         double N = dayOfYear(timestamp);
         //2. convert the longitude to hour value and calculate an approximate time
@@ -623,7 +636,7 @@ public class AstroUtils {
         // 6. calculate the Sun's declination
         double sinDec = 0.39782 * Sin(L);
         double cosDec = Cos(Asin(sinDec));
-        // 7a. calculate the Sun's local hour angle
+        // 7a. calculate the Sun's localZone hour angle
         double HCos = (Cos(Zenith) - (sinDec * Sin(Lat))) / (cosDec * Cos(Lat));
         if (HCos > 1) {
             return "+";
@@ -632,14 +645,14 @@ public class AstroUtils {
             return "-";
         }
 
-        // 7b. finish calculating H and convert into hours
+        // 7b. finish calculating H and convert into hourstwRise
         // if  rising time is desired:
         // H := 360 - RadToDeg( ArcCos( HCos ) );
         // if setting time is desired:
         // H := RadToDeg( ArcCos( HCos ) );
         double H = rise ? 360 - Acos(HCos) : Acos(HCos);
         H = H / 15;
-        // 8. calculate local mean time of rising/setting
+        // 8. calculate localZone mean time of rising/setting
         double LocalT = H + RA - (0.06571 * t) - 6.622;
         String hHmm0 = getHHmm(LocalT);
         // 9. adjust back to UTC
@@ -647,11 +660,11 @@ public class AstroUtils {
         // NOTE: UT potentially needs to be adjusted into the range [0,24) by adding/subtracting 24
         UT = correctAngle(UT, 24);
         String UTC = getHHmm(UT);
-        // 10. convert UT value to local time zone of latitude/longitude
-//        String x = BaseUtils.getDateTime(new Date(timestamp), "X");
-//        double Result = UT + Double.parseDouble(x);
-//        String hHmm = getHHmm(Result);
-        return UTC;
+        // 10. convert UT value to localZone time zone of latitude/longitude
+        String x = BaseUtils.getDateTime(new Date(timestamp), "X");
+        double Result = UT + localZone;
+        String hHmm = getHHmm(Result);
+        return hHmm;
     }
 
     /**

@@ -11,7 +11,6 @@ import java.util.Calendar;
 import java.util.TimeZone;
 
 public class Ephemeris {
-    public static final double AU = 1.495978707E8d;
     public static final double PI = Math.PI;
     public static final double PI2 = Math.PI * 2;
     public static final double PID2 = 1.5707963267948966d;
@@ -101,7 +100,7 @@ public class Ephemeris {
     }
 
     public static double parallax2DistanceAU(double p) {
-        return 6378.14d / (AU * Math.sin(p));
+        return 6378.14d / (AstroConst.AU * Math.sin(p));
     }
 
     private static float getTimeZoneOffset(long dt) {
