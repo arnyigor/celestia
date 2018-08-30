@@ -47,7 +47,7 @@ public class FileUtils {
             while (entry != null) {
                 String entryName = entry.getName();
                 File file = new File(destinationFolder + File.separator + entryName);
-                System.out.println("Unzip file " + entryName + " to " + file.getAbsolutePath());
+//                System.out.println("Unzip file " + entryName + " to " + file.getAbsolutePath());
                 // create the directories of the zip directory
                 if (entry.isDirectory()) {
                     File newDir = new File(file.getAbsolutePath());
@@ -157,7 +157,7 @@ public class FileUtils {
         int cnt = 0;
         while ((count = bis.read(buffer, 0, bytes)) != -1) {
             cnt += count;
-            System.out.println(" cnt:"  +cnt);
+//            System.out.println(" cnt:"  +cnt);
             fis.write(buffer, 0, count);
         }
     }

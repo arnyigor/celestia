@@ -260,10 +260,10 @@ public class MainForm extends JFrame {
 
             //======== menu1 ========
             {
-                menu1.setText("text");
+                menu1.setText("\u041c\u0435\u043d\u044e");
 
                 //---- menuItem1 ----
-                menuItem1.setText("text");
+                menuItem1.setText("\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440");
                 menuItem1.addActionListener(e -> menuItem1ActionPerformed(e));
                 menu1.add(menuItem1);
             }
@@ -359,7 +359,7 @@ public class MainForm extends JFrame {
                                         .addGroup(panel5Layout.createParallelGroup()
                                             .addComponent(checkBox2, GroupLayout.PREFERRED_SIZE, 205, GroupLayout.PREFERRED_SIZE)
                                             .addComponent(checkBox3, GroupLayout.PREFERRED_SIZE, 205, GroupLayout.PREFERRED_SIZE))
-                                        .addGap(0, 6, Short.MAX_VALUE)))
+                                        .addGap(0, 0, Short.MAX_VALUE)))
                                 .addContainerGap())
                     );
                     panel5Layout.setVerticalGroup(
@@ -406,7 +406,7 @@ public class MainForm extends JFrame {
                             panel7Layout.createParallelGroup()
                                 .addGroup(panel7Layout.createSequentialGroup()
                                     .addContainerGap()
-                                    .addComponent(pnlAsteroidData, GroupLayout.DEFAULT_SIZE, 363, Short.MAX_VALUE)
+                                    .addComponent(pnlAsteroidData)
                                     .addContainerGap())
                         );
                         panel7Layout.setVerticalGroup(
@@ -425,10 +425,10 @@ public class MainForm extends JFrame {
                             .addGroup(panel6Layout.createSequentialGroup()
                                 .addContainerGap()
                                 .addGroup(panel6Layout.createParallelGroup()
-                                    .addComponent(textFieldSearch, GroupLayout.DEFAULT_SIZE, 391, Short.MAX_VALUE)
+                                    .addComponent(textFieldSearch)
                                     .addGroup(panel6Layout.createSequentialGroup()
                                         .addGroup(panel6Layout.createParallelGroup()
-                                            .addComponent(label1, GroupLayout.DEFAULT_SIZE, 385, Short.MAX_VALUE)
+                                            .addComponent(label1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                             .addComponent(panel7, GroupLayout.Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                         .addContainerGap())))
                     );
@@ -484,15 +484,15 @@ public class MainForm extends JFrame {
                                 .addComponent(panel8, GroupLayout.DEFAULT_SIZE, 533, Short.MAX_VALUE))
                             .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                             .addGroup(panel1Layout.createParallelGroup()
-                                .addComponent(panel6, GroupLayout.DEFAULT_SIZE, 407, Short.MAX_VALUE)
+                                .addComponent(panel6, GroupLayout.DEFAULT_SIZE, 409, Short.MAX_VALUE)
                                 .addGroup(panel1Layout.createSequentialGroup()
                                     .addComponent(progressBar, GroupLayout.PREFERRED_SIZE, 306, GroupLayout.PREFERRED_SIZE)
                                     .addGap(29, 29, 29)
                                     .addComponent(btnCancel)
-                                    .addGap(0, 17, Short.MAX_VALUE))
+                                    .addGap(0, 0, Short.MAX_VALUE))
                                 .addGroup(panel1Layout.createSequentialGroup()
                                     .addComponent(btnOrbitViewer, GroupLayout.PREFERRED_SIZE, 170, GroupLayout.PREFERRED_SIZE)
-                                    .addContainerGap(237, Short.MAX_VALUE))
+                                    .addContainerGap())
                                 .addComponent(panel5, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 );
                 panel1Layout.setVerticalGroup(
@@ -524,11 +524,11 @@ public class MainForm extends JFrame {
                 panel2.setLayout(panel2Layout);
                 panel2Layout.setHorizontalGroup(
                     panel2Layout.createParallelGroup()
-                        .addGap(0, 946, Short.MAX_VALUE)
+                        .addGap(0, 948, Short.MAX_VALUE)
                 );
                 panel2Layout.setVerticalGroup(
                     panel2Layout.createParallelGroup()
-                        .addGap(0, 564, Short.MAX_VALUE)
+                        .addGap(0, 556, Short.MAX_VALUE)
                 );
             }
             tabbedPane1.addTab("text", panel2);

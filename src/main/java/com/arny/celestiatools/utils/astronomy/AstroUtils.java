@@ -3,7 +3,7 @@ package com.arny.celestiatools.utils.astronomy;
 import com.arny.celestiatools.models.CoordXYZ;
 import com.arny.celestiatools.utils.BaseUtils;
 import com.arny.celestiatools.utils.DateTimeUtils;
-import com.arny.celestiatools.utils.GradMinSec;
+import com.arny.celestiatools.utils.AstroAngle;
 import com.arny.celestiatools.utils.MathUtils;
 import org.joda.time.DateTime;
 
@@ -150,7 +150,7 @@ public class AstroUtils {
         Calendar dateTime = Calendar.getInstance();
         dateTime.setTimeInMillis(timestimp);
         dateTime.get(Calendar.SECOND);
-        System.out.println(dateTime);
+//        System.out.println(dateTime);
         String sec = getDateTime(timestimp, "ss");
         String min = getDateTime(timestimp, "mm");
         String hrs = getDateTime(timestimp, "HH");
@@ -434,24 +434,24 @@ public class AstroUtils {
         if (correctTo360) {
             grad = (int) correctAngle(grad, 360);
         }
-        GradMinSec gradMinSec = new GradMinSec(grad, min, sec);
-        if (gradMinSec.getGrad() < 0 || gradMinSec.getMin() < 0 || gradMinSec.getSec() < 0) {
-            gradMinSec.setSign(-1);
+        AstroAngle astroAngle = new AstroAngle(grad, min, sec);
+        if (astroAngle.getGrad() < 0 || astroAngle.getMin() < 0 || astroAngle.getSec() < 0) {
+            astroAngle.setSign(-1);
         }
-        return getGrad(gradMinSec);
+        return getGrad(astroAngle);
     }
 
     /**
      * Преобразует градусы минуты секунды в градусы
      *
-     * @param gradMinSec
+     * @param astroAngle
      * @return
      */
-    public static double getGrad(GradMinSec gradMinSec) {
-        int sign = gradMinSec.getSign();
-        double D = Math.abs(gradMinSec.getGrad());
-        double M = Math.abs(gradMinSec.getMin());
-        double S = Math.abs(gradMinSec.getSec());
+    public static double getGrad(AstroAngle astroAngle) {
+        int sign = astroAngle.getSign();
+        double D = Math.abs(astroAngle.getGrad());
+        double M = Math.abs(astroAngle.getMin());
+        double S = Math.abs(astroAngle.getSec());
         return sign * (D + (M / 60) + (S / 3600));
     }
 
@@ -467,7 +467,7 @@ public class AstroUtils {
      * @param grad
      * @return
      */
-    public static GradMinSec getGradMinSec(double grad) {
+    public static AstroAngle getGradMinSec(double grad) {
         int sign = 1;
         if (grad < 0) {
             sign = -1;
@@ -477,25 +477,25 @@ public class AstroUtils {
         double y = (x - D) * 60;
         int M = (int) y;
         double z = (y - M) * 60;
-        GradMinSec gradMinSec = new GradMinSec(x, y, z);
-        gradMinSec.setSign(sign);
-        return gradMinSec;
+        AstroAngle astroAngle = new AstroAngle(x, y, z);
+        astroAngle.setSign(sign);
+        return astroAngle;
     }
 
     /**
      * Получаем градусы минуты секунды
      *
-     * @param gradMinSec
+     * @param astroAngle
      * @param format
      * @return
      */
-    public static String getGradMinSec(GradMinSec gradMinSec, AngleFormat format) {
-        int sign = gradMinSec.getSign();
-        double x = gradMinSec.getGrad();
+    public static String getGradMinSec(AstroAngle astroAngle, AngleFormat format) {
+        int sign = astroAngle.getSign();
+        double x = astroAngle.getGrad();
         int D = (int) x;
-        double y = gradMinSec.getMin();
+        double y = astroAngle.getMin();
         int M = (int) y;
-        double z = gradMinSec.getSec();
+        double z = astroAngle.getSec();
         double S = round(z, 2);
         switch (format) {
             case Dd:
@@ -512,16 +512,16 @@ public class AstroUtils {
     /**
      * Получаем градусы минуты секунды
      *
-     * @param gradMinSec
+     * @param astroAngle
      * @return
      */
-    public static String getGradMinSec(GradMinSec gradMinSec) {
-        int sign = gradMinSec.getSign();
-        double x = gradMinSec.getGrad();
+    public static String getGradMinSec(AstroAngle astroAngle) {
+        int sign = astroAngle.getSign();
+        double x = astroAngle.getGrad();
         int D = (int) x;
-        double y = gradMinSec.getMin();
+        double y = astroAngle.getMin();
         int M = (int) y;
-        double z = gradMinSec.getSec();
+        double z = astroAngle.getSec();
         double S = round(z, 3);
         return sign * D + " " + M + " " + S;
     }

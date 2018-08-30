@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "7.0.0.0.44" Java: "1.8.0_152-release" encoding: "UTF-8"
+JFDML JFormDesigner: "6.0.4.0.167" Java: "1.8.0_152-release" encoding: "UTF-8"
 
 new FormModel {
 	contentType: "form/swing"
@@ -12,7 +12,7 @@ new FormModel {
 			add( new FormContainer( "javax.swing.JTabbedPane", new FormLayoutManager( class javax.swing.JTabbedPane ) ) {
 				name: "tabbedPane1"
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-					"$horizontalGroup": "par l {seq l {par l:::p {seq {space :::p, comp panel3:::p::p}, comp panel8::::533:x}, space :::p, par l {comp panel6::::407:x, seq l {comp progressBar:::p:306:p, space :p:29:p, comp btnCancel:::p::p, space :0:17:x}, seq {comp btnOrbitViewer:::p:170:p, space ::237:x}, comp panel5::l:::x}}}"
+					"$horizontalGroup": "par l {seq l {par l:::p {seq {space :::p, comp panel3:::p::p}, comp panel8::::533:x}, space :::p, par l {comp panel6::::409:x, seq l {comp progressBar:::p:306:p, space :p:29:p, comp btnCancel:::p::p, space :0:0:x}, seq {comp btnOrbitViewer:::p:170:p, space :::x}, comp panel5::l:::x}}}"
 					"$verticalGroup": "par l {seq {space :::p, comp panel5:::p::p, space :p:19:p, comp btnOrbitViewer:::p::p, space :::p, comp panel6:::p:339:p, space :::x, par l {comp progressBar:::p:12:p, comp btnCancel:::p::p}, space :p:12:p}, seq {comp panel3:::::x, space :::p, comp panel8:::p::p}}"
 				} ) {
 					name: "panel1"
@@ -67,7 +67,7 @@ new FormModel {
 						} )
 					} )
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-						"$horizontalGroup": "par l {seq l {par t:::p {comp btnDownload::l:::x, comp jComboBoxSource::l:::x, comp btnUpdate::t:p:174:p, comp btnCelestiaFiles::t:::x}, space :::p, par l {comp checkBox1:::::x, seq {par l {comp checkBox2:::p:205:p, comp checkBox3:::p:205:p}, space :0:6:x}}, space :::p}}"
+						"$horizontalGroup": "par l {seq l {par t:::p {comp btnDownload::l:::x, comp jComboBoxSource::l:::x, comp btnUpdate::t:p:174:p, comp btnCelestiaFiles::t:::x}, space :::p, par l {comp checkBox1:::::x, seq {par l {comp checkBox2:::p:205:p, comp checkBox3:::p:205:p}, space :0:0:x}}, space :::p}}"
 						"$verticalGroup": "par l {seq l {par t {comp jComboBoxSource:::p::p, comp checkBox1:::p::p}, space :::p, par b {comp btnDownload::b:p::p, comp checkBox2::b:p::p}, space :::p, par b {comp checkBox3::b:p::p, comp btnUpdate::b:p::p}, space :::p, comp btnCelestiaFiles:::p::p}}"
 					} ) {
 						name: "panel5"
@@ -112,7 +112,7 @@ new FormModel {
 						"text": "Орбита"
 					} )
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-						"$horizontalGroup": "par l {seq {space :::p, par l {comp textFieldSearch::::391:x, seq {par l {comp label1::::385:x, comp panel7::t:::x}, space :::p}}}}"
+						"$horizontalGroup": "par l {seq {space :::p, par l {comp textFieldSearch:::::x, seq {par l {comp label1:::::x, comp panel7::t:::x}, space :::p}}}}"
 						"$verticalGroup": "par l {seq {comp label1:::p:18:p, space :::p, comp textFieldSearch:::p::p, space ::13:x, comp panel7:::p::p, space :::p}}"
 					} ) {
 						name: "panel6"
@@ -128,7 +128,7 @@ new FormModel {
 							"text": "Поиск"
 						} )
 						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-							"$horizontalGroup": "par l {seq l {space :::p, comp pnlAsteroidData::::363:x, space :::p}}"
+							"$horizontalGroup": "par l {seq l {space :::p, comp pnlAsteroidData:::::x, space :::p}}"
 							"$verticalGroup": "par l {seq l {space :::p, comp pnlAsteroidData::::214:x, space :::p}}"
 						} ) {
 							name: "panel7"
@@ -160,8 +160,8 @@ new FormModel {
 					"title": "Астероиды"
 				} )
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-					"$horizontalGroup": "par l {space :0:946:x}"
-					"$verticalGroup": "par l {space :0:564:x}"
+					"$horizontalGroup": "par l {space :0:948:x}"
+					"$verticalGroup": "par l {space :0:556:x}"
 				} ) {
 					name: "panel2"
 				}, new FormLayoutConstraints( null ) {
@@ -172,10 +172,10 @@ new FormModel {
 				name: "menuBar1"
 				add( new FormContainer( "javax.swing.JMenu", new FormLayoutManager( class javax.swing.JMenu ) ) {
 					name: "menu1"
-					"text": "text"
+					"text": "Меню"
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItem1"
-						"text": "text"
+						"text": "Калькулятор"
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuItem1ActionPerformed", true ) )
 					} )
 				} )

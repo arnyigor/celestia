@@ -1012,6 +1012,6 @@ public class OrbitViewer extends Applet implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        System.out.println(e.getSource());
+//        System.out.println(e.getSource());
     }
 }

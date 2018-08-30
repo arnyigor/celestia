@@ -7,83 +7,163 @@ new FormModel {
 			name: "this"
 			"title": "Калькулятор"
 			"iconImage": sfield com.jformdesigner.model.FormObject NULL_VALUE
+			"$sizePolicy": 1
+			"resizable": false
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 				name: "dialogPane"
 				"border": new javax.swing.border.EmptyBorder( 12, 12, 12, 12 )
-				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-					"$horizontalGroup": "par l {seq l {space :::p, comp tabbedPane1:::::x, space :::p}}"
-					"$verticalGroup": "par l {comp tabbedPane1::l:::x}"
-				} ) {
-					name: "contentPanel"
-					add( new FormContainer( "javax.swing.JTabbedPane", new FormLayoutManager( class javax.swing.JTabbedPane ) ) {
-						name: "tabbedPane1"
+				add( new FormContainer( "javax.swing.JTabbedPane", new FormLayoutManager( class javax.swing.JTabbedPane ) ) {
+					name: "tabbedPane1"
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+						"$horizontalGroup": "par l {seq {space :::p, par l {comp panel3:::p::p, comp panel4::l:p:298:p}, space ::345:x}}"
+						"$verticalGroup": "par l {seq l {space :::p, comp panel3:::p::p, space :::p, comp panel4:::p::p, space ::140:x}}"
+					} ) {
+						name: "panel1"
 						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-							"$horizontalGroup": "par l {seq {space :::p, par l {comp panel3:::p::p, comp panel4::l:p:298:p}, space ::448:x}}"
-							"$verticalGroup": "par l {seq l {space :::p, comp panel3:::p::p, space :::p, comp panel4:::p::p, space ::81:x}}"
+							"$horizontalGroup": "par l {seq l {par l {comp label1:::::x, seq {space :0:0:x, comp formattedGrads:::p:142:p}}, space :::p, par l {comp label2:::::x, seq {comp textFieldGradFloat:::p:140:p, space :0:0:x}}}}"
+							"$verticalGroup": "par l {seq l {par b {comp label1::b:p::p, comp label2::b:p::p}, space :::p, par b {comp formattedGrads::b:p::p, comp textFieldGradFloat::b:p::p}, space ::11:x}}"
 						} ) {
-							name: "panel1"
-							add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-								"$horizontalGroup": "par l {seq l {par l {comp label1:::::x, seq {space :0:0:x, comp formattedGrads:::p:142:p}}, space :::p, par l {comp label2:::::x, seq {comp textFieldGradFloat:::p:140:p, space :0:0:x}}}}"
-								"$verticalGroup": "par l {seq l {par b {comp label1::b:p::p, comp label2::b:p::p}, space :::p, par b {comp formattedGrads::b:p::p, comp textFieldGradFloat::b:p::p}, space ::11:x}}"
-							} ) {
-								name: "panel3"
-								"border": new javax.swing.border.TitledBorder( "Градусы" )
-								add( new FormComponent( "javax.swing.JLabel" ) {
-									name: "label1"
-									"text": "Градусы минуты секунды"
-								} )
-								add( new FormComponent( "javax.swing.JFormattedTextField" ) {
-									name: "formattedGrads"
-									addEvent( new FormEvent( "java.awt.event.KeyListener", "keyReleased", "formattedTextFieldKeyReleased", true ) )
-								} )
-								add( new FormComponent( "javax.swing.JLabel" ) {
-									name: "label2"
-									"text": "Градусы"
-								} )
-								add( new FormComponent( "javax.swing.JTextField" ) {
-									name: "textFieldGradFloat"
-									"cursor": new java.awt.Cursor( 2 )
-									"toolTipText": "Latitude"
-									addEvent( new FormEvent( "java.awt.event.KeyListener", "keyReleased", "textFieldGradFloatKeyReleased", true ) )
-								} )
+							name: "panel3"
+							"border": new javax.swing.border.TitledBorder( "Градусы" )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "label1"
+								"text": "Градусы минуты секунды"
 							} )
-							add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-								"$horizontalGroup": "par l {seq l {space :::p, par l:::p {comp label3:::::x, comp formattedTextFieldDate:::::x}, space :::p, par l {comp label4:::p:106:p, comp textFieldJD:::p:115:p}, space :::x}}"
-								"$verticalGroup": "par l {seq l {par b {comp label3::b:p::p, comp label4::b:p::p}, space :0:0:x}, seq l {space :p:17:p, par b {comp formattedTextFieldDate::b:p::p, comp textFieldJD::b:p::p}, space :::x}}"
-							} ) {
-								name: "panel4"
-								"border": new javax.swing.border.TitledBorder( "JD" )
-								add( new FormComponent( "javax.swing.JFormattedTextField" ) {
-									name: "formattedTextFieldDate"
-									addEvent( new FormEvent( "java.awt.event.KeyListener", "keyReleased", "formattedTextFieldDateKeyReleased", true ) )
-								} )
-								add( new FormComponent( "javax.swing.JTextField" ) {
-									name: "textFieldJD"
-									addEvent( new FormEvent( "java.awt.event.KeyListener", "keyReleased", "textFieldJDKeyReleased", true ) )
-								} )
-								add( new FormComponent( "javax.swing.JLabel" ) {
-									name: "label3"
-									"text": "Дата(dd MM yyyy HH:mm:ss)"
-								} )
-								add( new FormComponent( "javax.swing.JLabel" ) {
-									name: "label4"
-									"text": "JD"
-								} )
+							add( new FormComponent( "javax.swing.JFormattedTextField" ) {
+								name: "formattedGrads"
+								addEvent( new FormEvent( "java.awt.event.KeyListener", "keyReleased", "formattedTextFieldKeyReleased", true ) )
 							} )
-						}, new FormLayoutConstraints( null ) {
-							"title": "Общее"
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "label2"
+								"text": "Градусы"
+							} )
+							add( new FormComponent( "javax.swing.JTextField" ) {
+								name: "textFieldGradFloat"
+								"cursor": new java.awt.Cursor( 2 )
+								"toolTipText": "Latitude"
+								addEvent( new FormEvent( "java.awt.event.KeyListener", "keyReleased", "textFieldGradFloatKeyReleased", true ) )
+							} )
 						} )
 						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-							"$horizontalGroup": "par l {space :0:752:x}"
-							"$verticalGroup": "par l {space :0:243:x}"
+							"$horizontalGroup": "par l {seq l {space :::p, par l:::p {comp label3:::::x, comp formattedTextFieldDate:::::x}, space :::p, par l {comp label4:::p:106:p, comp textFieldJD:::p:115:p}, space :::x}}"
+							"$verticalGroup": "par l {seq l {par b {comp label3::b:p::p, comp label4::b:p::p}, space :0:0:x}, seq l {space :p:17:p, par b {comp formattedTextFieldDate::b:p::p, comp textFieldJD::b:p::p}, space :::x}}"
 						} ) {
-							name: "panel2"
-						}, new FormLayoutConstraints( null ) {
-							"title": "Спец"
+							name: "panel4"
+							"border": new javax.swing.border.TitledBorder( "JD" )
+							add( new FormComponent( "javax.swing.JFormattedTextField" ) {
+								name: "formattedTextFieldDate"
+								addEvent( new FormEvent( "java.awt.event.KeyListener", "keyReleased", "formattedTextFieldDateKeyReleased", true ) )
+							} )
+							add( new FormComponent( "javax.swing.JTextField" ) {
+								name: "textFieldJD"
+								addEvent( new FormEvent( "java.awt.event.KeyListener", "keyReleased", "textFieldJDKeyReleased", true ) )
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "label3"
+								"text": "Дата(dd MM yyyy HH:mm:ss)"
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "label4"
+								"text": "JD"
+							} )
 						} )
+					}, new FormLayoutConstraints( null ) {
+						"title": "Общее"
+					} )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+						"$horizontalGroup": "par l {seq l {space :::p, par l {comp label5:::p::p, comp label6::l:p::p, comp label7::l:p::p, comp label8::l:p::p, comp label9::l:p::p, comp label10::l:p::p, comp label11::l:p::p, comp label12::l:p::p}, space :::p, par l {par l:l::p {comp edtMass::l:::x, comp edtRadius::l:::x, comp edtHp::l:::x, comp edtHa::l:p:164:p}, comp edtVp::l:p:164:p, comp edtEcc::l:p:164:p, comp edtSma::l:p:164:p, comp edtPeriod::l:p:164:p, comp btnOrbitCalc::l:p:164:p}, space :::p, comp scrollPane1:::p:429:p, space ::12:x}}"
+						"$verticalGroup": "par l {seq {space :::p, par l {seq {par b {comp edtMass::b:p::p, comp label5::b:p::p}, space :::p, par b {comp edtRadius::b:p::p, comp label6::b:p::p}, space :::p, par b {comp edtHp::b:p::p, comp label7::b:p::p}, space :::p, par b {comp edtHa::b:p::p, comp label8::b:p::p}, space :p:8:p, par b {comp edtVp::b:p::p, comp label9::b:p::p}, space :::p, par b {comp edtEcc::b:p::p, comp label10::b:p::p}, space :::p, par b {comp edtSma::b:p::p, comp label11::b:p::p}, space :::p, par b {comp edtPeriod::b:p::p, comp label12::b:p::p}, space :::p, comp btnOrbitCalc:::p::p, space :0:30:x}, comp scrollPane1::l::296:x}}}"
+					} ) {
+						name: "panel2"
+						add( new FormComponent( "javax.swing.JTextField" ) {
+							name: "edtMass"
+							"toolTipText": "Масса"
+							addEvent( new FormEvent( "java.awt.event.KeyListener", "keyReleased", "edtMassKeyReleased", true ) )
+						} )
+						add( new FormComponent( "javax.swing.JTextField" ) {
+							name: "edtRadius"
+							"toolTipText": "Радиус"
+							addEvent( new FormEvent( "java.awt.event.KeyListener", "keyReleased", "edtRadiusKeyReleased", true ) )
+						} )
+						add( new FormComponent( "javax.swing.JTextField" ) {
+							name: "edtHp"
+							"toolTipText": "Высота перигея"
+							addEvent( new FormEvent( "java.awt.event.KeyListener", "keyReleased", "edtHpKeyReleased", true ) )
+						} )
+						add( new FormComponent( "javax.swing.JTextField" ) {
+							name: "edtHa"
+							"toolTipText": "Высота апогея"
+							addEvent( new FormEvent( "java.awt.event.KeyListener", "keyReleased", "edtHaKeyReleased", true ) )
+						} )
+						add( new FormComponent( "javax.swing.JTextField" ) {
+							name: "edtEcc"
+							"toolTipText": "Эксцентриситет"
+							addEvent( new FormEvent( "java.awt.event.KeyListener", "keyReleased", "edtEccKeyReleased", true ) )
+						} )
+						add( new FormComponent( "javax.swing.JTextField" ) {
+							name: "edtSma"
+							"toolTipText": "Большая полуось"
+							addEvent( new FormEvent( "java.awt.event.KeyListener", "keyReleased", "edtSmaKeyReleased", true ) )
+						} )
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "btnOrbitCalc"
+							"text": "Calc"
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnOrbitCalcActionPerformed", true ) )
+						} )
+						add( new FormComponent( "javax.swing.JTextField" ) {
+							name: "edtVp"
+							"toolTipText": "Скорость перигея"
+							"cursor": new java.awt.Cursor( 2 )
+							addEvent( new FormEvent( "java.awt.event.KeyListener", "keyReleased", "edtVpKeyReleased", true ) )
+						} )
+						add( new FormComponent( "javax.swing.JTextField" ) {
+							name: "edtPeriod"
+							"toolTipText": "Период"
+							addEvent( new FormEvent( "java.awt.event.KeyListener", "keyReleased", "edtSmaKeyReleased", true ) )
+						} )
+						add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+							name: "scrollPane1"
+							add( new FormComponent( "javax.swing.JTextPane" ) {
+								name: "txtPaneOrbitInfo"
+							} )
+						} )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "label5"
+							"text": "M:"
+						} )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "label6"
+							"text": "R:"
+						} )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "label7"
+							"text": "Peri:"
+						} )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "label8"
+							"text": "Apo:"
+						} )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "label9"
+							"text": "Vp:"
+						} )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "label10"
+							"text": "Ecc:"
+						} )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "label11"
+							"text": "Sma:"
+						} )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "label12"
+							"text": "P:"
+						} )
+					}, new FormLayoutConstraints( null ) {
+						"title": "Орбита"
 					} )
 				}, new FormLayoutConstraints( class java.lang.String ) {
-					"value": "Center"
+					"value": "North"
 				} )
 			}, new FormLayoutConstraints( class java.lang.String ) {
 				"value": "North"
@@ -107,7 +187,7 @@ new FormModel {
 			}
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 790, 345 )
+			"size": new java.awt.Dimension( 665, 415 )
 		} )
 	}
 }

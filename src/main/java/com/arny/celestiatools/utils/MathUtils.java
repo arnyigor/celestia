@@ -16,6 +16,17 @@ public class MathUtils {
         return df.format(d).replace(",",".");
     }
 
+    public static String toExpo(double number, int precision) {
+        if (precision <= 0) {
+            precision = 1;
+        }
+        StringBuilder prec = new StringBuilder();
+        for (int i = 0; i < precision; i++) {
+            prec.append("0");
+        }
+        return new DecimalFormat("0." + prec.toString() + "E0").format(number).replace(",", ".");
+    }
+
     /**
      * дробная часть числа
      *

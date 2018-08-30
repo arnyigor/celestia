@@ -96,7 +96,7 @@ public class ATime {
     public void changeDate(TimeSpan Span, int nIncOrDec) {
         double fHms1 = this.nHour * 3600 + this.nMin * 60.0 + this.fSec;
         double fHms2 = Span.getnHour() * 3600 + Span.getnMin() * 60.0 + Span.getfSec();
-        System.out.println(fHms1);
+//        System.out.println(fHms1);
         fHms1 += (nIncOrDec == F_INCTIME) ? fHms2 : -fHms2;
         int nDay1;
         if (0.0 <= fHms1 && fHms1 < 86400.0) {

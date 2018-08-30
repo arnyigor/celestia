@@ -8,7 +8,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.sql.*;
 import java.util.*;
 
 import com.arny.celestiatools.models.*;
@@ -16,12 +15,14 @@ import com.arny.celestiatools.utils.*;
 import com.arny.celestiatools.utils.astronomy.*;
 import com.arny.celestiatools.utils.celestia.ATime;
 import com.arny.celestiatools.utils.celestia.OrbitViewer;
+import com.arny.celestiatools.utils.circularmotion.CircularMotion;
+import com.arny.celestiatools.utils.circularmotion.EllipseMotion;
+import com.arny.celestiatools.utils.circularmotion.OrbitCalcKt;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -29,7 +30,6 @@ import org.json.simple.parser.JSONParser;
 import javax.swing.*;
 
 import static com.arny.celestiatools.controller.SqliteConnection.getConnection;
-import static com.arny.celestiatools.utils.astronomy.AstroUtils.DistanceConvert;
 
 public class Controller {
 
@@ -332,7 +332,7 @@ public class Controller {
     }
 
     private void convertJsonAsteroid(JSONObject astroObject, CelestiaAsteroid asteroid) {
-        System.out.println(astroObject);
+//        System.out.println(astroObject);
         String name;
         if (astroObject.get("Name") == null) {
             name = astroObject.get("Principal_desig").toString();
@@ -507,7 +507,7 @@ public class Controller {
         }
         double grad1 = Double.parseDouble(floatedGrads);
         grad1 = AstroUtils.correctAngle(grad1, 360);
-        GradMinSec gms = AstroUtils.getGradMinSec(grad1);
+        AstroAngle gms = AstroUtils.getGradMinSec(grad1);
         int grad = (int) gms.getGrad();
         int min = (int) gms.getMin();
         double sec = gms.getSec();
@@ -541,6 +541,10 @@ public class Controller {
         celestialObject.computeElements(datePosition);
         double lengthOfDay = Ephemeris.getLengthOfDay(datePosition);
         System.out.println("solarDistance velocity:" + lengthOfDay);
+    }
+
+    public void orbitcalc(double mass, double radius, double hp, double ha, double vp, double ecc, double sma, double period) {
+
     }
 
     public void testTime() {

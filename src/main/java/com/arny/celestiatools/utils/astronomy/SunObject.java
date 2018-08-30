@@ -228,8 +228,7 @@ public class SunObject extends SolarSystemObject {
             double v1 = B[i] + (C[i] * T);
             S += A[i] * MathUtils.Cos(v1);
         }
-//        return ((PlanetOpenGLView.DISTANCE_SCALE * S) / deltaLambda) + jde0;
-        return 0.0;
+        return (S/ deltaLambda) + jde0;
     }
 
     public RiseSetEvent getMorningTwilight(DatePosition datePosition, double h0) {

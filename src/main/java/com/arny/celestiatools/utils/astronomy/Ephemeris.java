@@ -717,13 +717,19 @@ public class Ephemeris {
     public static double getLengthOfDay(DatePosition datePosition) {
         SunObject sun = new SunObject();
         Coordinates3D coord = sun.getTopocentricEquatorialCoordinates(datePosition);
-        if (isCircumpolar(datePosition.getGeoLocation(), coord, sun.geth0())) {
+        boolean circumpolar = isCircumpolar(datePosition.getGeoLocation(), coord, sun.geth0());
+        if (circumpolar) {
             return 24.0d;
         }
-        if (isAlwaysBelowHorizon(datePosition.getGeoLocation(), coord, sun.geth0())) {
+        boolean alwaysBelowHorizon = isAlwaysBelowHorizon(datePosition.getGeoLocation(), coord, sun.geth0());
+        if (alwaysBelowHorizon) {
             return 0.0d;
         }
-        return getTimeBetween0and24(sun.getSet(datePosition).getTime() - sun.getRise(datePosition).getTime());
+        RiseSetEvent set = sun.getSet(datePosition);
+        RiseSetEvent rise = sun.getRise(datePosition);
+        double setTime = set.getTime();
+        double riseTime = rise.getTime();
+        return getTimeBetween0and24(setTime - riseTime);
     }
 
     public static double getAngularSpeed(CelestialObject celestialObject, DatePosition datePosition) {
